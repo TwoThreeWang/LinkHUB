@@ -1,0 +1,13 @@
+{{ define "content" }}
+    <div class="result-container">
+        <div class="result-box">
+            <h2>{{ .title }}</h2>
+            <p class="result-message">{{ .message }}</p>
+            {{ if .redirect_url }}
+            <div class="result-action">
+                <a href="{{ .redirect_url }}" class="btn btn-primary">{{ .redirect_text }}</a>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

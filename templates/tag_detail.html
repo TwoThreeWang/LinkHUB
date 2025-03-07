@@ -1,0 +1,62 @@
+{{ define "content" }}
+<div class="container">
+    <div class="tag-header">
+        <h2>{{ .tag.Name }}</h2>
+        {{ if .tag.Description }}
+        <p class="tag-description">{{ .tag.Description }}</p>
+        {{ end }}
+        <div class="tag-meta">
+            <span class="tag-count">{{ .tag.LinkCount }} 个链接</span>
+        </div>
+    </div>
+
+    <div class="link-list">
+        {{ if .links }}
+        <div class="sort-options">
+            <span>排序：</span>
+            <a href="?sort=newest" class="{{ if eq .sort `newest` }}active{{ end }}">最新</a>
+            <a href="?sort=popular" class="{{ if eq .sort `popular` }}active{{ end }}">最热</a>
+        </div>
+
+        <ul class="product-grid">
+            {{ range .links }}
+            <article class="product-card">
+                <div class="product-content">
+                    <h3 class="product-title">
+                        <a href="/links/{{ .ID }}">{{ .Title }}</a>
+                    </h3>
+                    <p class="product-description">{{ .Description }}</p>
+                    <div class="product-tags" role="list">
+                        {{ range .Tags }}
+                        <a href="/tags/{{ .Slug }}" class="tag" role="listitem">{{ .Name }}</a>
+                        {{ end }}
+                    </div>
+                    <div class="product-meta">
+                        <span class="time">{{ .CreatedAt.Format "2006-01-02" }}</span>
+                        <a href="/links/{{ .ID }}#comments" aria-label="查看评论">评论</a>
+                        <a href="{{ .URL }}" target="_blank" rel="noopener" class="visit-link">访问网站 →</a>
+                    </div>
+                </div>
+            </article>
+            {{ end }}
+        </ul>
+
+        {{ if gt .totalPages 1 }}
+        <div class="pagination">
+            {{ if gt .page 1 }}
+            <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn">上一页</a>
+            {{ end }}
+            <span class="page-info">第 {{ .page }} 页，共 {{ .totalPages }} 页</span>
+            {{ if lt .page .totalPages }}
+            <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn">下一页</a>
+            {{ end }}
+        </div>
+        {{ end }}
+        {{ else }}
+        <div class="empty-state">
+            <p>该标签下暂无链接</p>
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}

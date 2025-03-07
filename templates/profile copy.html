@@ -1,0 +1,65 @@
+{{ define "content" }}
+<div class="container">
+    <div class="main-content">
+        <div class="sidebar">
+            <h3 class="sidebar-title">用户中心</h3>
+            <ul class="sidebar-links">
+                <li><a href="?sort=top" class="active"><span class="sidebar-icon">👤</span> 概览</a></li>
+                <li><a href="/user/products"><span class="sidebar-icon">📦</span> 我的产品</a></li>
+                <li><a href="/user/favorites"><span class="sidebar-icon">⭐</span> 我的收藏</a></li>
+                <li><a href="/user/comments"><span class="sidebar-icon">💬</span> 我的评论</a></li>
+                <li><a href="/user/notifications"><span class="sidebar-icon">🔔</span> 通知中心</a></li>
+                <li><a href="/auth/logout"><span class="sidebar-icon">⚙️</span> 账户设置</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="form-container auth-form">
+                <h2 class="section-title">个人资料</h2>
+                <form action="/user/profile" method="POST" class="profile-form">
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" name="username" value="{{ .userInfo.Username }}" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" name="email" value="{{ .userInfo.Email }}" required disabled class="form-control">
+                        <small class="form-text text-muted">邮箱地址不可更改</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">个人简介</label>
+                        <textarea id="bio" name="bio" rows="4" placeholder="写点什么来介绍自己..." class="form-control">{{ .userInfo.Bio }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="website">个人网站</label>
+                        <input type="url" id="website" name="website" value="{{ .userInfo.Website }}" placeholder="http://example.com" class="form-control">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存更改</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="profile-stats mt-xxl">
+                <h3 class="section-title">数据统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">📊</div>
+                        <span class="stat-value">{{ .stats.LinkCount }}</span>
+                        <span class="stat-label">分享的链接</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💭</div>
+                        <span class="stat-value">{{ .stats.CommentCount }}</span>
+                        <span class="stat-label">发表的评论</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🏷️</div>
+                        <span class="stat-value">{{ .stats.TagCount }}</span>
+                        <span class="stat-label">使用的标签</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

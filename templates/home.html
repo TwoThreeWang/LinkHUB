@@ -1,0 +1,57 @@
+{{ define "content" }}
+    <div class="main-content">
+        <div class="sidebar">
+            <h3 class="sidebar-title">发现</h3>
+            <ul class="sidebar-links">
+                <li><a href="?sort=top"><span class="sidebar-icon">🔥</span> 热门</a></li>
+                <li><a href="?sort=new"><span class="sidebar-icon">⬆️</span> 最新</a></li>
+            </ul>
+
+            <h3 class="sidebar-title mt-xxl">热门标签</h3>
+            <ul class="sidebar-links">
+                {{ range .popularTags }}
+                <li><a href="/tags/{{ .Name }}"><span class="sidebar-icon">🏷️</span> {{ .Name }}</a></li>
+                {{ end }}
+            </ul>
+        </div>
+
+        <div class="content">
+            <h2>{{ if eq .sort "top" }}热门链接{{ else }}最新链接{{ end }}</h2>
+
+            <div class="product-list">
+                {{ range .links }}
+                <article class="product-card">
+                    <div class="product-vote">
+                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
+                            <span aria-hidden="true">▲</span>
+                            <span class="vote-count">{{ .VoteCount }}</span>
+                        </a>
+                    </div>
+                    <div class="product-info">
+                        <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
+                        <p class="product-description">{{ .Description }}</p>
+                        <div class="product-tags" role="list">
+                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link">访问网站 →</a>
+                            {{ range .Tags }}
+                            <a href="/tags/{{ .Name }}" class="tag" role="listitem">{{ .Name }}</a>
+                            {{ end }}
+                        </div>
+                    </div>
+                </article>
+                {{ end }}
+            </div>
+
+            {{ if gt .totalPages 1 }}
+            <div class="pagination">
+                {{ if gt .page 1 }}
+                <a href="?page={{ .page }}&sort={{ .sort }}" class="btn">上一页</a>
+                {{ end }}
+                <span class="page-info">第 {{ .page }} 页，共 {{ .totalPages }} 页</span>
+                {{ if lt .page .totalPages }}
+                <a href="?page={{ .page }}&sort={{ .sort }}" class="btn">下一页</a>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

@@ -1,0 +1,139 @@
+{{ define "content" }}
+    <div class="product-header">
+        <div class="product-vote">
+            <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote" {{ if .voted }}disabled{{ end }}>
+                <span aria-hidden="true">▲</span>
+                <span class="vote-count">{{ .link.VoteCount }}</span>
+            </a>
+            <span class="vote-label">投票支持</span>
+        </div>
+
+        <div class="product-header-info">
+            <a class="product-title" href="{{ .link.URL }}" target="_blank" rel="noopener"><h1 class="product-title">{{ .link.Title }}</h1></a>
+            <div class="product-stats">
+                <div class="stat">
+                    <span class="stat-icon">👁️</span>
+                    <span> 10 次点击</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">💬</span>
+                    <span>{{ len .comments }} 条评论</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">🔗</span>
+                    <a href="{{ .link.URL }}" target="_blank" class="visit-link" rel="noopener">访问网站</a>
+                </div>
+            </div>
+            <div class="product-tags">
+                {{ range .link.Tags }}
+                <a href="/tags/{{ .Name }}" class="tag">{{ .Name }}</a>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+
+    <div class="product-content">
+        <div class="product-main">
+            {{ if .link.Description }}
+            <div class="product-description">
+                <h2 class="section-title">关于 {{ .link.Title }}</h2>
+                <p>{{ .link.Description }}</p>
+            </div>
+            {{ end }}
+
+            <div class="comments-section">
+                <h2 class="section-title">评论 ({{ len .comments }})</h2>
+
+                {{ if .userInfo }}
+                <div class="new-comment">
+                    <form action="/comments" method="POST">
+                        <input type="hidden" name="link_id" value="{{ .link.ID }}">
+                        <textarea name="content" class="comment-textarea" placeholder="分享你的想法..."></textarea>
+                        <button type="submit" class="btn btn-primary">发表评论</button>
+                    </form>
+                </div>
+                {{ else }}
+                <div class="comment-login">
+                    <p>请 <a href="/auth/login" class="btn btn-outline">登录</a> 或 <a href="/auth/register" class="btn btn-outline">注册</a> 以发表评论</p>
+                </div>
+                {{ end }}
+
+                <div class="comment-list">
+                    {{ range .comments }}
+                    <div class="comment">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ .User.Username }}</span>
+                            <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                            <a href="javascript:void(0);" class="comment-time" onclick="toggleReplyForm('{{ .ID }}')">回复</a>
+                        </div>
+                        <p class="comment-text">{{ .Content }}</p>
+                        {{ if $.userInfo }}
+                        <div class="reply-form" id="reply-form-{{ .ID }}" style="display: none;">
+                            <form action="/comments" method="POST" class="comment-reply-form">
+                                <input type="hidden" name="link_id" value="{{ $.link.ID }}">
+                                <input type="hidden" name="parent_id" value="{{ .ID }}">
+                                <textarea name="content" class="comment-textarea" placeholder="回复 {{ .User.Username }}..."></textarea>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">发表回复</button>
+                                    <button type="button" class="btn btn-outline" onclick="toggleReplyForm('{{ .ID }}')">取消</button>
+                                </div>
+                            </form>
+                        </div>
+                        {{ end }}
+                        {{ if .Replies }}
+                        <div class="comment-replies">
+                            {{ range .Replies }}
+                            <div class="comment reply">
+                                <div class="comment-content">
+                                    <div class="comment-header">
+                                        <span class="comment-author">{{ .User.Username }}</span>
+                                        <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                                    </div>
+                                    <p class="comment-text">{{ .Content }}</p>
+                                </div>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+
+        <div class="product-sidebar">
+            <div class="sidebar-section maker-profile-container">
+                <div class="maker-profile">
+                    <div class="maker-info">
+                        <div class="maker-name">{{ .link.User.Username }}</div>
+                        <div class="maker-title">{{ .link.Title }} 创建人</div>
+                    </div>
+                </div>
+                <div class="product-links">
+                    <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100 mb-md">
+                        <span class="link-icon">🏠</span> 查看创建者
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title section-title-clean">相关产品</h3>
+                <div class="related-products">
+                    <a class="related-product" href="/">
+                        <div class="related-product-info">
+                            <div class="related-product-title">TeamSync</div>
+                            <div class="related-product-votes">竹林是一个类似抽...</div>
+                        </div>
+                    </a>
+                    <a class="related-product" href="/">
+                        <div class="related-product-info">
+                            <div class="related-product-title">WorkFlow Pro</div>
+                            <div class="related-product-votes">76 票</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/comment.js"></script>
+{{ end }}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">LinkHUB</a>
+                <button class="menu-toggle" aria-label="切换菜单">
+                    <span>☰</span>
+                </button>
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索链接、标签或用户...">
+                </div>
+                <div class="nav-links">
+                    <a class="menu-close" aria-label="关闭菜单">✕</a>
+                    <a href="/">首页</a>
+                    <a href="/tags">标签</a>
+                    <a href="/links/new" class="btn btn-primary">分享链接</a>
+                    {{ if .userInfo }}
+                        <a href="/user/profile">👤{{ .userInfo.Username }}</a>
+                    {{ else }}
+                        <a href="/auth/login">登录</a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        {{ template "content" . }}
+    </div>
+    <div class="menu-overlay"></div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#">关于我们</a>
+                    <a href="#">使用条款</a>
+                    <a href="#">隐私政策</a>
+                    <a href="#">帮助中心</a>
+                    <a href="#">联系我们</a>
+                </div>
+                <div class="copyright">
+                    © 2025 LinkHUB.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/script.js"></script>
+</html>

@@ -1,0 +1,32 @@
+# 服务器配置
+server:
+  port: 5002
+  mode: debug # 可选：debug, release
+
+# 数据库配置
+database:
+  host: 192.168.80.155
+  port: 5432
+  user: postgres
+  password: 123456
+  dbname: linkhub
+  sslmode: disable
+
+# JWT配置
+jwt:
+  secret: your-secret-key
+  expire_hours: 24
+
+# 分页配置
+pagination:
+  default_page_size: 10
+  max_page_size: 100
+
+# 上传配置
+upload:
+  max_size: 5 # MB
+  allowed_types:
+    - .jpg
+    - .jpeg
+    - .png
+  storage_path: ./uploads
