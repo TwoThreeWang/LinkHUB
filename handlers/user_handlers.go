@@ -177,17 +177,18 @@ func Logout(c *gin.Context) {
 
 // ShowProfile 显示用户个人资料页面
 func ShowProfile(c *gin.Context) {
-	// 获取URL中的用户ID参数
-	userID := c.Param("id")
 	refer := c.GetHeader("Referer")
 	if refer == "" {
 		refer = "/"
 	}
-	var userInfo *models.User
-
-	if userID != "" {
-		// 如果提供了用户ID，查找对应用户
-		id, err := strconv.ParseUint(userID, 10, 64)
+	// 获取参数
+	sort := c.DefaultQuery("sort", "overview")
+	var userID uint
+	userInfo := GetCurrentUser(c)
+	// 获取URL中的用户ID参数
+	userIDStr := c.Param("id")
+	if userIDStr != "" {
+		parsedID, err := strconv.ParseUint(userIDStr, 10, 64)
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "result", gin.H{
 				"title":         "Error",
@@ -197,27 +198,50 @@ func ShowProfile(c *gin.Context) {
 			})
 			return
 		}
-
-		// 查询指定用户
-		var user models.User
-		result := database.GetDB().First(&user, id)
-		if result.Error != nil {
+		userID = uint(parsedID)
+	} else {
+		if userInfo == nil {
 			c.HTML(http.StatusBadRequest, "result", gin.H{
 				"title":         "Error",
-				"message":       "用户不存在或已被删除",
-				"redirect_text": "返回",
-				"redirect_url":  refer,
+				"message":       "请先登录后查看个人中心",
+				"redirect_text": "去登陆",
+				"redirect_url":  "/auth/login",
 			})
 			return
 		}
-		userInfo = &user
-	} else {
-		// 如果没有提供用户ID，显示当前登录用户的资料
-		userInfo = GetCurrentUser(c)
+		userID = userInfo.ID
+	}
+
+	// 查询指定用户数据
+	var user models.User
+	var result error
+	switch sort {
+	case "overview":
+		result = database.GetDB().Preload("Links").Preload("Comments").Preload("Votes").First(&user, userID).Error
+	case "links":
+		result = database.GetDB().Preload("Links.Tags").First(&user, userID).Error
+	case "comments":
+		result = database.GetDB().Preload("Comments.Link").First(&user, userID).Error
+	case "votes":
+		result = database.GetDB().Preload("Votes.Link").First(&user, userID).Error
+	default:
+		user = *userInfo
+		result = nil
+	}
+	if result != nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "用户不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
 	}
 
 	c.HTML(http.StatusOK, "profile", gin.H{
-		"title":    userInfo.Username+"'s 主页 - LinkHUB",
+		"title":    user.Username + "'s 主页 - LinkHUB",
+		"user":     user,
+		"sort":     sort,
 		"userInfo": userInfo,
 	})
 }
@@ -225,26 +249,25 @@ func ShowProfile(c *gin.Context) {
 // UpdateProfile 更新用户个人资料
 func UpdateProfile(c *gin.Context) {
 	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
-		return
+	userInfo := GetCurrentUser(c)
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
 	}
-	user := userInterface.(models.User)
-
 	// 获取表单数据
-	username := c.PostForm("username")
+	username := c.PostForm("Username")
 	email := c.PostForm("email")
+	avatar := c.PostForm("Avatar")
 	bio := c.PostForm("bio")
 	password := c.PostForm("password")
-	newPassword := c.PostForm("new_password")
 
 	// 验证表单数据
 	if username == "" || email == "" {
-		c.HTML(http.StatusBadRequest, "profile", gin.H{
-			"title": "个人资料 - LinkHUB",
-			"user":  user,
-			"error": "用户名和邮箱是必填的",
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "用户名和邮箱是必填的",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
 		})
 		return
 	}
@@ -253,47 +276,40 @@ func UpdateProfile(c *gin.Context) {
 	updates := map[string]interface{}{
 		"username": username,
 		"email":    email,
+		"avatar":   avatar,
 		"bio":      bio,
 	}
 
 	// 如果提供了新密码，则更新密码
-	if newPassword != "" {
-		// 验证当前密码
-		if !user.CheckPassword(password) {
-			c.HTML(http.StatusBadRequest, "profile", gin.H{
-				"title": "个人资料 - LinkHUB",
-				"user":  user,
-				"error": "当前密码错误",
-			})
-			return
-		}
-
-		updates["password"] = newPassword
+	if password != "" {
+		updates["password"] = password
 	}
 
 	// 清除用户缓存
 	cacheMutex.Lock()
-	delete(userCache, user.ID)
+	delete(userCache, userInfo.ID)
 	cacheMutex.Unlock()
 
 	// 保存更新到数据库
-	result := database.GetDB().Model(&user).Updates(updates)
+	result := database.GetDB().Model(&userInfo).Updates(updates)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "profile", gin.H{
-			"title": "个人资料 - LinkHUB",
-			"user":  user,
-			"error": "更新失败: " + result.Error.Error(),
+		c.HTML(http.StatusInternalServerError, "result", gin.H{
+			"title":         "Error",
+			"message":       "更新失败: " + result.Error.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
 		})
 		return
 	}
 
 	// 重新加载用户信息
-	database.GetDB().First(&user, user.ID)
+	database.GetDB().First(&userInfo, userInfo.ID)
 
-	c.HTML(http.StatusOK, "profile", gin.H{
-		"title":   "个人资料 - LinkHUB",
-		"user":    user,
-		"success": "个人资料更新成功",
+	c.HTML(http.StatusInternalServerError, "result", gin.H{
+		"title":         "Success",
+		"message":       "个人资料更新成功",
+		"redirect_text": "返回",
+		"redirect_url":  refer,
 	})
 }
 

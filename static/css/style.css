@@ -53,6 +53,19 @@ a:hover {
     text-decoration: none;
     text-align: center;
     font-size: 0.9rem;
+    transition: color 0.2s;
+    transition: background-color 0.2s;
+    transition: border-color 0.2s;
+}
+
+.btn-base {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--light-gray);
+}
+
+.btn-base:hover {
+    background-color: var(--light-gray);
 }
 
 .btn-primary {
@@ -553,10 +566,10 @@ header {
 }
 
 .sidebar-section {
-    background-color: var(--secondary-color);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--light-gray);
 }
 
 .maker-profile {
@@ -640,6 +653,42 @@ header {
 .related-product-votes {
     font-size: var(--font-size-sm);
     color: var(--dark-gray);
+}
+
+.stats-cards {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-rows: repeat(2, 100px);
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    flex: 1;
+    padding: 1.5rem;
+    text-align: center;
+    min-width: 200px;
+}
+
+.stats-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stats-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.stats-label {
+    color: #666;
 }
 
 /* 产品详情页特定样式 */
@@ -1022,7 +1071,7 @@ header {
 /* 布局类 */
 .flex-1 { flex: 1; }
 .flex-grow-1 { flex-grow: 1; }
-.w-100 { width: 100%; }
+.w-100 { width: 100%;display: block; }
 /* 列表样式 */
 .list-style-none {
     list-style-type: none;

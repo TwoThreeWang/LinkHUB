@@ -23,12 +23,12 @@ func SetupRoutes(r *gin.Engine) {
 	}
 
 	// 用户相关路由
-	user := r.Group("/user", middleware.AuthRequired())
+	user := r.Group("/user")
 	{
-		user.GET("/profile", handlers.ShowProfile)
+		user.GET("/profile", middleware.AuthRequired(), handlers.ShowProfile)
 		user.GET("/profile/:id", handlers.ShowProfile)
-		user.PUT("/profile", handlers.UpdateProfile)
-		user.GET("/links", handlers.UserLinks)
+		user.POST("/profile", middleware.AuthRequired(), handlers.UpdateProfile)
+		user.GET("/links", middleware.AuthRequired(), handlers.UserLinks)
 	}
 
 	// 链接相关路由
