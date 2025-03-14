@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateComment 创建评论
-func CreateComment(c *gin.Context) {
+// CreateArticleComment 创建文章评论
+func CreateArticleComment(c *gin.Context) {
 	refer := c.GetHeader("Referer")
 	if refer == "" {
 		refer = "/"
@@ -28,12 +28,12 @@ func CreateComment(c *gin.Context) {
 	}
 
 	// 获取表单数据
-	linkID, err := strconv.Atoi(c.PostForm("link_id"))
+	articleID, err := strconv.Atoi(c.PostForm("article_id"))
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"userInfo":      userInfo,
 			"title":         "Error",
-			"message":       "无效的链接ID",
+			"message":       "无效的文章ID",
 			"redirect_text": "返回",
 			"redirect_url":  refer,
 		})
@@ -55,10 +55,10 @@ func CreateComment(c *gin.Context) {
 	}
 
 	// 创建评论
-	comment := models.Comment{
-		LinkID:  uint(linkID),
-		UserID:  userInfo.ID,
-		Content: content,
+	comment := models.ArticleComment{
+		ArticleID: uint(articleID),
+		UserID:    userInfo.ID,
+		Content:   content,
 	}
 
 	// 如果有父评论ID，验证并设置父评论
@@ -76,7 +76,7 @@ func CreateComment(c *gin.Context) {
 		}
 
 		// 验证父评论是否存在
-		var parentComment models.Comment
+		var parentComment models.ArticleComment
 		if err := database.GetDB().First(&parentComment, parentID).Error; err != nil {
 			c.HTML(http.StatusBadRequest, "result", gin.H{
 				"userInfo":      userInfo,
@@ -88,12 +88,12 @@ func CreateComment(c *gin.Context) {
 			return
 		}
 
-		// 确保父评论属于同一个链接
-		if parentComment.LinkID != uint(linkID) {
+		// 确保父评论属于同一个文章
+		if parentComment.ArticleID != uint(articleID) {
 			c.HTML(http.StatusBadRequest, "result", gin.H{
 				"userInfo":      userInfo,
 				"title":         "Error",
-				"message":       "父评论必须属于同一个链接",
+				"message":       "父评论必须属于同一个文章",
 				"redirect_text": "返回",
 				"redirect_url":  refer,
 			})

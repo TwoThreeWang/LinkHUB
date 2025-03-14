@@ -1,24 +1,31 @@
 {{ define "content" }}
-<div class="container">
-    <div class="form-container">
-        <h2>分享新链接</h2>
-        <form action="/links/new" method="POST" class="link-form">
+    <div class="content">
+        <h2>✨️ {{.title}}</h2>
+        <br>
+        <form action="{{if .id}}/links/{{.id}}/update{{else}}/links/new{{end}}" method="POST" class="link-form">
             <div class="form-group">
                 <label for="title">标题</label>
-                <input type="text" id="title" name="title" required placeholder="请输入链接标题">
+                <input type="text" id="title" name="title" required placeholder="请输入链接标题" {{if .link_title}}value="{{.link_title}}"{{end}}>
             </div>
             <div class="form-group">
                 <label for="url">URL</label>
-                <input type="url" id="url" name="url" required placeholder="请输入完整的URL地址">
+                <input type="url" id="url" name="url" required placeholder="请输入完整的URL地址" {{if .url}}value="{{.url}}"{{end}}>
             </div>
             <div class="form-group">
                 <label for="description">描述</label>
-                <textarea id="description" name="description" rows="4" required placeholder="请简要描述这个链接..."></textarea>
+                <textarea id="description" name="description" rows="10" required placeholder="请简要描述这个链接，支持 Markdown 语法">{{if .description}}{{.description}}{{end}}</textarea>
             </div>
             <div class="form-group">
                 <label for="tags">标签</label>
-                <input type="text" id="tags" name="tags" placeholder="输入标签，用逗号分隔">
-                <small class="form-text">最多添加5个标签，每个标签不超过20个字符</small>
+                <div class="product-tags">
+                    {{ range $index, $tag := .tags }}
+                    <label class="tag-checkbox">
+                        <input type="checkbox" name="tags[]" value="{{ $tag.Name }}" {{if StringInSlice $tag.Name $.checkTags}}checked{{end}}>
+                        <span class="checkbox-label">{{ $tag.Name }}</span>
+                    </label>
+                    {{ end }}
+                </div>
+                <small class="form-text">最多选择5个标签</small>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">提交</button>
@@ -26,5 +33,4 @@
             </div>
         </form>
     </div>
-</div>
 {{ end }}

@@ -1,36 +1,42 @@
 {{ define "content" }}
-<div class="container">
     <div class="tags-container">
-        <h2>标签列表</h2>
-        <div class="tags-grid">
+        <h2>🏷️ {{.title}}</h2>
+        <div class="product-tags">
+            {{ if and .userInfo (eq .userInfo.Role "admin") }}
+            <a href="javascript:void(0)" onclick="createTag()" class="tag">+ 创建标签</a>
+            {{end}}
             {{ range .tags }}
-            <a href="/tags/{{ .Slug }}" class="tag-card">
-                <h3 class="tag-name">{{ .Name }}</h3>
-                <div class="tag-meta">
-                    <span class="tag-count">{{ .LinkCount }} 个链接</span>
+            <a href="/tags/{{ .ID }}" class="tag">{{ .Name }} ({{ .Count }})</a>
+            {{else}}
+                <div class="empty-state">
+                    <p>😀 暂无标签</p>
                 </div>
-                {{ if .Description }}
-                <p class="tag-description">{{ .Description }}</p>
-                {{ end }}
-            </a>
-            {{ else }}
-            <div class="empty-state">
-                <p>暂无标签</p>
-            </div>
             {{ end }}
         </div>
-
-        {{ if gt .totalPages 1 }}
-        <div class="pagination">
-            {{ if gt .page 1 }}
-            <a href="?page={{ sub .page 1 }}" class="btn">上一页</a>
-            {{ end }}
-            <span class="page-info">第 {{ .page }} 页，共 {{ .totalPages }} 页</span>
-            {{ if lt .page .totalPages }}
-            <a href="?page={{ add .page 1 }}" class="btn">下一页</a>
-            {{ end }}
-        </div>
-        {{ end }}
     </div>
-</div>
+<script>
+function createTag() {
+    const tagName = prompt('请输入标签名称：');
+    if (tagName) {
+        fetch('/tags/add?tag=' + encodeURIComponent(tagName), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status == 200) {
+                window.location.reload();
+            } else {
+                alert(data.message || '创建标签失败');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('创建标签失败');
+        });
+    }
+}
+</script>
 {{ end }}

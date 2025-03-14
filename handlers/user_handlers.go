@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"LinkHUB/utils"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,20 +38,18 @@ func ShowRegister(c *gin.Context) {
 // Register 处理用户注册
 func Register(c *gin.Context) {
 	// 获取表单数据和refer参数
-	username := c.PostForm("username")
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 	confirmPassword := c.PostForm("confirm_password")
 	refer := c.Query("refer")
 
 	// 验证表单数据
-	if username == "" || email == "" || password == "" {
+	if email == "" || password == "" {
 		c.HTML(http.StatusBadRequest, "register", gin.H{
-			"title":    "注册 - LinkHUB",
-			"error":    "所有字段都是必填的",
-			"username": username,
-			"email":    email,
-			"refer":    refer,
+			"title": "注册 - LinkHUB",
+			"error": "所有字段都是必填的",
+			"email": email,
+			"refer": refer,
 		})
 		return
 	}
@@ -57,31 +57,44 @@ func Register(c *gin.Context) {
 	// 验证密码是否匹配
 	if password != confirmPassword {
 		c.HTML(http.StatusBadRequest, "register", gin.H{
-			"title":    "注册 - LinkHUB",
-			"error":    "两次输入的密码不匹配",
-			"username": username,
-			"email":    email,
-			"refer":    refer,
+			"title": "注册 - LinkHUB",
+			"error": "两次输入的密码不匹配",
+			"email": email,
+			"refer": refer,
 		})
 		return
 	}
+
+	if !utils.IsValidEmailByRegexp(email) {
+		c.HTML(http.StatusBadRequest, "register", gin.H{
+			"title": "注册 - LinkHUB",
+			"error": "Email 格式不正确，请检查",
+			"email": email,
+			"refer": refer,
+		})
+		return
+	}
+	// 从邮件中提取默认用户名
+	username := utils.ExtractUsernameFromEmail(email)
 
 	// 创建用户
 	user := models.User{
 		Username: username,
 		Email:    email,
 		Password: password,
+		Role:     "user",
+		Avatar:   "/static/img/avatar.jpg",
+		Bio:      "记得多微笑，这些年的牙不能白刷啊！",
 	}
 
 	// 保存用户到数据库
 	result := database.GetDB().Create(&user)
 	if result.Error != nil {
 		c.HTML(http.StatusInternalServerError, "register", gin.H{
-			"title":    "注册 - LinkHUB",
-			"error":    "注册失败: " + result.Error.Error(),
-			"username": username,
-			"email":    email,
-			"refer":    refer,
+			"title": "注册 - LinkHUB",
+			"error": "注册失败: " + result.Error.Error(),
+			"email": email,
+			"refer": refer,
 		})
 		return
 	}
@@ -94,7 +107,7 @@ func Register(c *gin.Context) {
 
 	// 根据refer参数决定重定向地址
 	redirectURL := "/"
-	if refer != "" {
+	if refer != "" && !strings.Contains(refer, "login") {
 		redirectURL = refer
 	}
 
@@ -158,7 +171,7 @@ func Login(c *gin.Context) {
 
 	// 根据refer参数决定重定向地址
 	redirectURL := "/"
-	if refer != "" {
+	if refer != "" && !strings.Contains(refer, "login") {
 		redirectURL = refer
 	}
 
@@ -248,17 +261,26 @@ func ShowProfile(c *gin.Context) {
 
 // UpdateProfile 更新用户个人资料
 func UpdateProfile(c *gin.Context) {
-	// 从上下文中获取用户信息
-	userInfo := GetCurrentUser(c)
 	refer := c.GetHeader("Referer")
 	if refer == "" {
 		refer = "/"
+	}
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
 	}
 	// 获取表单数据
 	username := c.PostForm("Username")
 	email := c.PostForm("email")
 	avatar := c.PostForm("Avatar")
-	bio := c.PostForm("bio")
+	bio := c.PostForm("Bio")
 	password := c.PostForm("password")
 
 	// 验证表单数据
@@ -305,57 +327,11 @@ func UpdateProfile(c *gin.Context) {
 	// 重新加载用户信息
 	database.GetDB().First(&userInfo, userInfo.ID)
 
-	c.HTML(http.StatusInternalServerError, "result", gin.H{
+	c.HTML(http.StatusOK, "result", gin.H{
 		"title":         "Success",
 		"message":       "个人资料更新成功",
 		"redirect_text": "返回",
 		"redirect_url":  refer,
-	})
-}
-
-// UserLinks 显示用户的链接列表
-func UserLinks(c *gin.Context) {
-	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
-		return
-	}
-	user := userInterface.(models.User)
-
-	// 获取分页参数
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 {
-		page = 1
-	}
-
-	// 获取用户的链接
-	var links []models.Link
-	var total int64
-
-	// 计算总数
-	database.GetDB().Model(&models.Link{}).Where("user_id = ?", user.ID).Count(&total)
-
-	// 获取分页数据
-	pageSize := 10
-	offset := (page - 1) * pageSize
-
-	database.GetDB().Where("user_id = ?", user.ID).
-		Order("created_at DESC").
-		Limit(pageSize).
-		Offset(offset).
-		Preload("Tags").
-		Find(&links)
-
-	// 计算总页数
-	totalPages := (int(total) + pageSize - 1) / pageSize
-
-	c.HTML(http.StatusOK, "user_links", gin.H{
-		"title":      "我的链接 - LinkHUB",
-		"links":      links,
-		"user":       user,
-		"page":       page,
-		"totalPages": totalPages,
 	})
 }
 

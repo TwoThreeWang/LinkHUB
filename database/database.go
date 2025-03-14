@@ -1,12 +1,14 @@
 package database
 
 import (
+	"LinkHUB/models"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"LinkHUB/config"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -55,18 +57,22 @@ func InitDB() error {
 	sqlDB.SetMaxOpenConns(100)
 	// 设置连接最大生存时间
 	sqlDB.SetConnMaxLifetime(time.Hour)
+	debugDB := db.Debug() // 开启 Debug 模式的日志
+	//err = debugDB.AutoMigrate(&models.Tag{}) // 使用 debugDB 进行迁移
 
 	// 自动迁移数据库表结构
-	//err = db.AutoMigrate(
-	//	&models.User{},
-	//	&models.Link{},
-	//	&models.Tag{},
-	//	&models.Vote{},
-	//	&models.Comment{},
-	//)
-	//if err != nil {
-	//	return fmt.Errorf("自动迁移数据库表结构失败: %v", err)
-	//}
+	if err := debugDB.AutoMigrate(
+		&models.User{},
+		&models.Link{},
+		&models.Tag{},
+		&models.Vote{},
+		&models.Comment{},
+		&models.ArticleComment{},
+		&models.Article{},
+		&models.Category{},
+	); err != nil {
+		return fmt.Errorf("自动迁移数据库表结构失败: %v", err)
+	}
 
 	// 赋值给全局变量
 	DB = db

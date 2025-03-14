@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .title }}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>{{ .title }} - LinkHUB</title>
+    <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
     <header>
@@ -14,16 +14,17 @@
                 <button class="menu-toggle" aria-label="切换菜单">
                     <span>☰</span>
                 </button>
-                <div class="search-bar">
-                    <input type="text" placeholder="搜索链接、标签或用户...">
-                </div>
+                <form action="/links/search" class="search-bar">
+                    <input type="text" name="q" placeholder="搜索链接、标签或用户..." {{ if .query }}value="{{.query}}"{{end}}>
+                </form>
                 <div class="nav-links">
                     <a class="menu-close" aria-label="关闭菜单">✕</a>
                     <a href="/">首页</a>
+                    <a href="/articles">文章</a>
                     <a href="/tags">标签</a>
                     <a href="/links/new" class="btn btn-primary">分享链接</a>
                     {{ if .userInfo }}
-                        <a href="/user/profile">👤{{ .userInfo.Username }}</a>
+                        <a href="/user/profile"><span class="icon">😀</span>{{ .userInfo.Username }}</a>
                     {{ else }}
                         <a href="/auth/login">登录</a>
                     {{ end }}
@@ -31,12 +32,12 @@
             </div>
         </div>
     </header>
-    <div class="container">
+    <div class="container main">
         {{ template "content" . }}
     </div>
     <div class="menu-overlay"></div>
 
-    <footer class="footer">
+    <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">

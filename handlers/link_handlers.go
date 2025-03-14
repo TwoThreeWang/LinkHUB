@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -8,13 +9,14 @@ import (
 
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"LinkHUB/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Home 首页处理函数
 func Home(c *gin.Context) {
-	userinfo := GetCurrentUser(c)
+	userInfo := GetCurrentUser(c)
 	// 获取分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -41,7 +43,8 @@ func Home(c *gin.Context) {
 	// 根据排序参数设置排序方式
 	switch sort {
 	case "top":
-		query = query.Order("vote_count DESC")
+		// 使用vote_count和click_count的和进行排序
+		query = query.Order("(vote_count + click_count) DESC")
 	case "new":
 		query = query.Order("created_at DESC")
 	default:
@@ -70,98 +73,83 @@ func Home(c *gin.Context) {
 		"totalPages":  totalPages,
 		"sort":        sort,
 		"popularTags": popularTags,
-		"userInfo":        userinfo,
-	})
-}
-
-// ListLinks 链接列表处理函数
-func ListLinks(c *gin.Context) {
-	// 获取分页参数
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 {
-		page = 1
-	}
-
-	// 获取排序参数
-	sort := c.DefaultQuery("sort", "new")
-
-	// 获取链接列表
-	var links []models.Link
-	var total int64
-
-	// 构建查询
-	query := database.GetDB().Model(&models.Link{})
-
-	// 计算总数
-	query.Count(&total)
-
-	// 获取分页数据
-	pageSize := 10
-	offset := (page - 1) * pageSize
-
-	// 根据排序参数设置排序方式
-	switch sort {
-	case "top":
-		query = query.Order("vote_count DESC")
-	case "new":
-		query = query.Order("created_at DESC")
-	default:
-		query = query.Order("created_at DESC")
-	}
-
-	// 执行查询
-	query.Limit(pageSize).
-		Offset(offset).
-		Preload("User").
-		Preload("Tags").
-		Find(&links)
-
-	// 计算总页数
-	totalPages := (int(total) + pageSize - 1) / pageSize
-
-	// 渲染模板
-	c.HTML(http.StatusOK, "links", gin.H{
-		"title":      "所有链接 - LinkHUB",
-		"links":      links,
-		"page":       page,
-		"totalPages": totalPages,
-		"sort":       sort,
+		"userInfo":    userInfo,
 	})
 }
 
 // ShowNewLink 显示创建链接页面
 func ShowNewLink(c *gin.Context) {
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
+	}
+	// 查询所有标签
+	var tags []models.Tag
+	database.GetDB().Find(&tags)
+
+	// 渲染模板
 	c.HTML(http.StatusOK, "new_link", gin.H{
-		"title": "分享新链接 - LinkHUB",
+		"title":    "分享新链接",
+		"userInfo": userInfo,
+		"tags":     tags,
 	})
 }
 
 // CreateLink 创建链接处理函数
 func CreateLink(c *gin.Context) {
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
 	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.Redirect(http.StatusFound, "/auth/login")
-		c.Abort()
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
-	user := userInterface.(*models.User)
 
 	// 获取表单数据
 	title := c.PostForm("title")
 	url := c.PostForm("url")
 	description := c.PostForm("description")
-	tagsStr := c.PostForm("tags")
+	checkTags := c.PostFormArray("tags[]")
+	if len(checkTags) > 5 {
+		checkTags = checkTags[:5]
+	}
+
+	// 查询所有标签
+	var tags []models.Tag
+	database.GetDB().Find(&tags)
 
 	// 验证表单数据
 	if title == "" || url == "" {
 		c.HTML(http.StatusBadRequest, "new_link", gin.H{
-			"title":       "分享新链接 - LinkHUB",
+			"userInfo":    userInfo,
+			"title":       "分享新链接",
 			"error":       "标题和URL是必填的",
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"tags":        tagsStr,
+			"tags":        tags,
+			"checkTags":   checkTags,
 		})
 		return
 	}
@@ -171,9 +159,7 @@ func CreateLink(c *gin.Context) {
 		Title:       title,
 		URL:         url,
 		Description: description,
-		UserID:      user.ID,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		UserID:      userInfo.ID,
 	}
 
 	// 开始数据库事务
@@ -183,81 +169,82 @@ func CreateLink(c *gin.Context) {
 	if err := tx.Create(&link).Error; err != nil {
 		tx.Rollback()
 		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"title":       "分享新链接 - LinkHUB",
+			"userInfo":    userInfo,
+			"title":       "分享新链接",
 			"error":       "创建链接失败: " + err.Error(),
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"tags":        tagsStr,
+			"tags":        tags,
+			"checkTags":   checkTags,
 		})
 		return
 	}
 
-	// 处理标签
-	if tagsStr != "" {
-		// 分割标签字符串
-		tagNames := strings.Split(tagsStr, ",")
+	// 处理每个标签
+	for _, name := range checkTags {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
 
-		// 处理每个标签
-		for _, name := range tagNames {
-			name = strings.TrimSpace(name)
-			if name == "" {
-				continue
-			}
+		// 查找或创建标签
+		var tag models.Tag
+		result := tx.Where("name = ?", name).FirstOrCreate(&tag, models.Tag{
+			Name: name,
+		})
 
-			// 查找或创建标签
-			var tag models.Tag
-			result := tx.Where("name = ?", name).FirstOrCreate(&tag, models.Tag{
-				Name: name,
+		if result.Error != nil {
+			tx.Rollback()
+			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+				"userInfo":    userInfo,
+				"title":       "分享新链接",
+				"error":       "处理标签失败: " + result.Error.Error(),
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"tags":        tags,
+				"checkTags":   checkTags,
 			})
+			return
+		}
 
-			if result.Error != nil {
-				tx.Rollback()
-				c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-					"title":       "分享新链接 - LinkHUB",
-					"error":       "处理标签失败: " + result.Error.Error(),
-					"link_title":  title,
-					"url":         url,
-					"description": description,
-					"tags":        tagsStr,
-				})
-				return
-			}
+		// 增加标签计数
+		if result.RowsAffected == 0 {
+			tx.Model(&tag).Update("count", tag.Count+1)
+		} else {
+			tag.Count = 1
+			tx.Save(&tag)
+		}
 
-			// 增加标签计数
-			if result.RowsAffected == 0 {
-				tx.Model(&tag).Update("count", tag.Count+1)
-			} else {
-				tag.Count = 1
-				tx.Save(&tag)
-			}
-
-			// 关联标签和链接
-			if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
-				tx.Rollback()
-				c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-					"title":       "分享新链接 - LinkHUB",
-					"error":       "关联标签失败: " + err.Error(),
-					"link_title":  title,
-					"url":         url,
-					"description": description,
-					"tags":        tagsStr,
-				})
-				return
-			}
+		// 关联标签和链接
+		if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
+			tx.Rollback()
+			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+				"userInfo":    userInfo,
+				"title":       "分享新链接",
+				"error":       "关联标签失败: " + err.Error(),
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"tags":        tags,
+				"checkTags":   checkTags,
+			})
+			return
 		}
 	}
-
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"title":       "分享新链接 - LinkHUB",
+			"userInfo":    userInfo,
+			"title":       "分享新链接",
 			"error":       "保存链接失败: " + err.Error(),
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"tags":        tagsStr,
+			"tags":        tags,
+			"checkTags":   checkTags,
 		})
 		return
 	}
@@ -268,7 +255,11 @@ func CreateLink(c *gin.Context) {
 
 // ShowLink 显示链接详情页面
 func ShowLink(c *gin.Context) {
-	userinfo := GetCurrentUser(c)
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
+	userInfo := GetCurrentUser(c)
 	// 获取链接ID
 	id := c.Param("id")
 
@@ -276,9 +267,12 @@ func ShowLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().Preload("User").Preload("Tags").First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "error", gin.H{
-			"title": "链接不存在 - LinkHUB",
-			"error": "链接不存在或已被删除",
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "链接不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
 		})
 		return
 	}
@@ -293,53 +287,148 @@ func ShowLink(c *gin.Context) {
 		Find(&comments)
 
 	// 检查当前用户是否已投票
-	var voted bool
-	if userInterface, exists := c.Get("user"); exists {
-		user := userInterface.(models.User)
+	voted := false
+	if userInfo != nil {
 		var count int64
-		database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", user.ID, link.ID).Count(&count)
+		database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).Count(&count)
 		voted = count > 0
+	}
+	// 相关链接
+	var relatedLinks []models.Link
+	if len(link.Tags) > 0 {
+		// 获取当前链接的标签IDs
+		var tagIDs []uint
+		for _, tag := range link.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+
+		// 查询具有相同标签的其他链接（不包括当前链接）
+		database.GetDB().Distinct().
+			Joins("JOIN link_tags ON link_tags.link_id = links.id").
+			Where("link_tags.tag_id IN (?) AND links.id != ?", tagIDs, link.ID).
+			Preload("User").
+			Preload("Tags").
+			Limit(6).
+			Find(&relatedLinks)
 	}
 
 	// 渲染模板
 	c.HTML(http.StatusOK, "link_detail", gin.H{
-		"title":    link.Title + " - LinkHUB",
-		"link":     link,
-		"comments": comments,
-		"voted":    voted,
-		"userInfo": userinfo,
+		"title":        link.Title,
+		"link":         link,
+		"comments":     comments,
+		"voted":        voted,
+		"userInfo":     userInfo,
+		"relatedLinks": relatedLinks,
+	})
+}
+
+// ShowUpdateLink 显示修改链接页面
+func ShowUpdateLink(c *gin.Context) {
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
+	}
+	// 获取链接ID
+	id := c.Param("id")
+	// 查询链接
+	var link models.Link
+	result := database.GetDB().Preload("Tags").First(&link, id)
+	if result.Error != nil {
+		c.HTML(http.StatusNotFound, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "链接不存在",
+			"message":       "链接不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
+	}
+
+	// 验证用户权限
+	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
+		c.HTML(http.StatusForbidden, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "没有权限",
+			"message":       "您没有权限编辑此链接",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
+	}
+	// 查询所有标签
+	var tags []models.Tag
+	database.GetDB().Find(&tags)
+
+	var checkTags []string
+	for _, tag := range link.Tags {
+		checkTags = append(checkTags, tag.Name)
+	}
+
+	// 渲染模板
+	c.HTML(http.StatusOK, "new_link", gin.H{
+		"title":       "编辑链接",
+		"id":          id,
+		"userInfo":    userInfo,
+		"link_title":  link.Title,
+		"url":         link.URL,
+		"description": link.Description,
+		"tags":        tags,
+		"checkTags":   checkTags,
 	})
 }
 
 // UpdateLink 更新链接处理函数
 func UpdateLink(c *gin.Context) {
-	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
-		return
-	}
-	user := userInterface.(models.User)
-
 	// 获取链接ID
 	id := c.Param("id")
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  "/links/" + id,
+		})
+		return
+	}
 
 	// 查询链接
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
 		c.HTML(http.StatusNotFound, "result", gin.H{
-			"title": "链接不存在 - LinkHUB",
-			"error": "链接不存在或已被删除",
+			"userInfo":      userInfo,
+			"title":         "链接不存在",
+			"message":       "链接不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  "/links/" + id,
 		})
 		return
 	}
 
 	// 验证用户权限
-	if link.UserID != user.ID {
-		c.HTML(http.StatusForbidden, "error", gin.H{
-			"title": "没有权限 - LinkHUB",
-			"error": "您没有权限编辑此链接",
+	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
+		c.HTML(http.StatusForbidden, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "没有权限",
+			"message":       "您没有权限编辑此链接",
+			"redirect_text": "返回",
+			"redirect_url":  "/links/" + id,
 		})
 		return
 	}
@@ -348,20 +437,27 @@ func UpdateLink(c *gin.Context) {
 	title := c.PostForm("title")
 	url := c.PostForm("url")
 	description := c.PostForm("description")
-	thumbnail := c.PostForm("thumbnail")
-	tagsStr := c.PostForm("tags")
+	checkTags := c.PostFormArray("tags[]")
+	if len(checkTags) > 5 {
+		checkTags = checkTags[:5]
+	}
+
+	// 查询所有标签
+	var tags []models.Tag
+	database.GetDB().Find(&tags)
 
 	// 验证表单数据
 	if title == "" || url == "" {
-		c.HTML(http.StatusBadRequest, "edit_link", gin.H{
-			"title":       "编辑链接 - LinkHUB",
+		c.HTML(http.StatusBadRequest, "new_link", gin.H{
+			"userInfo":    userInfo,
+			"title":       "编辑链接",
 			"error":       "标题和URL是必填的",
 			"link":        link,
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"thumbnail":   thumbnail,
-			"tags":        tagsStr,
+			"tags":        tags,
+			"checkTags":   checkTags,
 		})
 		return
 	}
@@ -378,106 +474,105 @@ func UpdateLink(c *gin.Context) {
 	// 保存链接
 	if err := tx.Save(&link).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "edit_link", gin.H{
-			"title":       "编辑链接 - LinkHUB",
+		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+			"userInfo":    userInfo,
+			"title":       "编辑链接",
 			"error":       "更新链接失败: " + err.Error(),
 			"link":        link,
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"thumbnail":   thumbnail,
-			"tags":        tagsStr,
+			"checkTags":   checkTags,
+			"tags":        tags,
 		})
 		return
 	}
 
 	// 清除现有标签关联
-	if err := tx.Model(&link).Association("Tags").Clear(); err != nil {
+	if err := tx.Model(&link).Association("Tags").Delete(); err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "edit_link", gin.H{
-			"title":       "编辑链接 - LinkHUB",
+		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+			"userInfo":    userInfo,
+			"title":       "编辑链接",
 			"error":       "清除标签关联失败: " + err.Error(),
 			"link":        link,
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"thumbnail":   thumbnail,
-			"tags":        tagsStr,
+			"checkTags":   checkTags,
+			"tags":        tags,
 		})
 		return
 	}
 
-	// 处理标签
-	if tagsStr != "" {
-		// 分割标签字符串
-		tagNames := strings.Split(tagsStr, ",")
+	// 处理每个标签
+	for _, name := range checkTags {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
 
-		// 处理每个标签
-		for _, name := range tagNames {
-			name = strings.TrimSpace(name)
-			if name == "" {
-				continue
-			}
+		// 查找或创建标签
+		var tag models.Tag
+		result := tx.Where("name = ?", name).FirstOrCreate(&tag, models.Tag{
+			Name: name,
+		})
 
-			// 查找或创建标签
-			var tag models.Tag
-			result := tx.Where("name = ?", name).FirstOrCreate(&tag, models.Tag{
-				Name: name,
+		if result.Error != nil {
+			tx.Rollback()
+			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+				"userInfo":    userInfo,
+				"title":       "编辑链接",
+				"error":       "处理标签失败: " + result.Error.Error(),
+				"link":        link,
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"checkTags":   checkTags,
+				"tags":        tags,
 			})
+			return
+		}
 
-			if result.Error != nil {
-				tx.Rollback()
-				c.HTML(http.StatusInternalServerError, "edit_link", gin.H{
-					"title":       "编辑链接 - LinkHUB",
-					"error":       "处理标签失败: " + result.Error.Error(),
-					"link":        link,
-					"link_title":  title,
-					"url":         url,
-					"description": description,
-					"thumbnail":   thumbnail,
-					"tags":        tagsStr,
-				})
-				return
-			}
+		// 增加标签计数
+		if result.RowsAffected == 0 {
+			tx.Model(&tag).Update("count", tag.Count+1)
+		} else {
+			tag.Count = 1
+			tx.Save(&tag)
+		}
 
-			// 增加标签计数
-			if result.RowsAffected == 0 {
-				tx.Model(&tag).Update("count", tag.Count+1)
-			} else {
-				tag.Count = 1
-				tx.Save(&tag)
-			}
-
-			// 关联标签和链接
-			if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
-				tx.Rollback()
-				c.HTML(http.StatusInternalServerError, "edit_link", gin.H{
-					"title":       "编辑链接 - LinkHUB",
-					"error":       "关联标签失败: " + err.Error(),
-					"link":        link,
-					"link_title":  title,
-					"url":         url,
-					"description": description,
-					"thumbnail":   thumbnail,
-					"tags":        tagsStr,
-				})
-				return
-			}
+		// 关联标签和链接
+		if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
+			tx.Rollback()
+			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+				"userInfo":    userInfo,
+				"title":       "编辑链接",
+				"error":       "关联标签失败: " + err.Error(),
+				"link":        link,
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"checkTags":   checkTags,
+				"tags":        tags,
+			})
+			return
 		}
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "edit_link", gin.H{
-			"title":       "编辑链接 - LinkHUB",
+		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
+			"userInfo":    userInfo,
+			"title":       "编辑链接",
 			"error":       "保存链接失败: " + err.Error(),
 			"link":        link,
 			"link_title":  title,
 			"url":         url,
 			"description": description,
-			"thumbnail":   thumbnail,
-			"tags":        tagsStr,
+			"checkTags":   checkTags,
+			"tags":        tags,
 		})
 		return
 	}
@@ -488,13 +583,21 @@ func UpdateLink(c *gin.Context) {
 
 // DeleteLink 删除链接处理函数
 func DeleteLink(c *gin.Context) {
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
 	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
-	user := userInterface.(models.User)
 
 	// 获取链接ID
 	id := c.Param("id")
@@ -503,53 +606,113 @@ func DeleteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "链接不存在或已被删除"})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "链接不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 验证用户权限
-	if link.UserID != user.ID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "您没有权限删除此链接"})
+	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "您没有权限删除此链接",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 开始数据库事务
 	tx := database.GetDB().Begin()
 
+	tx.Model(&link).Association("Tags").Clear()
+
 	// 清除标签关联
-	if err := tx.Model(&link).Association("Tags").Clear(); err != nil {
+	if err := tx.Model(&link).Association("Tags").Unscoped().Delete(); err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "清除标签关联失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "清除标签关联失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
+	}
+
+	//tx.Model(&link).Association("Votes").Clear()
+
+	// 清除投票关联
+	if err := tx.Model(&link).Association("Votes").Unscoped().Delete(); err != nil {
+		tx.Rollback()
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "清除投票关联失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 删除链接
-	if err := tx.Delete(&link).Error; err != nil {
+	if err := tx.Unscoped().Delete(&link).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除链接失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "删除链接失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除链接失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"userInfo":      userInfo,
+			"title":         "Error",
+			"message":       "删除链接失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{"message": "投票成功"})
+	c.HTML(http.StatusOK, "result", gin.H{
+		"userInfo":      userInfo,
+		"title":         "Success",
+		"message":       "删除链接成功",
+		"redirect_text": "返回首页",
+		"redirect_url":  "/",
+	})
 }
 
 // VoteLink 投票链接处理函数
 func VoteLink(c *gin.Context) {
-	// 从上下文中获取用户信息
-	userInterface, _ := c.Get("user")
-	user := userInterface.(*models.User)
-
 	refer := c.GetHeader("Referer")
 	if refer == "" {
 		refer = "/"
+	}
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
+		return
 	}
 
 	// 获取链接ID
@@ -559,7 +722,7 @@ func VoteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusOK, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
@@ -570,7 +733,7 @@ func VoteLink(c *gin.Context) {
 
 	// 检查用户是否已投票
 	var count int64
-	database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", user.ID, link.ID).Count(&count)
+	database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).Count(&count)
 	if count > 0 {
 		c.HTML(http.StatusOK, "result", gin.H{
 			"title":         "Warning",
@@ -583,7 +746,7 @@ func VoteLink(c *gin.Context) {
 
 	// 创建投票记录
 	vote := models.Vote{
-		UserID: user.ID,
+		UserID: userInfo.ID,
 		LinkID: link.ID,
 	}
 
@@ -593,7 +756,7 @@ func VoteLink(c *gin.Context) {
 	// 保存投票
 	if err := tx.Create(&vote).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusOK, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"title":         "Error",
 			"message":       "投票失败: " + err.Error(),
 			"redirect_text": "返回",
@@ -605,7 +768,7 @@ func VoteLink(c *gin.Context) {
 	// 更新链接投票计数
 	if err := tx.Model(&link).Update("vote_count", link.VoteCount+1).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusOK, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"title":         "Error",
 			"message":       "更新投票计数失败: " + err.Error(),
 			"redirect_text": "返回",
@@ -617,7 +780,7 @@ func VoteLink(c *gin.Context) {
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusOK, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"title":         "Error",
 			"message":       "投票失败: " + err.Error(),
 			"redirect_text": "返回",
@@ -628,15 +791,23 @@ func VoteLink(c *gin.Context) {
 	c.Redirect(302, refer)
 }
 
-// UnvoteLink 取消投票处理函数
-func UnvoteLink(c *gin.Context) {
+// UnVoteLink 取消投票处理函数
+func UnVoteLink(c *gin.Context) {
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
 	// 从上下文中获取用户信息
-	userInterface, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
-	user := userInterface.(models.User)
 
 	// 获取链接ID
 	id := c.Param("id")
@@ -645,15 +816,25 @@ func UnvoteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "链接不存在或已被删除"})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "链接不存在或已被删除",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 检查用户是否已投票
 	var vote models.Vote
-	result = database.GetDB().Where("user_id = ? AND link_id = ?", user.ID, link.ID).First(&vote)
+	result = database.GetDB().Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).First(&vote)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "您还没有投过票"})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "您还没有投过票",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
@@ -663,24 +844,132 @@ func UnvoteLink(c *gin.Context) {
 	// 删除投票记录
 	if err := tx.Delete(&vote).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "取消投票失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "取消投票失败",
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 更新链接投票计数
 	if err := tx.Model(&link).Update("vote_count", link.VoteCount-1).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新投票计数失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "更新投票计数失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "取消投票失败: " + err.Error()})
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "取消投票失败: " + err.Error(),
+			"redirect_text": "返回",
+			"redirect_url":  refer,
+		})
 		return
 	}
 
 	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{"message": "已取消投票"})
+	c.HTML(http.StatusOK, "result", gin.H{
+		"title":         "Success",
+		"message":       "已成功取消投票",
+		"redirect_text": "返回",
+		"redirect_url":  refer,
+	})
+}
+
+// ClickLink 点击链接处理函数
+func ClickLink(c *gin.Context) {
+	// 获取链接ID
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusOK, gin.H{"message": "参数错误"})
+		return
+	}
+
+	// 获取客户端IP
+	clientIP := c.ClientIP()
+	cacheKey := fmt.Sprintf("%s%s", clientIP, id)
+
+	// 检查是否是新点击（同一IP 24小时内对同一链接只记录一次）
+	_, isClicked := utils.GlobalCache.Get(cacheKey)
+	if isClicked {
+		c.JSON(http.StatusOK, gin.H{"message": "重复点击"})
+		return
+	}
+
+	// 查询链接
+	var link models.Link
+	result := database.GetDB().First(&link, id)
+	if result.Error != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "参数错误，未查询到链接ID"})
+		return
+	}
+
+	// 更新链接点击计数
+	if err := database.GetDB().Model(&link).Update("click_count", link.ClickCount+1).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "更新链接点击计数失败: " + err.Error()})
+		return
+	} else {
+		// 设置缓存
+		utils.GlobalCache.Set(cacheKey, 1, time.Hour*12)
+	}
+
+	// 重定向到链接URL
+	c.JSON(http.StatusOK, gin.H{"message": "Success"})
+}
+
+// SearchLinks 搜索链接API
+func SearchLinks(c *gin.Context) {
+	userInfo := GetCurrentUser(c)
+	// 获取查询参数
+	query := c.Query("q")
+	if query == "" {
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"title":         "Error",
+			"message":       "搜索词不能为空",
+			"redirect_text": "返回首页",
+			"redirect_url":  "/",
+		})
+		return
+	}
+	// 获取分页参数
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if page < 1 {
+		page = 1
+	}
+	// 获取分页数据
+	pageSize := 10
+	offset := (page - 1) * pageSize
+	// 搜索链接
+	var links []models.Link
+	var total int64
+	// 构建查询条件
+	queryDB := database.GetDB().Where(
+		"title ILIKE ? OR description ILIKE ? OR url ILIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%",
+	)
+	// 先计算总记录数
+	queryDB.Model(&models.Link{}).Count(&total)
+	// 执行分页查询
+	queryDB.Preload("Tags").Preload("User").Limit(pageSize).Offset(offset).Find(&links)
+	// 计算总页数
+	totalPages := (int(total) + pageSize - 1) / pageSize
+	// 渲染模板
+	c.HTML(http.StatusOK, "search", gin.H{
+		"title":      query,
+		"query":      query,
+		"links":      links,
+		"page":       page,
+		"totalPages": totalPages,
+		"userInfo":   userInfo,
+		"total":      total,
+	})
 }

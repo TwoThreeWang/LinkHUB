@@ -3,22 +3,20 @@ package models
 import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 // User 用户模型
 type User struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Username  string    `gorm:"size:50;not null;uniqueIndex" json:"username"`
-	Email     string    `gorm:"size:100;not null;uniqueIndex" json:"email"`
-	Password  string    `gorm:"size:100;not null" json:"-"`
-	Avatar    string    `gorm:"size:255" json:"avatar"`
-	Bio       string    `gorm:"size:500" json:"bio"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Links     []Link    `gorm:"foreignKey:UserID" json:"links,omitempty"`
-	Votes     []Vote    `gorm:"foreignKey:UserID" json:"votes,omitempty"`
-	Comments  []Comment `gorm:"foreignKey:UserID" json:"comments,omitempty"`
+	gorm.Model
+	Username string    `gorm:"type:varchar(50);not null;uniqueIndex" json:"username"`
+	Email    string    `gorm:"type:varchar(100);not null;uniqueIndex" json:"email"`
+	Password string    `gorm:"type:varchar(100);not null" json:"-"`
+	Avatar   string    `gorm:"type:varchar(500);" json:"avatar"`
+	Bio      string    `gorm:"type:varchar(150);" json:"bio"`
+	Role     string    `gorm:"column:role;type:varchar(20)" json:"role"`
+	Links    []Link    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"links,omitempty"`
+	Votes    []Vote    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"votes,omitempty"`
+	Comments []Comment `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"comments,omitempty"`
 }
 
 // BeforeSave 保存前的钩子函数，用于加密密码

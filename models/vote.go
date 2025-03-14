@@ -2,25 +2,17 @@ package models
 
 import (
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 )
 
 // Vote 投票模型
 type Vote struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	UserID    uint      `gorm:"not null" json:"user_id"`
-	LinkID    uint      `gorm:"not null" json:"link_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	User      User      `json:"user,omitempty"`
-	Link      Link      `json:"link,omitempty"`
-}
-
-// TableName 设置表名
-func (Vote) TableName() string {
-	return "votes"
+	gorm.Model
+	UserID uint `gorm:"not null" json:"user_id"`
+	LinkID uint `gorm:"not null" json:"link_id"`
+	User   User `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Link   Link `gorm:"foreignKey:LinkID" json:"link,omitempty"`
 }
 
 // BeforeCreate 创建前的钩子函数

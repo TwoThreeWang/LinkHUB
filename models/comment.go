@@ -1,24 +1,29 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 // Comment 评论模型
 type Comment struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Content   string    `gorm:"size:1000;not null" json:"content"`
-	UserID    uint      `gorm:"not null" json:"user_id"`
-	LinkID    uint      `gorm:"not null" json:"link_id"`
-	ParentID  *uint     `json:"parent_id"` // 父评论ID，用于回复功能
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	User      User      `json:"user,omitempty"`
-	Link      Link      `json:"link,omitempty"`
-	Replies   []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"`
+	gorm.Model
+	Content  string    `gorm:"size:1000;not null" json:"content"`
+	UserID   uint      `gorm:"not null" json:"user_id"`
+	LinkID   uint      `gorm:"not null" json:"link_id"`
+	ParentID *uint     `json:"parent_id"`
+	User     User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Link     Link      `gorm:"foreignKey:LinkID" json:"link,omitempty"`
+	Replies  []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"`
 }
 
-// TableName 设置表名
-func (Comment) TableName() string {
-	return "comments"
+// ArticleComment 文章评论模型
+type ArticleComment struct {
+	gorm.Model
+	Content   string           `gorm:"size:1000;not null" json:"content"`
+	UserID    uint             `gorm:"not null" json:"user_id"`
+	ArticleID uint             `gorm:"not null" json:"article_id"`
+	ParentID  *uint            `json:"parent_id"`
+	User      User             `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Article   Article          `gorm:"foreignKey:ArticleID" json:"article,omitempty"`
+	Replies   []ArticleComment `gorm:"foreignKey:ParentID" json:"replies,omitempty"`
 }

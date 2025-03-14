@@ -3,8 +3,10 @@
         <div class="sidebar">
             <div class="maker-profile">
                 <div class="maker-info">
+                    <img src="{{ .user.Avatar }}" class="maker-avatar">
                     <div class="maker-name">{{ .user.Username }}</div>
                     <div class="maker-title">{{ .user.Bio }}</div>
+                    <div class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</div>
                 </div>
             </div>
             <br>
@@ -12,7 +14,7 @@
             <ul class="sidebar-links">
                 <li><a href="?sort=overview" class="active"><span class="sidebar-icon">👤</span> 概览</a></li>
                 <li><a href="?sort=links"><span class="sidebar-icon">📦</span> 所有链接</a></li>
-                <li><a href="?sort=votes"><span class="sidebar-icon">⭐</span> 点赞链接</a></li>
+                <li><a href="?sort=votes"><span class="sidebar-icon">⭐</span> 投票链接</a></li>
                 <li><a href="?sort=comments"><span class="sidebar-icon">💬</span> 所有评论</a></li>
                 {{ if .userInfo }}
                     {{ if eq .user.ID .userInfo.ID }}
@@ -46,7 +48,7 @@
                     <div class="stats-icon">⭐</div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Votes }}</div>
-                        <div class="stats-label">点赞链接</div>
+                        <div class="stats-label">投票链接</div>
                     </div>
                 </a>
             </div>
@@ -61,12 +63,16 @@
                             <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
                             <a href="/links/{{ .LinkID }}" class="comment-time">评论：{{ .Link.Title }}</a>
                         </div>
-                        <p class="comment-text">{{ .Content }}</p>
+                        <p class="comment-text">{{ TruncateString .Content 250 }}</p>
                     </div>
+                    {{else}}
+                <div class="empty-state">
+                    <p>😀 暂无评论</p>
+                </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "votes" }}
-            <h2>点赞链接</h2>
+            <h2>投票链接</h2>
 
             <div class="product-list">
                 {{ range .user.Votes }}
@@ -79,12 +85,16 @@
                     </div>
                     <div class="product-info">
                         <a href="/links/{{ .Link.ID }}" class="product-title">{{ .Link.Title }}</a>
-                        <p class="product-description">{{ .Link.Description }}</p>
+                        <p class="product-description">{{ TruncateString .Link.Description 250 }}</p>
                         <div class="product-tags" role="list">
-                            <a href="{{ .Link.URL }}" target="_blank" rel="noopener" class="tag visit-link">访问网站 →</a>
+                            <a href="{{ .Link.URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .Link.ID }}')">访问网站 →</a>
                         </div>
                     </div>
                 </article>
+                {{else}}
+                <div class="empty-state">
+                    <p>😀 暂无投票</p>
+                </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "links" }}
@@ -101,16 +111,25 @@
                     </div>
                     <div class="product-info">
                         <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                        <p class="product-description">{{ .Description }}</p>
+                        <p class="product-description">{{ TruncateString .Description 250 }}</p>
                         <div class="product-tags" role="list">
-                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link">访问网站 →</a>
+                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
                             <a href="/tags/{{ .Name }}" class="tag" role="listitem">{{ .Name }}</a>
                             {{ end }}
                         </div>
                     </div>
                 </article>
+                {{else}}
+                <div class="empty-state">
+                    <p>😀 暂无链接</p>
+                </div>
                 {{ end }}
+            </div>
+            {{ else if eq .sort "notifications" }}
+            <h2>通知中心</h2>
+            <div class="empty-state">
+                <p>😀 功能开发中。</p>
             </div>
             {{ else if eq .sort "setting" }}
                 <h2>账户设置</h2>

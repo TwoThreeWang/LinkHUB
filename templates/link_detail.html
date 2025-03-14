@@ -1,7 +1,7 @@
 {{ define "content" }}
     <div class="product-header">
         <div class="product-vote">
-            <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote" {{ if .voted }}disabled{{ end }}>
+            <a class="vote-button{{if .voted}} active{{end}}" aria-label="投票支持" href="/links/{{ .link.ID }}/vote" {{ if .voted }}disabled{{ end }}>
                 <span aria-hidden="true">▲</span>
                 <span class="vote-count">{{ .link.VoteCount }}</span>
             </a>
@@ -11,9 +11,15 @@
         <div class="product-header-info">
             <a class="product-title" href="{{ .link.URL }}" target="_blank" rel="noopener"><h1 class="product-title">{{ .link.Title }}</h1></a>
             <div class="product-stats">
+                {{if .voted}}
+                <a href="/links/{{ .link.ID }}/unvote" class="stat">
+                    <span class="stat-icon">⭐</span>
+                    <span>取消投票</span>
+                </a>
+                {{end}}
                 <div class="stat">
                     <span class="stat-icon">👁️</span>
-                    <span> 10 次点击</span>
+                    <span> {{.link.ClickCount}} 次点击</span>
                 </div>
                 <div class="stat">
                     <span class="stat-icon">💬</span>
@@ -26,7 +32,7 @@
             </div>
             <div class="product-tags">
                 {{ range .link.Tags }}
-                <a href="/tags/{{ .Name }}" class="tag">{{ .Name }}</a>
+                <a href="/tags/{{ .ID }}" class="tag">{{ .Name }}</a>
                 {{ end }}
             </div>
         </div>
@@ -36,13 +42,12 @@
         <div class="product-main">
             {{ if .link.Description }}
             <div class="product-description">
-                <h2 class="section-title">关于 {{ .link.Title }}</h2>
-                <p>{{ .link.Description }}</p>
+                <p id="post-content">{{ .link.Description }}</p>
             </div>
             {{ end }}
 
             <div class="comments-section">
-                <h2 class="section-title">评论 ({{ len .comments }})</h2>
+                <h2 class="section-title">💬 评论 ({{ len .comments }})</h2>
 
                 {{ if .userInfo }}
                 <div class="new-comment">
@@ -105,35 +110,63 @@
             <div class="sidebar-section maker-profile-container">
                 <div class="maker-profile">
                     <div class="maker-info">
+                        <h3 class="section-title section-title-clean">✨ 创建人</h3>
                         <div class="maker-name">{{ .link.User.Username }}</div>
-                        <div class="maker-title">{{ .link.Title }} 创建人</div>
+                        <div class="maker-title">{{ .link.User.Bio }}</div>
                     </div>
                 </div>
                 <div class="product-links">
                     <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100 mb-md">
                         <span class="link-icon">🏠</span> 查看创建者
                     </a>
+                    {{ if and .userInfo ( or (eq .userInfo.ID .link.UserID) (eq .userInfo.Role "admin")) }}
+                    <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100 mb-md">
+                        <span class="link-icon">📝</span> 编辑链接
+                    </a>
+                    <a href="javascript:void(0);" onclick="confirmDelete('/links/{{ .link.ID }}/delete')" class="btn btn-outline w-100 mb-md">
+                        <span class="link-icon">🗑️</span> 删除链接
+                    </a>
+                    {{end}}
                 </div>
             </div>
 
             <div class="sidebar-section">
-                <h3 class="section-title section-title-clean">相关产品</h3>
+                <h3 class="section-title section-title-clean">✨ 相关链接</h3>
                 <div class="related-products">
-                    <a class="related-product" href="/">
-                        <div class="related-product-info">
-                            <div class="related-product-title">TeamSync</div>
-                            <div class="related-product-votes">竹林是一个类似抽...</div>
+                    {{ if .relatedLinks }}
+                        {{ range .relatedLinks }}
+                        <a class="related-product" href="/links/{{ .ID }}">
+                            <div class="related-product-info">
+                                <div class="related-product-title">{{ .Title }}</div>
+                                <div class="related-product-votes">{{ TruncateString .Description 90 }}</div>
+                            </div>
+                        </a>
+                        {{ end }}
+                    {{ else }}
+                        <div class="empty-state">
+                            <p>😀 暂无推荐链接</p>
                         </div>
-                    </a>
-                    <a class="related-product" href="/">
-                        <div class="related-product-info">
-                            <div class="related-product-title">WorkFlow Pro</div>
-                            <div class="related-product-votes">76 票</div>
-                        </div>
-                    </a>
+                    {{ end }}
                 </div>
             </div>
         </div>
     </div>
     <script src="/static/js/comment.js"></script>
+    <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.2/marked.min.js" type="application/javascript"></script>
+    <script>
+        var html = marked.parse('{{$.link.Description | html}}');
+        // 链接改为新标签页打开
+        html = html.replaceAll('<a href','<a target="_blank" class="dark:text-white/70" rel="noopener noreferrer" href');
+        html = html.replaceAll('<img src','<img referrerpolicy="no-referrer" rel="noopener" loading="lazy" onerror="this.onerror=null; this.src=\'/static/img/imgerr.png\'" src');
+        document.getElementById('post-content').innerHTML = html;
+        function confirmDelete(deleteUrl) {
+            if (confirm("确定要删除这个链接吗？此操作不可撤销。")) {
+                window.location.href = deleteUrl;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // 在这里编写页面加载完成后要执行的 JavaScript 代码
+            click_link('{{ .link.ID }}');
+        });
+    </script>
 {{ end }}

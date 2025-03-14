@@ -57,3 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化
     setupEventListeners();
 });
+
+function click_link(linkId){
+    // 创建一个新的XMLHttpRequest对象
+    const xhr = new XMLHttpRequest();
+    // 配置请求
+    xhr.open('GET', `/links/${linkId}/click`, true);
+    // 发送请求
+    xhr.send();
+}
