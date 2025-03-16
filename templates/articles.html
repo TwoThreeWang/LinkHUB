@@ -1,22 +1,29 @@
 {{ define "content" }}
-    <div class="main-content">
+    <div class="grid-container-left">
         <div class="sidebar">
-            <h3 class="sidebar-title">发现</h3>
+            <a href="/articles/new/" class="btn btn-primary">
+                <i class="fa fa-plus"></i> 发布文章
+            </a>
+
+            <h3 class="sidebar-title mt-xxl">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><span class="sidebar-icon">🔥</span> 热门</a></li>
-                <li><a href="?sort=new"><span class="sidebar-icon">⬆️</span> 最新</a></li>
+                <li><a href="?sort=top"><i class="fa fa-fire"></i>热门</a></li>
+                <li><a href="?sort=new"><i class="fa fa-clock-o"></i>最新</a></li>
             </ul>
 
-            <h3 class="sidebar-title mt-xxl">热门标签</h3>
+            <h3 class="sidebar-title mt-xxl">分类</h3>
             <ul class="sidebar-links">
+                {{ if and .userInfo (eq .userInfo.Role "admin") }}
+                <li><a href="/tags/add"><i class="fa fa-plus"></i> 新增分类</a></li>
+                {{end}}
                 {{ range .popularTags }}
-                <li><a href="/tags/{{ .ID }}"><span class="sidebar-icon">🏷️</span> {{ .Name }}</a></li>
+                <li><a href="/tags/{{ .ID }}"><i class="fa fa-caret-square-o-right"></i> {{ .Name }}</a></li>
                 {{ end }}
             </ul>
         </div>
 
         <div class="content">
-            <h2>{{ if eq .sort "top" }}🔥 热门文章{{ else }}⬆️ 最新文章{{ end }}</h2>
+            <h2>{{ if eq .sort "top" }}<i class="fa fa-fire"></i> 热门文章{{ else }}<i class="fa fa-clock-o"></i> 最新文章{{ end }}</h2>
 
             <div class="product-list">
                 {{ range .articles }}
@@ -45,7 +52,7 @@
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无文章</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
                 </div>
                 {{ end }}
             </div>

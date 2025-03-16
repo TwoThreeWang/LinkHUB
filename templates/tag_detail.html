@@ -1,23 +1,23 @@
 {{ define "content" }}
-    <div class="main-content">
+    <div class="grid-container-left">
         <div class="sidebar">
-            <h3 class="sidebar-title">{{ .tag.Name }} 标签</h3>
+            <h3 class="sidebar-title">排序</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><span class="sidebar-icon">🔥</span> 热门排序</a></li>
-                <li><a href="?sort=new"><span class="sidebar-icon">⬆️</span> 最新排序</a></li>
+                <li><a href="?sort=top"><i class="fa fa-fire"></i>热门排序</a></li>
+                <li><a href="?sort=new"><i class="fa fa-clock-o"></i>最新排序</a></li>
             </ul>
             <h3 class="sidebar-title mt-xxl">标签管理</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><span class="sidebar-icon">🏷️</span> 共 {{ .tag.Count }} 个链接</a></li>
+                <li><a href="?sort=top"><i class="fa fa-tag"></i>共 {{ .tag.Count }} 个链接</a></li>
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')"><span class="sidebar-icon">📝</span> 编辑标签</a></li>
-                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')"><span class="sidebar-icon">🗑️</span> 删除标签</a></li>
+                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')"><i class="fa fa-edit"></i>编辑标签</a></li>
+                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')"><i class="fa fa-remove"></i>删除标签</a></li>
                 {{end}}
             </ul>
         </div>
 
         <div class="content">
-            <h2>{{ if eq .sort "top" }}🔥 热门链接{{ else }}⬆️ 最新链接{{ end }}</h2>
+            <h2><i class="fa fa-tag"></i>&nbsp;&nbsp;{{ .tag.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
             <div class="product-list">
                 {{ range .links }}
                 <article class="product-card">
@@ -31,7 +31,7 @@
                         <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Description 250 }}</p>
                         <div class="product-tags" role="list">
-                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
+                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
                             <a href="/tags/{{ .ID }}" class="tag" role="listitem">{{ .Name }}</a>
                             {{ end }}
@@ -40,7 +40,7 @@
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无链接</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
                 </div>
                 {{ end }}
             </div>
@@ -83,24 +83,26 @@
         }
     }
     function deleteTag(id) {
-        fetch('/tags/'+id+'/delete', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status == 200) {
-                window.location.href = '/tags';
-            } else {
-                alert(data.message || '删除标签失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('删除标签失败');
-        });
+        if (confirm("确定要删除这个标签吗？此操作不可撤销。")) {
+            fetch('/tags/'+id+'/delete', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status == 200) {
+                        window.location.href = '/tags';
+                    } else {
+                        alert(data.message || '删除标签失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除标签失败');
+                });
+        }
     }
     </script>
 {{ end }}

@@ -46,7 +46,12 @@
     --z-index-header: 100; /* 头部层级 */
     --z-index-tooltip: 500; /* 提示层级 */
   }
-
+.w-100{
+    display: block;
+    width: 100% !important;
+    margin: var(--space-sm) 0;
+}
+.mt-xxl { margin-top: var(--space-xxl); }
 * {
     box-sizing: border-box;
     margin: 0;
@@ -78,6 +83,9 @@ a {
 }
 a:hover {
     color: var(--color-primary);
+}
+h1,h2,h3{
+    margin: 0.8rem 0;
 }
 /* 按钮样式 */
 button,.btn {
@@ -147,15 +155,52 @@ input:focus, textarea:focus {
     border-color: var(--color-primary);
     outline: none;
 }
-/* 文章内容样式 */
-blockquote, ul, ol, dl, li, table, pre {
-    margin: var(--space-lg) 0;
+/* 标签选择样式 */
+.product-tags {
+    display: flex;
+    gap: var(--space-sm);
+    margin: 0.6rem 0;
+    flex-wrap: wrap;
 }
-h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
-    margin-top: 0;
+.tag-checkbox {
+    position: relative;
+    cursor: pointer;
+}
+.tag-checkbox input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+}
+.checkbox-label {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-xs);
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+.tag-checkbox input[type="checkbox"]:checked + .checkbox-label {
+    background: var(--color-primary);
+    color: var(--color-text-light);
+    border-color: var(--color-border);
+}
+.tag-checkbox input[type="checkbox"]:checked + .checkbox-label::after {
+    content: '✓';
+    margin-left: 8px;
+}
+.tag-checkbox:hover .checkbox-label {
+    border-color: var(--color-primary);
+}
+/* 文章内容样式 */
+p{
+    margin-bottom: var(--space-md);
+    line-height: 1.7rem;
+}
+blockquote, ul, ol, dl, li, table, pre {
+    margin: var(--space-xs) 0;
 }
 ul, ol {
-    padding-left: var(--space-sm);
+    padding-left: var(--space-md);
 }
 blockquote {
     border-left: 2px solid var(--color-primary);
@@ -167,6 +212,7 @@ blockquote >:first-child {
 blockquote >:last-child {
     margin-bottom: 0;
 }
+
 /* 表格样式 */
 table {
     padding: 0;
@@ -217,7 +263,7 @@ img {
 .grid-container-right {
     display: grid;
     grid-gap: var(--space-xs);
-    grid-template-columns: 1fr 3fr; /* 左侧1份，右侧3份 */
+    grid-template-columns: 3fr 1fr; /* 左侧3份，右侧1份 */
 }
 /* Header样式 */
 header {
@@ -284,8 +330,8 @@ header {
 .sidebar-links li {
     margin: var(--space-md) 0;
 }
-.icon {
-    margin-right: var(--space-sm);
+.icon,.fa {
+    margin-right: var(--space-xs);
     width: 16px;
     height: 16px;
 }
@@ -362,6 +408,139 @@ header {
 .empty-state{
     margin: var(--space-xxl) 0;
 }
+/* 产品详情页顶部卡片 */
+.product-header {
+    margin: var(--space-xl) 0;
+    border-radius: var(--border-radius);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--space-xl);
+    align-items: flex-start;
+}
+.vote-label{
+    font-size: var(--font-size-xs);
+}
+.product-header-info {
+    flex: 1;
+    min-width: 0;
+}
+.product-stats {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: var(--space-sm);
+}
+/* 内容主区域样式 */
+.content-main{
+    border: 1px solid var(--color-border);
+    padding: var(--space-lg);
+    border-radius: var(--border-radius);
+}
+/* 评论区样式 */
+.comments-section {
+    margin-top: var(--space-xl);
+    border-top: 1px solid var(--color-border);
+}
+.comment {
+    padding: var(--space-lg) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+.comment-header{
+    padding-bottom: var(--space-lg);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+.comment-author {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+.comment-text {
+    line-height: 1.5;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+    padding-left: var(--space-sm);
+}
+.comment-replies{
+    border-left: 1px dashed var(--color-border);
+    padding-left: 1.5rem;
+}
+.new-comment {
+    margin-top: var(--space-xl);
+}
+/* 文章内侧栏样式 */
+.sidebar-main {
+    border-radius: var(--border-radius);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border: 1px solid var(--color-border);
+}
+.sidebar-main .title{
+    border-left: 3px solid var(--color-primary);
+    padding-left: 1rem;
+    margin-left: calc(var(--space-lg) * -1);
+}
+/* 侧栏产品卡片 */
+.related-product {
+    display: flex;
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+.related-product:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.related-product-title {
+    margin-bottom: var(--space-xs);
+    color: var(--color-text);
+}
+.related-product-votes {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+/* 侧栏用户头像 */
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    margin-bottom: var(--spacing-sm);
+    border: 2px solid var(--light-gray);
+}
+/* 用户中心卡片 */
+.stats-cards {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-rows: repeat(2, 100px);
+    margin-bottom: 2rem;
+}
+.stats-card {
+    flex: 1;
+    padding: var(--space-xl);
+    text-align: center;
+    min-width: 200px;
+    gap: 1.5rem;
+}
+.stats-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.stats-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.stats-number {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 0.25rem;
+}
+.stats-label {
+    color: var(--color-text-secondary);
+}
 /* 登录注册样式 */
 .auth-form {
     max-width: 400px;
@@ -392,6 +571,34 @@ header {
     margin-bottom: 1rem;
     font-size: 0.9rem;
     text-align: center;
+}
+/* 结果提示页面样式 */
+.result-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: var(--space-xxl);
+}
+.result-box {
+    max-width: 500px;
+    width: 100%;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    padding: var(--space-xxl);
+    text-align: center;
+}
+.result-box h2 {
+    margin-bottom: 1rem;
+    font-size: var(--font-size-lg);
+}
+.result-message {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xl);
+    line-height: 1.5;
+}
+.result-action {
+    margin-top: var(--space-xxl);
 }
 /* 页脚样式 */
 footer {

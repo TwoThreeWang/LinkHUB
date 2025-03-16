@@ -9,26 +9,14 @@
         </div>
 
         <div class="product-header-info">
-            <a class="product-title" href="{{ .link.URL }}" target="_blank" rel="noopener"><h1 class="product-title">{{ .link.Title }}</h1></a>
+            <a class="product-title" href="{{ .link.URL }}" target="_blank" rel="noopener">{{ .link.Title }}</a>
             <div class="product-stats">
                 {{if .voted}}
-                <a href="/links/{{ .link.ID }}/unvote" class="stat">
-                    <span class="stat-icon">⭐</span>
-                    <span>取消投票</span>
-                </a>
+                <a href="/links/{{ .link.ID }}/unvote" class="tag primary-link">▲ 取消投票</a>
                 {{end}}
-                <div class="stat">
-                    <span class="stat-icon">👁️</span>
-                    <span> {{.link.ClickCount}} 次点击</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">💬</span>
-                    <span>{{ len .comments }} 条评论</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">🔗</span>
-                    <a href="{{ .link.URL }}" target="_blank" class="visit-link" rel="noopener">访问网站</a>
-                </div>
+                <a href="{{ .link.URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .link.ID }}')">访问网站 →</a>
+                <span class="tag"><i class="fa fa-eye"></i>{{.link.ClickCount}} 次点击</span>
+                <span class="tag"><i class="fa fa-comments-o"></i>{{ len .comments }} 条评论</span>
             </div>
             <div class="product-tags">
                 {{ range .link.Tags }}
@@ -38,8 +26,8 @@
         </div>
     </div>
 
-    <div class="product-content">
-        <div class="product-main">
+    <div class="grid-container-right">
+        <div class="content-main">
             {{ if .link.Description }}
             <div class="product-description">
                 <p id="post-content">{{ .link.Description }}</p>
@@ -47,13 +35,13 @@
             {{ end }}
 
             <div class="comments-section">
-                <h2 class="section-title">💬 评论 ({{ len .comments }})</h2>
+                <h2 class="section-title"><i class="fa fa-comments-o"></i> 评论 ({{ len .comments }})</h2>
 
                 {{ if .userInfo }}
                 <div class="new-comment">
                     <form action="/comments" method="POST">
                         <input type="hidden" name="link_id" value="{{ .link.ID }}">
-                        <textarea name="content" class="comment-textarea" placeholder="分享你的想法..."></textarea>
+                        <textarea name="content" rows="5" placeholder="分享你的想法..."></textarea>
                         <button type="submit" class="btn btn-primary">发表评论</button>
                     </form>
                 </div>
@@ -67,7 +55,7 @@
                     {{ range .comments }}
                     <div class="comment">
                         <div class="comment-header">
-                            <span class="comment-author">{{ .User.Username }}</span>
+                            <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
                             <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
                             <a href="javascript:void(0);" class="comment-time" onclick="toggleReplyForm('{{ .ID }}')">回复</a>
                         </div>
@@ -77,7 +65,7 @@
                             <form action="/comments" method="POST" class="comment-reply-form">
                                 <input type="hidden" name="link_id" value="{{ $.link.ID }}">
                                 <input type="hidden" name="parent_id" value="{{ .ID }}">
-                                <textarea name="content" class="comment-textarea" placeholder="回复 {{ .User.Username }}..."></textarea>
+                                <textarea name="content" rows="5" placeholder="回复 {{ .User.Username }}..."></textarea>
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary">发表回复</button>
                                     <button type="button" class="btn btn-outline" onclick="toggleReplyForm('{{ .ID }}')">取消</button>
@@ -91,7 +79,7 @@
                             <div class="comment reply">
                                 <div class="comment-content">
                                     <div class="comment-header">
-                                        <span class="comment-author">{{ .User.Username }}</span>
+                                        <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
                                         <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
                                     </div>
                                     <p class="comment-text">{{ .Content }}</p>
@@ -107,31 +95,25 @@
         </div>
 
         <div class="product-sidebar">
-            <div class="sidebar-section maker-profile-container">
-                <div class="maker-profile">
-                    <div class="maker-info">
-                        <h3 class="section-title section-title-clean">✨ 创建人</h3>
-                        <div class="maker-name">{{ .link.User.Username }}</div>
-                        <div class="maker-title">{{ .link.User.Bio }}</div>
-                    </div>
-                </div>
-                <div class="product-links">
-                    <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100 mb-md">
-                        <span class="link-icon">🏠</span> 查看创建者
-                    </a>
-                    {{ if and .userInfo ( or (eq .userInfo.ID .link.UserID) (eq .userInfo.Role "admin")) }}
-                    <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100 mb-md">
-                        <span class="link-icon">📝</span> 编辑链接
-                    </a>
-                    <a href="javascript:void(0);" onclick="confirmDelete('/links/{{ .link.ID }}/delete')" class="btn btn-outline w-100 mb-md">
-                        <span class="link-icon">🗑️</span> 删除链接
-                    </a>
-                    {{end}}
-                </div>
+            <div class="sidebar-main">
+                <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
+                <p>{{ .link.User.Username }}</p>
+                <small>{{ .link.User.Bio }}</small>
+                <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">
+                    <i class="fa fa-home"></i> 查看创建者
+                </a>
+                {{ if and .userInfo ( or (eq .userInfo.ID .link.UserID) (eq .userInfo.Role "admin")) }}
+                <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100">
+                    <i class="fa fa-edit"></i> 编辑链接
+                </a>
+                <a href="javascript:void(0);" onclick="confirmDelete('/links/{{ .link.ID }}/delete')" class="btn btn-outline w-100">
+                    <i class="fa fa-remove"></i> 删除链接
+                </a>
+                {{end}}
             </div>
 
-            <div class="sidebar-section">
-                <h3 class="section-title section-title-clean">✨ 相关链接</h3>
+            <div class="sidebar-main">
+                <p class="title"><i class="fa fa-podcast"></i> 相关链接</p>
                 <div class="related-products">
                     {{ if .relatedLinks }}
                         {{ range .relatedLinks }}
@@ -144,7 +126,7 @@
                         {{ end }}
                     {{ else }}
                         <div class="empty-state">
-                            <p>😀 暂无推荐链接</p>
+                            <p><i class="fa fa-circle-o-notch"></i> 暂无推荐链接</p>
                         </div>
                     {{ end }}
                 </div>

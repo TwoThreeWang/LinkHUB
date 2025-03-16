@@ -1,6 +1,6 @@
 {{ define "content" }}
 <div class="content">
-    <h2>🔎 {{ .title }} ({{.total}})</h2>
+    <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
 
     <div class="product-list">
         {{ range .links }}
@@ -15,7 +15,7 @@
                 <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
                 <p class="product-description">{{ TruncateString .Description 250 }}</p>
                 <div class="product-tags" role="list">
-                    <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
+                    <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                     {{ range .Tags }}
                     <a href="/tags/{{ .ID }}" class="tag" role="listitem">{{ .Name }}</a>
                     {{ end }}
@@ -24,7 +24,7 @@
         </article>
         {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无搜索结果</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无搜索结果</p>
                 </div>
         {{ end }}
     </div>

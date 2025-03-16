@@ -3,20 +3,20 @@
         <div class="sidebar">
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><span class="icon">🔥</span>热门</a></li>
-                <li><a href="?sort=new"><span class="icon">⬆️</span>最新</a></li>
+                <li><a href="?sort=top"><i class="fa fa-fire"></i>热门</a></li>
+                <li><a href="?sort=new"><i class="fa fa-clock-o"></i>最新</a></li>
             </ul>
 
             <h3 class="sidebar-title mt-xxl">热门标签</h3>
             <ul class="sidebar-links">
                 {{ range .popularTags }}
-                <li><a href="/tags/{{ .ID }}"><span class="icon">🏷️</span>{{ .Name }}</a></li>
+                <li><a href="/tags/{{ .ID }}"><i class="fa fa-tag"></i>{{ .Name }}</a></li>
                 {{ end }}
             </ul>
         </div>
 
         <div class="content">
-            <h2>{{ if eq .sort "top" }}🔥 热门链接{{ else }}⬆️ 最新链接{{ end }}</h2>
+            <h2>{{ if eq .sort "top" }}<i class="fa fa-fire"></i> 热门链接{{ else }}<i class="fa fa-clock-o"></i> 最新链接{{ end }}</h2>
 
             <div class="product-list">
                 {{ range .links }}
@@ -40,7 +40,7 @@
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无链接</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
                 </div>
                 {{ end }}
             </div>

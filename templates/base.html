@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .title }} - LinkHUB</title>
     <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <header>
@@ -24,9 +25,9 @@
                     <a href="/tags">标签</a>
                     <a href="/links/new" class="btn btn-primary">分享链接</a>
                     {{ if .userInfo }}
-                        <a href="/user/profile"><span class="icon">😀</span>{{ .userInfo.Username }}</a>
+                        <a href="/user/profile"><i class="fa fa-user-circle-o"></i>{{ .userInfo.Username }}</a>
                     {{ else }}
-                        <a href="/auth/login">登录</a>
+                        <a href="/auth/login"><i class="fa fa-user-circle-o"></i>登录</a>
                     {{ end }}
                 </div>
             </div>

@@ -1,26 +1,26 @@
 {{ define "content" }}
-    <div class="main-content">
+    <div class="grid-container-left">
         <div class="sidebar">
             <div class="maker-profile">
                 <div class="maker-info">
-                    <img src="{{ .user.Avatar }}" class="maker-avatar">
-                    <div class="maker-name">{{ .user.Username }}</div>
-                    <div class="maker-title">{{ .user.Bio }}</div>
-                    <div class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</div>
+                    <img src="{{ .user.Avatar }}" class="avatar">
+                    <p class="maker-name">{{ .user.Username }}</p>
+                    <div><small class="maker-title">{{ .user.Bio }}</small></div>
+                    <div><small class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</small></div>
                 </div>
             </div>
             <br>
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=overview" class="active"><span class="sidebar-icon">👤</span> 概览</a></li>
-                <li><a href="?sort=links"><span class="sidebar-icon">📦</span> 所有链接</a></li>
-                <li><a href="?sort=votes"><span class="sidebar-icon">⭐</span> 投票链接</a></li>
-                <li><a href="?sort=comments"><span class="sidebar-icon">💬</span> 所有评论</a></li>
+                <li><a href="?sort=overview" class="active"><i class="fa fa-tachometer"></i>概览</a></li>
+                <li><a href="?sort=links"><i class="fa fa-link"></i>所有链接</a></li>
+                <li><a href="?sort=votes"><i class="fa fa-star"></i>投票链接</a></li>
+                <li><a href="?sort=comments"><i class="fa fa-comments-o"></i>所有评论</a></li>
                 {{ if .userInfo }}
                     {{ if eq .user.ID .userInfo.ID }}
-                    <li><a href="?sort=notifications"><span class="sidebar-icon">🔔</span> 通知中心</a></li>
-                    <li><a href="?sort=setting"><span class="sidebar-icon">⚙️</span> 账户设置</a></li>
-                    <li><a href="/auth/logout"><span class="sidebar-icon">⏏️</span> 退出登录</a></li>
+                    <li><a href="?sort=notifications"><i class="fa fa-bell-o"></i>通知中心</a></li>
+                    <li><a href="?sort=setting"><i class="fa fa-cog"></i>账户设置</a></li>
+                    <li><a href="/auth/logout"><i class="fa fa-power-off"></i>退出登录</a></li>
                     {{ end }}
                 {{ end }}
             </ul>
@@ -28,24 +28,24 @@
 
         <div class="content">
             {{ if eq .sort "overview" }}
-            <h2>概览</h2>
+            <h2><i class="fa fa-tachometer"></i>&nbsp;&nbsp;&nbsp;概览</h2>
             <div class="stats-cards">
                 <a href="?sort=links" class="product-card stats-card">
-                    <div class="stats-icon">📦</div>
+                    <div class="stats-icon"><i class="fa fa-link"></i></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Links }}</div>
                         <div class="stats-label">所有链接</div>
                     </div>
                 </a>
                 <a href="?sort=comments" class="product-card stats-card">
-                    <div class="stats-icon">💬</div>
+                    <div class="stats-icon"><i class="fa fa-comments-o"></i></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Comments }}</div>
                         <div class="stats-label">所有评论</div>
                     </div>
                 </a>
                 <a href="?sort=votes" class="product-card stats-card">
-                    <div class="stats-icon">⭐</div>
+                    <div class="stats-icon"><i class="fa fa-star"></i></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Votes }}</div>
                         <div class="stats-label">投票链接</div>
@@ -53,7 +53,7 @@
                 </a>
             </div>
             {{ else if eq .sort "comments" }}
-            <h2>所有评论</h2>
+            <h2><i class="fa fa-comments-o"></i>&nbsp;&nbsp;&nbsp;所有评论</h2>
 
             <div class="comment-list">
                 {{ range .user.Comments }}
@@ -67,12 +67,12 @@
                     </div>
                     {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无评论</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "votes" }}
-            <h2>投票链接</h2>
+            <h2><i class="fa fa-star"></i>&nbsp;&nbsp;&nbsp;投票链接</h2>
 
             <div class="product-list">
                 {{ range .user.Votes }}
@@ -87,18 +87,18 @@
                         <a href="/links/{{ .Link.ID }}" class="product-title">{{ .Link.Title }}</a>
                         <p class="product-description">{{ TruncateString .Link.Description 250 }}</p>
                         <div class="product-tags" role="list">
-                            <a href="{{ .Link.URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .Link.ID }}')">访问网站 →</a>
+                            <a href="{{ .Link.URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .Link.ID }}')">访问网站 →</a>
                         </div>
                     </div>
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无投票</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无投票</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "links" }}
-            <h2>所有链接</h2>
+            <h2><i class="fa fa-link"></i>&nbsp;&nbsp;&nbsp;所有链接</h2>
 
             <div class="product-list">
                 {{ range .user.Links }}
@@ -113,7 +113,7 @@
                         <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Description 250 }}</p>
                         <div class="product-tags" role="list">
-                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag visit-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
+                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
                             <a href="/tags/{{ .Name }}" class="tag" role="listitem">{{ .Name }}</a>
                             {{ end }}
@@ -122,17 +122,17 @@
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p>😀 暂无链接</p>
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "notifications" }}
-            <h2>通知中心</h2>
+            <h2><i class="fa fa-bell-o"></i>&nbsp;&nbsp;&nbsp;通知中心</h2>
             <div class="empty-state">
                 <p>😀 功能开发中。</p>
             </div>
             {{ else if eq .sort "setting" }}
-                <h2>账户设置</h2>
+                <h2><i class="fa fa-cog"></i>&nbsp;&nbsp;&nbsp;账户设置</h2>
                 <br>
                 <form action="/user/profile" method="POST">
                     <div class="form-group">

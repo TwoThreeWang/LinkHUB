@@ -19,7 +19,9 @@
     --font-size-lg: 1.3rem;
     --border-radius: 4px;
 }
-
+.w-100{
+    width: 100% !important;
+}
 * {
     box-sizing: border-box;
     margin: 0;

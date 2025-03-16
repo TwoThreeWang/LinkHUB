@@ -9,7 +9,7 @@ type Link struct {
 	gorm.Model
 	Title       string    `gorm:"size:200;not null" json:"title"`
 	URL         string    `gorm:"size:500;not null" json:"url"`
-	Description string    `gorm:"size:1000" json:"description"`
+	Description string    `gorm:"text" json:"description"`
 	UserID      uint      `gorm:"not null" json:"user_id"`
 	User        User      `json:"user,omitempty"`
 	VoteCount   int       `gorm:"default:0" json:"vote_count"`
