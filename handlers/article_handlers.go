@@ -11,7 +11,6 @@ import (
 
 // ListArticles 获取文章列表
 func ListArticles(c *gin.Context) {
-	userInfo := GetCurrentUser(c)
 	// 获取分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -61,15 +60,14 @@ func ListArticles(c *gin.Context) {
 	database.GetDB().Order("count DESC").Find(&categories)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "articles", gin.H{
+	c.HTML(http.StatusOK, "articles", OutputCommonSession(c, gin.H{
 		"title":      "文章列表",
 		"articles":   articles,
 		"page":       page,
 		"totalPages": totalPages,
 		"sort":       sort,
 		"categories": categories,
-		"userInfo":   userInfo,
-	})
+	}))
 }
 
 // ShowArticle 显示文章详情
