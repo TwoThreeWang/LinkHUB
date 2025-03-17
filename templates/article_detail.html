@@ -5,59 +5,35 @@
 {{ end }}
 
 {{ define "content" }}
-    <div class="product-header">
-        <div class="product-vote">
-            <a class="vote-button{{if .liked}} active{{end}}" aria-label="点赞支持" href="#" {{ if .liked }}disabled{{ end }}>
-                <span aria-hidden="true">👍</span>
-                <span class="vote-count">{{ .article.LikeCount }}</span>
-            </a>
-            <span class="vote-label">点赞支持</span>
-        </div>
 
-        <div class="product-header-info">
-            <h1 class="product-title">{{ .article.Title }}</h1>
-            <div class="product-stats">
-                <div class="stat">
-                    <span class="stat-icon">👁️</span>
-                    <span> {{.article.ViewCount}} 次浏览</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">💬</span>
-                    <span>{{ len .article.Comments }} 条评论</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">👤</span>
-                    <span>作者: {{ .article.User.Username }}</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">🕒</span>
-                    <span>{{ .article.CreatedAt.Format "2006-01-02 15:04" }}</span>
-                </div>
-            </div>
-            <div class="product-tags">
-                {{ range .article.Tags }}
-                <a href="/tags/{{ .ID }}" class="tag">{{ .Name }}</a>
-                {{ end }}
-            </div>
-        </div>
-    </div>
 
-    <div class="product-content">
-        <div class="product-main">
-            {{ if .article.Content }}
-            <div class="article-content">
-                <div id="article-content">{{ .article.Content }}</div>
+    <div class="grid-container-right">
+        <div class="content-main">
+            <div class="article-header">
+                <div class="product-header-info">
+                    <h1 class="product-title">{{ .article.Title }}</h1>
+                    <div class="product-stats">
+                        <a href="/categories/{{ .article.CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .article.Category.Name }}</a>
+                        <a href="/user/profile/{{ .article.User.ID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .article.User.Username }}</a>
+                        <span class="tag"><i class="fa fa-eye"></i>{{.article.ViewCount}} 次浏览</span>
+                        <span class="tag"><i class="fa fa-comments-o"></i>{{ len .article.Comments }} 条评论</span>
+                        <span class="tag"><i class="fa fa-clock-o"></i>{{ .article.CreatedAt.Format "2006-01-02" }}</span>
+                    </div>
+                </div>
             </div>
-            {{ end }}
+
+            <div class="product-description">
+                <p id="post-content">{{ .article.Content }}</p>
+            </div>
 
             <div class="comments-section">
-                <h2 class="section-title">💬 评论 ({{ len .article.Comments }})</h2>
+                <h2 class="section-title"><i class="fa fa-comments-o"></i> 评论 ({{ len .article.Comments }})</h2>
 
                 {{ if .userInfo }}
                 <div class="new-comment">
                     <form action="/article-comments" method="POST">
                         <input type="hidden" name="article_id" value="{{ .article.ID }}">
-                        <textarea name="content" class="comment-textarea" placeholder="分享你的想法..."></textarea>
+                        <textarea name="content" rows="5" placeholder="分享你的想法..."></textarea>
                         <button type="submit" class="btn btn-primary">发表评论</button>
                     </form>
                 </div>
@@ -68,36 +44,38 @@
                 {{ end }}
 
                 <div class="comment-list">
-                    {{ range .article.Comments }}
-                    <div class="comment" id="comment-{{ .ID }}">
+                    {{ range .comments }}
+                    <div class="comment">
                         <div class="comment-header">
-                            <span class="comment-author">{{ .User.Username }}</span>
+                            <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
                             <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                            <a href="javascript:void(0);" class="comment-time" onclick="toggleReplyForm('{{ .ID }}')">回复</a>
                         </div>
                         <p class="comment-text">{{ .Content }}</p>
                         {{ if $.userInfo }}
-                        <div class="comment-actions">
-                            <a href="javascript:void(0)" onclick="toggleReplyForm('{{ .ID }}')" class="reply-link">回复</a>
-                            <div id="reply-form-{{ .ID }}" class="reply-form" style="display: none;">
-                                <form action="/article-comments" method="POST">
-                                    <input type="hidden" name="article_id" value="{{ $.article.ID }}">
-                                    <input type="hidden" name="parent_id" value="{{ .ID }}">
-                                    <textarea name="content" class="comment-textarea" placeholder="回复 {{ .User.Username }}..."></textarea>
-                                    <button type="submit" class="btn btn-sm btn-primary">提交回复</button>
-                                </form>
-                            </div>
+                        <div class="reply-form" id="reply-form-{{ .ID }}" style="display: none;">
+                            <form action="/article-comments" method="POST" class="comment-reply-form">
+                                <input type="hidden" name="article_id" value="{{ $.article.ID }}">
+                                <input type="hidden" name="parent_id" value="{{ .ID }}">
+                                <textarea name="content" rows="5" placeholder="回复 {{ .User.Username }}..."></textarea>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">发表回复</button>
+                                    <button type="button" class="btn btn-outline" onclick="toggleReplyForm('{{ .ID }}')">取消</button>
+                                </div>
+                            </form>
                         </div>
                         {{ end }}
-
                         {{ if .Replies }}
                         <div class="comment-replies">
                             {{ range .Replies }}
-                            <div class="comment reply" id="comment-{{ .ID }}">
-                                <div class="comment-header">
-                                    <span class="comment-author">{{ .User.Username }}</span>
-                                    <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                            <div class="comment reply">
+                                <div class="comment-content">
+                                    <div class="comment-header">
+                                        <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
+                                        <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                                    </div>
+                                    <p class="comment-text">{{ .Content }}</p>
                                 </div>
-                                <p class="comment-text">{{ .Content }}</p>
                             </div>
                             {{ end }}
                         </div>
@@ -105,7 +83,7 @@
                     </div>
                     {{else}}
                     <div class="empty-state">
-                        <p>😀 暂无评论</p>
+                        <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
                     </div>
                     {{ end }}
                 </div>
@@ -114,30 +92,21 @@
 
         <div class="product-sidebar">
             {{ if and .userInfo (or (eq .userInfo.ID .article.UserID) (eq .userInfo.Role "admin")) }}
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">管理</h3>
-                <div class="sidebar-actions">
-                    <a href="/articles/{{ .article.ID }}/update" class="btn btn-outline btn-block">编辑文章</a>
-                    <a href="/articles/{{ .article.ID }}/delete" class="btn btn-danger btn-block" onclick="return confirm('确定要删除这篇文章吗？');">删除文章</a>
-                </div>
+            <div class="sidebar-main">
+                <p class="title"><i class="fa fa-cog"></i>管理</p>
+                <a href="/articles/{{ .article.ID }}/update" class="btn btn-outline w-100">编辑文章</a>
+                <a href="/articles/{{ .article.ID }}/delete" class="btn btn-outline w-100" onclick="return confirm('确定要删除这篇文章吗？');">删除文章</a>
             </div>
             {{ end }}
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">作者信息</h3>
-                <div class="author-info">
-                    <div class="author-avatar">
-                        <img src="{{ if .article.User.Avatar }}{{ .article.User.Avatar }}{{ else }}/static/img/avatar.jpg{{ end }}" alt="{{ .article.User.Username }}">
-                    </div>
-                    <div class="author-details">
-                        <h4 class="author-name">{{ .article.User.Username }}</h4>
-                        {{ if .article.User.Bio }}
-                        <p class="author-bio">{{ .article.User.Bio }}</p>
-                        {{ end }}
-                        <a href="/user/profile/{{ .article.User.ID }}" class="btn btn-sm btn-outline">查看作者主页</a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+<script src="/static/js/comment.js"></script>
+<script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.2/marked.min.js" type="application/javascript"></script>
+<script>
+    var html = marked.parse('{{$.article.Content | html}}');
+    // 链接改为新标签页打开
+    html = html.replaceAll('<a href','<a target="_blank" class="dark:text-white/70" rel="noopener noreferrer" href');
+    html = html.replaceAll('<img src','<img referrerpolicy="no-referrer" rel="noopener" loading="lazy" onerror="this.onerror=null; this.src=\'/static/img/imgerr.png\'" src');
+    document.getElementById('post-content').innerHTML = html;
+</script>
 {{ end }}

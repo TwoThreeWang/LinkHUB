@@ -95,6 +95,10 @@
                         </div>
                         {{ end }}
                     </div>
+                    {{else}}
+                    <div class="empty-state">
+                        <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
+                    </div>
                     {{ end }}
                 </div>
             </div>
@@ -112,7 +116,7 @@
                 <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100">
                     <i class="fa fa-edit"></i> 编辑链接
                 </a>
-                <a href="javascript:void(0);" onclick="confirmDelete('/links/{{ .link.ID }}/delete')" class="btn btn-outline w-100">
+                <a href="confirmDelete('/links/{{ .link.ID }}/delete" onclick="return confirm('确定要删除这个链接吗？此操作不可撤销！');" class="btn btn-outline w-100">
                     <i class="fa fa-remove"></i> 删除链接
                 </a>
                 {{end}}
@@ -147,13 +151,7 @@
         html = html.replaceAll('<a href','<a target="_blank" class="dark:text-white/70" rel="noopener noreferrer" href');
         html = html.replaceAll('<img src','<img referrerpolicy="no-referrer" rel="noopener" loading="lazy" onerror="this.onerror=null; this.src=\'/static/img/imgerr.png\'" src');
         document.getElementById('post-content').innerHTML = html;
-        function confirmDelete(deleteUrl) {
-            if (confirm("确定要删除这个链接吗？此操作不可撤销。")) {
-                window.location.href = deleteUrl;
-            }
-        }
         document.addEventListener('DOMContentLoaded', function() {
-            // 在这里编写页面加载完成后要执行的 JavaScript 代码
             click_link('{{ .link.ID }}');
         });
     </script>

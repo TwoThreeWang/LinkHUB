@@ -75,33 +75,37 @@ func ShowArticle(c *gin.Context) {
 	// 获取文章ID
 	id := c.Param("id")
 
-	// 获取当前用户
-	userInfo := GetCurrentUser(c)
-
 	// 查询文章
 	var article models.Article
-	result := database.GetDB().Preload("User").Preload("Category").Preload("Comments").Preload("Comments.User").Preload("Comments.Replies").Preload("Comments.Replies.User").First(&article, id)
+	result := database.GetDB().Preload("User").Preload("Category").First(&article, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "文章不存在",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
+
+	// 获取评论
+	var comments []models.ArticleComment
+	database.GetDB().Where("article_id = ? AND parent_id IS NULL", article.ID).
+		Preload("User").
+		Preload("Replies").
+		Preload("Replies.User").
+		Order("created_at ASC").
+		Find(&comments)
 
 	// 增加浏览量
 	article.IncreaseViewCount()
 	database.GetDB().Save(&article)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "article_detail", gin.H{
+	c.HTML(http.StatusOK, "article_detail", OutputCommonSession(c, gin.H{
 		"title":    article.Title,
 		"article":  article,
-		"userInfo": userInfo,
-	})
+		"comments": comments,
+	}))
 }
 
 // ShowNewArticle 显示创建文章页面
@@ -134,7 +138,7 @@ func CreateArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "去登陆",
@@ -231,7 +235,11 @@ func ShowUpdateArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.Redirect(http.StatusFound, "/auth/login")
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "用户未登录",
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -239,25 +247,21 @@ func ShowUpdateArticle(c *gin.Context) {
 	var article models.Article
 	result := database.GetDB().Preload("Category").First(&article, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "文章不存在",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
 	// 检查权限
 	if article.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusForbidden, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
-			"message":       "您没有权限编辑此文章",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "没有权限编辑此文章",
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -266,12 +270,11 @@ func ShowUpdateArticle(c *gin.Context) {
 	database.GetDB().Find(&categories)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "update_article", gin.H{
+	c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
 		"title":      "编辑文章",
 		"article":    article,
 		"categories": categories,
-		"userInfo":   userInfo,
-	})
+	}))
 }
 
 // UpdateArticle 更新文章
@@ -282,7 +285,11 @@ func UpdateArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.Redirect(http.StatusFound, "/auth/login")
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "用户未登录",
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -290,25 +297,21 @@ func UpdateArticle(c *gin.Context) {
 	var article models.Article
 	result := database.GetDB().First(&article, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "文章不存在",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
 	// 检查权限
 	if article.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusForbidden, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "您没有权限编辑此文章",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -319,13 +322,15 @@ func UpdateArticle(c *gin.Context) {
 
 	// 验证数据
 	if title == "" || content == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
-			"message":       "标题和内容不能为空",
-			"redirect_text": "返回",
-			"redirect_url":  "/articles/" + id + "/update",
-		})
+		// 查询所有分类
+		var categories []models.Category
+		database.GetDB().Find(&categories)
+		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+			"title":      "编辑文章",
+			"article":    article,
+			"categories": categories,
+			"error":      "标题和内容不能为空",
+		}))
 		return
 	}
 
@@ -363,13 +368,11 @@ func UpdateArticle(c *gin.Context) {
 	// 保存文章
 	result = database.GetDB().Save(&article)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "更新文章失败: " + result.Error.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  "/articles/" + id + "/update",
-		})
+		}))
 		return
 	}
 
@@ -385,7 +388,11 @@ func DeleteArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.Redirect(http.StatusFound, "/auth/login")
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "您没有权限删除此文章",
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -393,25 +400,21 @@ func DeleteArticle(c *gin.Context) {
 	var article models.Article
 	result := database.GetDB().First(&article, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "文章不存在",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
 	// 检查权限
 	if article.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusForbidden, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "您没有权限删除此文章",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 
@@ -427,13 +430,11 @@ func DeleteArticle(c *gin.Context) {
 	// 删除文章
 	result = database.GetDB().Delete(&article)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "删除文章失败: " + result.Error.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  "/articles",
-		})
+		}))
 		return
 	}
 

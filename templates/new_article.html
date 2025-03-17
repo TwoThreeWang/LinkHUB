@@ -6,20 +6,20 @@
 
 {{ define "content" }}
 <div class="content">
-    <h2>✨️ 创建新文章</h2>
+    <h2>✨️ {{ if .article }}编辑{{else}}创建新{{end}}文章</h2>
     <br>
     {{ if .error }}
     <div class="error-message">{{ .error }}</div>
     {{ end }}
-    <form action="/articles/new" method="POST" class="form">
+    <form action="{{ if .article }}/articles/{{.article.ID}}/update{{else}}/articles/new{{end}}" method="POST" class="form">
         <div class="form-group">
             <label for="title">标题</label>
-            <input type="text" id="title" name="title" required class="form-control" placeholder="请输入文章标题">
+            <input type="text" id="title" name="title" required class="form-control" placeholder="请输入文章标题" {{ if .article.Title }}value="{{ .article.Title }}"{{ end }}>
         </div>
 
         <div class="form-group">
             <label for="content">内容</label>
-            <textarea id="content" name="content" required class="form-control" rows="10" placeholder="请输入文章内容，支持 Markdown 语法"></textarea>
+            <textarea id="content" name="content" required class="form-control" rows="10" placeholder="请输入文章内容，支持 Markdown 语法">{{ if .article.Content }}{{ .article.Content }}{{ end }}</textarea>
         </div>
 
         <div class="form-group">
@@ -27,7 +27,7 @@
             <select id="category" name="category" class="form-control">
                 <option value="">-- 请选择分类 --</option>
                 {{ range $index, $category := .categories }}
-                <option value="{{ $category.ID }}">{{ $category.Name }}</option>
+                <option value="{{ $category.ID }}" {{ if eq $.article.CategoryID $category.ID }}selected{{ end }}>{{ $category.Name }}</option>
                 {{ end }}
             </select>
         </div>

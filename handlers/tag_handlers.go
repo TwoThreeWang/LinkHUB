@@ -81,7 +81,7 @@ func ShowTag(c *gin.Context) {
 	var total int64
 
 	// 获取分页数据
-	pageSize := 3
+	pageSize := 10
 	offset := (page - 1) * pageSize
 
 	// 使用EXISTS子查询获取标签关联的链接

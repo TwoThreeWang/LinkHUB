@@ -11,32 +11,26 @@ import (
 
 // CreateArticleComment 创建文章评论
 func CreateArticleComment(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
-			"message":       "请先登录",
-			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+			"message":       "用户未登录",
+			"redirect_text": "去登录",
+			"refer":         "/auth/login",
+		}))
 		return
 	}
 
 	// 获取表单数据
 	articleID, err := strconv.Atoi(c.PostForm("article_id"))
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "无效的文章ID",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	content := c.PostForm("content")
@@ -44,13 +38,11 @@ func CreateArticleComment(c *gin.Context) {
 
 	// 验证评论内容
 	if content == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "评论内容不能为空",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -65,38 +57,32 @@ func CreateArticleComment(c *gin.Context) {
 	if parentIDStr != "" {
 		parentID, err := strconv.Atoi(parentIDStr)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "无效的父评论ID",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
 		// 验证父评论是否存在
 		var parentComment models.ArticleComment
 		if err := database.GetDB().First(&parentComment, parentID).Error; err != nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "父评论不存在",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
 		// 确保父评论属于同一个文章
 		if parentComment.ArticleID != uint(articleID) {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "父评论必须属于同一个文章",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
@@ -107,16 +93,17 @@ func CreateArticleComment(c *gin.Context) {
 
 	// 保存评论
 	if err := database.GetDB().Create(&comment).Error; err != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "创建评论失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
-
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
+	}
 	// 重定向到指定页面
 	c.Redirect(http.StatusFound, refer)
 }

@@ -23,7 +23,7 @@
                 <li><a href="javascript:void(0)" onclick="createCategory()"><i class="fa fa-plus"></i>新增分类</a></li>
                 {{end}}
                 {{ range .categories }}
-                <li><a href="/categories/{{ .ID }}"><i class="fa fa-caret-square-o-right"></i>{{ .Name }}</a></li>
+                <li><a href="/categories/{{ .ID }}"><i class="fa fa-folder-open-o"></i>{{ .Name }}</a></li>
                 {{ end }}
             </ul>
         </div>
@@ -34,23 +34,15 @@
             <div class="product-list">
                 {{ range .articles }}
                 <article class="product-card">
-                    <div class="product-vote">
-                        <a class="vote-button" aria-label="点赞支持" href="#">
-                            <span aria-hidden="true"><i class="fa fa-eye"></i></span>
-                            <span class="vote-count">{{ .ViewCount }}</span>
-                        </a>
-                    </div>
                     <div class="product-info">
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Content 250 }}</p>
-                        <div class="product-tags" role="list">
-                            <div class="article-meta">
-                                <span class="meta-item"><i class="meta-icon">👁️</i> {{ .ViewCount }} 浏览</span>
-                                <span class="meta-item"><i class="meta-icon">💬</i> {{ len .Comments }} 评论</span>
-                                <span class="meta-item"><i class="meta-icon">👤</i> {{ .User.Username }}</span>
-                                <span class="meta-item"><i class="meta-icon">🕒</i> {{ .CreatedAt.Format "2006-01-02" }}</span>
-                            </div>
-                            <a href="/categories/{{ .CategoryID }}" class="tag" role="listitem">{{ .CategoryID }}</a>
+                        <div class="tags-group" role="list">
+                            <span class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</span>
+                            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
+                            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
+                            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
+                            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
                         </div>
                     </div>
                 </article>
