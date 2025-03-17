@@ -98,6 +98,24 @@
                 <a href="/articles/{{ .article.ID }}/delete" class="btn btn-outline w-100" onclick="return confirm('确定要删除这篇文章吗？');">删除文章</a>
             </div>
             {{ end }}
+
+            <div class="sidebar-main">
+                <p class="title"><i class="fa fa-newspaper-o"></i> 相关文章</p>
+                {{ if .relatedArticles }}
+                    {{ range .relatedArticles }}
+                    <a class="related-product" href="/articles/{{ .ID }}">
+                        <div class="related-product-info">
+                            <div class="related-product-title">{{ .Title }}</div>
+                            <div class="related-product-votes">{{ TruncateString .Content 90 }}</div>
+                        </div>
+                    </a>
+                    {{ end }}
+                {{ else }}
+                    <div class="empty-state">
+                        <p><i class="fa fa-circle-o-notch"></i> 暂无相关文章</p>
+                    </div>
+                {{ end }}
+            </div>
         </div>
     </div>
 <script src="/static/js/comment.js"></script>

@@ -99,12 +99,19 @@ func ShowArticle(c *gin.Context) {
 	// 增加浏览量
 	article.IncreaseViewCount()
 	database.GetDB().Save(&article)
+	// 推荐文章
+	var relatedArticles []models.Article
+	query := database.GetDB().Model(&models.Article{}).Where("category_id = ?", article.CategoryID).Where("id != ?", article.ID)
+
+	// 按相关度（浏览量）和时间排序，限制5篇
+	query.Order("view_count DESC, created_at DESC").Limit(5).Find(&relatedArticles)
 
 	// 渲染模板
 	c.HTML(http.StatusOK, "article_detail", OutputCommonSession(c, gin.H{
-		"title":    article.Title,
-		"article":  article,
-		"comments": comments,
+		"title":           article.Title,
+		"article":         article,
+		"comments":        comments,
+		"relatedArticles": relatedArticles,
 	}))
 }
 
