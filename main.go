@@ -1,13 +1,13 @@
 package main
 
 import (
+	"LinkHUB/handlers"
 	"fmt"
 
-	"github.com/gin-gonic/gin"
 	"LinkHUB/config"
 	"LinkHUB/database"
-	"LinkHUB/render"
 	"LinkHUB/routes"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	r := gin.Default()
 
 	// 使用多模板渲染器
-	r.HTMLRender = render.CreateRenderer()
+	r.HTMLRender = handlers.LoadLocalTemplates("./templates")
 
 	// 设置静态文件目录
 	r.Static("/static", "./static")

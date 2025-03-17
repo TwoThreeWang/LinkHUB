@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},网址导航">
+<meta name="description" content="{{ .siteName }}">
+{{ end }}
+
 {{ define "content" }}
     <div class="product-header">
         <div class="product-vote">

@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="description" content="{{ .title }}在{{ .siteName }}网站上的搜索结果">
+{{ end }}
+
 {{ define "content" }}
 <div class="content">
     <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>

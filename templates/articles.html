@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},网址导航">
+<meta name="description" content="{{ .siteName }}网站的所有文章列表">
+{{ end }}
+
 {{ define "content" }}
     <div class="grid-container-left">
         <div class="sidebar">
@@ -14,10 +20,10 @@
             <h3 class="sidebar-title mt-xxl">分类</h3>
             <ul class="sidebar-links">
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="/tags/add"><i class="fa fa-plus"></i> 新增分类</a></li>
+                <li><a href="javascript:void(0)" onclick="createCategory()"><i class="fa fa-plus"></i>新增分类</a></li>
                 {{end}}
-                {{ range .popularTags }}
-                <li><a href="/tags/{{ .ID }}"><i class="fa fa-caret-square-o-right"></i> {{ .Name }}</a></li>
+                {{ range .categories }}
+                <li><a href="/categories/{{ .ID }}"><i class="fa fa-caret-square-o-right"></i>{{ .Name }}</a></li>
                 {{ end }}
             </ul>
         </div>
@@ -30,13 +36,13 @@
                 <article class="product-card">
                     <div class="product-vote">
                         <a class="vote-button" aria-label="点赞支持" href="#">
-                            <span aria-hidden="true">👍</span>
-                            <span class="vote-count">{{ .LikeCount }}</span>
+                            <span aria-hidden="true"><i class="fa fa-eye"></i></span>
+                            <span class="vote-count">{{ .ViewCount }}</span>
                         </a>
                     </div>
                     <div class="product-info">
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                        <p class="product-description">{{ .Summary }}</p>
+                        <p class="product-description">{{ TruncateString .Content 250 }}</p>
                         <div class="product-tags" role="list">
                             <div class="article-meta">
                                 <span class="meta-item"><i class="meta-icon">👁️</i> {{ .ViewCount }} 浏览</span>
@@ -44,9 +50,7 @@
                                 <span class="meta-item"><i class="meta-icon">👤</i> {{ .User.Username }}</span>
                                 <span class="meta-item"><i class="meta-icon">🕒</i> {{ .CreatedAt.Format "2006-01-02" }}</span>
                             </div>
-                            {{ range .Tags }}
-                            <a href="/tags/{{ .ID }}" class="tag" role="listitem">{{ .Name }}</a>
-                            {{ end }}
+                            <a href="/categories/{{ .CategoryID }}" class="tag" role="listitem">{{ .CategoryID }}</a>
                         </div>
                     </div>
                 </article>
@@ -70,4 +74,29 @@
             {{ end }}
         </div>
     </div>
+<script>
+    function createCategory() {
+        const name = prompt('请输入分类名称：');
+        if (name) {
+            fetch('/categories/add?category=' + encodeURIComponent(name), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status == 200) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message || '创建分类失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('创建分类失败');
+                });
+        }
+    }
+</script>
 {{ end }}

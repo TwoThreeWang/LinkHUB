@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/gin-contrib/multitemplate v1.1.0
 	github.com/gin-gonic/gin v1.10.0
+	github.com/samber/do v1.6.0
 	github.com/spf13/viper v1.18.2
 	golang.org/x/crypto v0.33.0
 	gorm.io/driver/postgres v1.5.9

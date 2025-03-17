@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},网址导航">
+<meta name="description" content="注册{{ .siteName }}">
+{{ end }}
+
 {{ define "content" }}
     <div class="auth-form">
         <h2>注册</h2>

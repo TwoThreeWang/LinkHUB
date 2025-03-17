@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"LinkHUB/config"
 	"LinkHUB/utils"
 	"net/http"
 	"strconv"
@@ -28,11 +29,9 @@ var (
 
 // ShowRegister 显示注册页面
 func ShowRegister(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	c.HTML(http.StatusOK, "register", gin.H{
-		"title": "注册 - LinkHUB",
-		"refer": refer,
-	})
+	c.HTML(http.StatusOK, "register", OutputCommonSession(c, gin.H{
+		"title": "注册",
+	}))
 }
 
 // Register 处理用户注册
@@ -45,33 +44,33 @@ func Register(c *gin.Context) {
 
 	// 验证表单数据
 	if email == "" || password == "" {
-		c.HTML(http.StatusBadRequest, "register", gin.H{
-			"title": "注册 - LinkHUB",
+		c.HTML(http.StatusBadRequest, "register", OutputCommonSession(c, gin.H{
+			"title": "注册",
 			"error": "所有字段都是必填的",
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 
 	// 验证密码是否匹配
 	if password != confirmPassword {
-		c.HTML(http.StatusBadRequest, "register", gin.H{
-			"title": "注册 - LinkHUB",
+		c.HTML(http.StatusBadRequest, "register", OutputCommonSession(c, gin.H{
+			"title": "注册",
 			"error": "两次输入的密码不匹配",
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 
 	if !utils.IsValidEmailByRegexp(email) {
-		c.HTML(http.StatusBadRequest, "register", gin.H{
-			"title": "注册 - LinkHUB",
+		c.HTML(http.StatusBadRequest, "register", OutputCommonSession(c, gin.H{
+			"title": "注册",
 			"error": "Email 格式不正确，请检查",
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 	// 从邮件中提取默认用户名
@@ -90,20 +89,33 @@ func Register(c *gin.Context) {
 	// 保存用户到数据库
 	result := database.GetDB().Create(&user)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "register", gin.H{
-			"title": "注册 - LinkHUB",
+		c.HTML(http.StatusInternalServerError, "register", OutputCommonSession(c, gin.H{
+			"title": "注册",
 			"error": "注册失败: " + result.Error.Error(),
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 
 	// 重新查询完整的用户信息
 	database.GetDB().First(&user, user.ID)
 
+	// 加密用户ID
+	encryptedID, err := utils.EncryptUserID(strconv.FormatUint(uint64(user.ID), 10))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
+			"error": "注册成功，自动登录出错: " + err.Error(),
+			"email": email,
+			"refer": refer,
+		}))
+		return
+	}
+
 	// 设置Cookie
-	c.SetCookie("user_id", strconv.FormatUint(uint64(user.ID), 10), 3600*24*7, "/", "", false, true)
+	expireHours := config.GetConfig().JWT.ExpireHours
+	c.SetCookie("user_id", encryptedID, expireHours*3600, "/", "", false, true)
 
 	// 根据refer参数决定重定向地址
 	redirectURL := "/"
@@ -117,11 +129,9 @@ func Register(c *gin.Context) {
 
 // ShowLogin 显示登录页面
 func ShowLogin(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	c.HTML(http.StatusOK, "login", gin.H{
-		"title": "登录 - LinkHUB",
-		"refer": refer,
-	})
+	c.HTML(http.StatusOK, "login", OutputCommonSession(c, gin.H{
+		"title": "登录",
+	}))
 }
 
 // Login 处理用户登录
@@ -133,12 +143,12 @@ func Login(c *gin.Context) {
 
 	// 验证表单数据
 	if email == "" || password == "" {
-		c.HTML(http.StatusBadRequest, "login", gin.H{
-			"title": "登录 - LinkHUB",
+		c.HTML(http.StatusBadRequest, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
 			"error": "邮箱和密码都是必填的",
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 
@@ -146,28 +156,41 @@ func Login(c *gin.Context) {
 	var user models.User
 	result := database.GetDB().Where("email = ?", email).First(&user)
 	if result.Error != nil {
-		c.HTML(http.StatusUnauthorized, "login", gin.H{
-			"title": "登录 - LinkHUB",
+		c.HTML(http.StatusUnauthorized, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
 			"error": "邮箱或密码错误",
 			"email": email,
 			"refer": refer,
-		})
+		}))
 		return
 	}
 
 	// 验证密码
 	if !user.CheckPassword(password) {
-		c.HTML(http.StatusUnauthorized, "login", gin.H{
-			"title": "登录 - LinkHUB",
+		c.HTML(http.StatusUnauthorized, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
 			"error": "邮箱或密码错误",
 			"email": email,
 			"refer": refer,
-		})
+		}))
+		return
+	}
+
+	// 加密用户ID
+	encryptedID, err := utils.EncryptUserID(strconv.FormatUint(uint64(user.ID), 10))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
+			"error": "系统错误: " + err.Error(),
+			"email": email,
+			"refer": refer,
+		}))
 		return
 	}
 
 	// 设置Cookie
-	c.SetCookie("user_id", strconv.FormatUint(uint64(user.ID), 10), 3600*24*7, "/", "", false, true)
+	expireHours := config.GetConfig().JWT.ExpireHours
+	c.SetCookie("user_id", encryptedID, expireHours*3600, "/", "", false, true)
 
 	// 根据refer参数决定重定向地址
 	redirectURL := "/"
@@ -190,10 +213,6 @@ func Logout(c *gin.Context) {
 
 // ShowProfile 显示用户个人资料页面
 func ShowProfile(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 获取参数
 	sort := c.DefaultQuery("sort", "overview")
 	var userID uint
@@ -203,23 +222,22 @@ func ShowProfile(c *gin.Context) {
 	if userIDStr != "" {
 		parsedID, err := strconv.ParseUint(userIDStr, 10, 64)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "提供的用户ID无效",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 		userID = uint(parsedID)
 	} else {
 		if userInfo == nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "请先登录后查看个人中心",
 				"redirect_text": "去登陆",
-				"redirect_url":  "/auth/login",
-			})
+				"refer":         "/auth/login",
+			}))
 			return
 		}
 		userID = userInfo.ID
@@ -242,38 +260,31 @@ func ShowProfile(c *gin.Context) {
 		result = nil
 	}
 	if result != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "用户不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
-	c.HTML(http.StatusOK, "profile", gin.H{
-		"title":    user.Username + "'s 主页 - LinkHUB",
-		"user":     user,
-		"sort":     sort,
-		"userInfo": userInfo,
-	})
+	c.HTML(http.StatusOK, "profile", OutputCommonSession(c, gin.H{
+		"title": user.Username + "'s 主页",
+		"user":  user,
+		"sort":  sort,
+	}))
 }
 
 // UpdateProfile 更新用户个人资料
 func UpdateProfile(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	// 获取表单数据
@@ -285,12 +296,11 @@ func UpdateProfile(c *gin.Context) {
 
 	// 验证表单数据
 	if username == "" || email == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "用户名和邮箱是必填的",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -315,29 +325,33 @@ func UpdateProfile(c *gin.Context) {
 	// 保存更新到数据库
 	result := database.GetDB().Model(&userInfo).Updates(updates)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "result", gin.H{
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "更新失败: " + result.Error.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 重新加载用户信息
 	database.GetDB().First(&userInfo, userInfo.ID)
 
-	c.HTML(http.StatusOK, "result", gin.H{
+	c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
 		"title":         "Success",
 		"message":       "个人资料更新成功",
 		"redirect_text": "返回",
-		"redirect_url":  refer,
-	})
+	}))
 }
 
 func GetCurrentUser(c *gin.Context) *models.User {
 	// 从Cookie中获取用户信息
-	userIDStr, err := c.Cookie("user_id")
+	encryptedID, err := c.Cookie("user_id")
+	if err != nil {
+		return nil
+	}
+
+	// 解密用户ID
+	userIDStr, err := utils.DecryptUserID(encryptedID)
 	if err != nil {
 		return nil
 	}

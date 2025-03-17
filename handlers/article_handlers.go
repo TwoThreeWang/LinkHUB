@@ -111,7 +111,12 @@ func ShowNewArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.Redirect(http.StatusFound, "/auth/login")
+		c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "去登陆",
+			"refer":         "/auth/login",
+		}))
 		return
 	}
 
@@ -120,11 +125,10 @@ func ShowNewArticle(c *gin.Context) {
 	database.GetDB().Find(&categories)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "new_article", gin.H{
+	c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
 		"title":      "创建文章",
 		"categories": categories,
-		"userInfo":   userInfo,
-	})
+	}))
 }
 
 // CreateArticle 创建文章
@@ -132,7 +136,12 @@ func CreateArticle(c *gin.Context) {
 	// 获取当前用户
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.Redirect(http.StatusFound, "/auth/login")
+		c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "去登陆",
+			"refer":         "/auth/login",
+		}))
 		return
 	}
 
@@ -141,15 +150,20 @@ func CreateArticle(c *gin.Context) {
 	content := c.PostForm("content")
 	categoryID := c.PostForm("category")
 
+	// 查询所有分类
+	var categories []models.Category
+	database.GetDB().Find(&categories)
+
 	// 验证数据
 	if title == "" || content == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
-			"message":       "标题和内容不能为空",
-			"redirect_text": "返回",
-			"redirect_url":  "/articles/new",
-		})
+		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+			"title":      "创建文章",
+			"error":      "标题和内容不能为空",
+			"categories": categories,
+			"posttitle":  title,
+			"content":    content,
+			"categoryID": categoryID,
+		}))
 		return
 	}
 
@@ -160,6 +174,9 @@ func CreateArticle(c *gin.Context) {
 		UserID:  userInfo.ID,
 	}
 
+	// 开始数据库事务
+	tx := database.GetDB().Begin()
+
 	// 设置分类
 	if categoryID != "" {
 		catID, err := strconv.Atoi(categoryID)
@@ -168,23 +185,39 @@ func CreateArticle(c *gin.Context) {
 
 			// 增加分类计数
 			var category models.Category
-			if database.GetDB().First(&category, catID).Error == nil {
+			if tx.First(&category, catID).Error == nil {
 				category.IncreaseCount()
-				database.GetDB().Save(&category)
+				tx.Save(&category)
 			}
 		}
 	}
 
 	// 保存文章
-	result := database.GetDB().Create(&article)
+	result := tx.Create(&article)
 	if result.Error != nil {
-		c.HTML(http.StatusInternalServerError, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "错误",
-			"message":       "创建文章失败: " + result.Error.Error(),
-			"redirect_text": "返回",
-			"redirect_url":  "/articles/new",
-		})
+		tx.Rollback()
+		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+			"title":      "创建文章",
+			"error":      "创建文章失败: " + result.Error.Error(),
+			"categories": categories,
+			"posttitle":  title,
+			"content":    content,
+			"categoryID": categoryID,
+		}))
+		return
+	}
+
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+			"title":      "创建文章",
+			"error":      "保存文章失败: " + err.Error(),
+			"categories": categories,
+			"posttitle":  title,
+			"content":    content,
+			"categoryID": categoryID,
+		}))
 		return
 	}
 

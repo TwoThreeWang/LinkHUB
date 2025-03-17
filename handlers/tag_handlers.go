@@ -11,17 +11,14 @@ import (
 
 // ListTags 获取标签列表
 func ListTags(c *gin.Context) {
-	// 从上下文中获取用户信息
-	userInfo := GetCurrentUser(c)
 	// 获取所有标签
 	var tags []models.Tag
 	database.GetDB().Order("count DESC").Find(&tags)
 
-	c.HTML(http.StatusOK, "tags", gin.H{
-		"title":    "标签列表",
-		"tags":     tags,
-		"userInfo": userInfo,
-	})
+	c.HTML(http.StatusOK, "tags", OutputCommonSession(c, gin.H{
+		"title": "标签列表",
+		"tags":  tags,
+	}))
 }
 
 // CreateTag 新增标签
@@ -29,17 +26,17 @@ func CreateTag(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "请先登录"})
+		c.JSON(http.StatusOK, OutputApi(403, "请先登录"))
 		return
 	}
 	if userInfo.Role != "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "权限错误，非管理员无法创建标签！"})
+		c.JSON(http.StatusOK, OutputApi(403, "权限错误，非管理员无法创建标签！"))
 		return
 	}
 	// 获取查询参数
 	tagName := c.Query("tag")
 	if tagName == "" {
-		c.JSON(http.StatusOK, gin.H{"message": "标签名称不能为空"})
+		c.JSON(http.StatusOK, OutputApi(403, "标签名称不能为空"))
 		return
 	}
 	var tag models.Tag
@@ -48,20 +45,14 @@ func CreateTag(c *gin.Context) {
 	}).Error
 
 	if result != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "标签创建失败：" + result.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "标签创建失败："+result.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "标签创建成功"})
+	c.JSON(http.StatusOK, OutputApi(200, "标签创建成功"))
 }
 
 // ShowTag 显示标签详情
 func ShowTag(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
-	// 从上下文中获取用户信息
-	userInfo := GetCurrentUser(c)
 	// 获取标签id
 	id := c.Param("id")
 	// 获取分页参数
@@ -77,13 +68,11 @@ func ShowTag(c *gin.Context) {
 	var tag models.Tag
 	result := database.GetDB().Where("id = ?", id).First(&tag)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "标签不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-			"userInfo":      userInfo,
-		})
+		}))
 		return
 	}
 
@@ -124,15 +113,14 @@ func ShowTag(c *gin.Context) {
 	// 计算总页数
 	totalPages := (int(total) + pageSize - 1) / pageSize
 
-	c.HTML(http.StatusOK, "tag_detail", gin.H{
+	c.HTML(http.StatusOK, "tag_detail", OutputCommonSession(c, gin.H{
 		"title":      tag.Name,
 		"tag":        tag,
 		"links":      links,
-		"userInfo":   userInfo,
 		"page":       page,
 		"totalPages": totalPages,
 		"sort":       sort,
-	})
+	}))
 }
 
 // UpdateTag 更新标签
@@ -140,11 +128,11 @@ func UpdateTag(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "请先登录"})
+		c.JSON(http.StatusOK, OutputApi(403, "请先登录"))
 		return
 	}
 	if userInfo.Role != "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "权限错误，非管理员无法创建标签！"})
+		c.JSON(http.StatusOK, OutputApi(403, "权限错误，非管理员无法创建标签！"))
 		return
 	}
 	// 获取链接ID
@@ -152,21 +140,21 @@ func UpdateTag(c *gin.Context) {
 	// 获取查询参数
 	tagName := c.Query("tag")
 	if tagName == "" || id == "" || id == "undefined" {
-		c.JSON(http.StatusOK, gin.H{"message": "参数错误"})
+		c.JSON(http.StatusOK, OutputApi(400, "参数错误"))
 		return
 	}
 	var tag models.Tag
 	result := database.GetDB().First(&tag, id)
 	if result.Error != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "标签信息获取失败：" + result.Error.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "标签信息获取失败："+result.Error.Error()))
 		return
 	}
 	tag.Name = tagName
 	if err := database.GetDB().Save(&tag).Error; err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "标签修改失败：" + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "标签修改失败："+err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "标签修改成功"})
+	c.JSON(http.StatusOK, OutputApi(200, "标签修改成功"))
 }
 
 // DeleteTag 删除标签
@@ -178,27 +166,27 @@ func DeleteTag(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "请先登录"})
+		c.JSON(http.StatusOK, OutputApi(403, "请先登录"))
 		return
 	}
 
 	// 验证用户权限
 	if userInfo.Role != "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "权限错误，非管理员无法删除标签！"})
+		c.JSON(http.StatusOK, OutputApi(403, "权限错误，非管理员无法删除标签！"))
 		return
 	}
 
 	// 获取链接ID
 	id := c.Param("id")
 	if id == "" || id == "undefined" {
-		c.JSON(http.StatusOK, gin.H{"message": "参数错误"})
+		c.JSON(http.StatusOK, OutputApi(400, "参数错误"))
 		return
 	}
 	// 查询标签
 	var tag models.Tag
 	result := database.GetDB().First(&tag, id)
 	if result.Error != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "链接不存在或已被删除"})
+		c.JSON(http.StatusOK, OutputApi(400, "链接不存在或已被删除"))
 		return
 	}
 	// 开始事务
@@ -207,23 +195,23 @@ func DeleteTag(c *gin.Context) {
 	// 删除link_tags表中的关联关系
 	if err := tx.Table("link_tags").Where("tag_id = ?", id).Delete(nil).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusOK, gin.H{"message": "删除标签关系失败：" + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "删除标签关系失败："+err.Error()))
 		return
 	}
 
 	// 删除标签
 	if err := tx.Delete(&tag).Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusOK, gin.H{"message": "删除标签失败：" + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "删除标签失败："+err.Error()))
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusOK, gin.H{"message": "删除标签失败：" + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "删除标签失败："+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "标签删除成功"})
+	c.JSON(http.StatusOK, OutputApi(200, "标签删除成功"))
 }

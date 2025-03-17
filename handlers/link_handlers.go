@@ -16,7 +16,6 @@ import (
 
 // Home 首页处理函数
 func Home(c *gin.Context) {
-	userInfo := GetCurrentUser(c)
 	// 获取分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -66,33 +65,26 @@ func Home(c *gin.Context) {
 	database.GetDB().Order("count DESC").Limit(10).Find(&popularTags)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "home", gin.H{
-		"title":       "LinkHUB - 发现精彩链接",
+	c.HTML(http.StatusOK, "home", OutputCommonSession(c, gin.H{
+		"title":       "发现精彩链接",
 		"links":       links,
 		"page":        page,
 		"totalPages":  totalPages,
 		"sort":        sort,
 		"popularTags": popularTags,
-		"userInfo":    userInfo,
-	})
+	}))
 }
 
 // ShowNewLink 显示创建链接页面
 func ShowNewLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	// 查询所有标签
@@ -100,29 +92,22 @@ func ShowNewLink(c *gin.Context) {
 	database.GetDB().Find(&tags)
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "new_link", gin.H{
-		"title":    "分享新链接",
-		"userInfo": userInfo,
-		"tags":     tags,
-	})
+	c.HTML(http.StatusOK, "new_link", OutputCommonSession(c, gin.H{
+		"title": "分享新链接",
+		"tags":  tags,
+	}))
 }
 
 // CreateLink 创建链接处理函数
 func CreateLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -141,8 +126,7 @@ func CreateLink(c *gin.Context) {
 
 	// 验证表单数据
 	if title == "" || url == "" {
-		c.HTML(http.StatusBadRequest, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "分享新链接",
 			"error":       "标题和URL是必填的",
 			"link_title":  title,
@@ -150,7 +134,7 @@ func CreateLink(c *gin.Context) {
 			"description": description,
 			"tags":        tags,
 			"checkTags":   checkTags,
-		})
+		}))
 		return
 	}
 
@@ -168,8 +152,7 @@ func CreateLink(c *gin.Context) {
 	// 保存链接
 	if err := tx.Create(&link).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "分享新链接",
 			"error":       "创建链接失败: " + err.Error(),
 			"link_title":  title,
@@ -177,7 +160,7 @@ func CreateLink(c *gin.Context) {
 			"description": description,
 			"tags":        tags,
 			"checkTags":   checkTags,
-		})
+		}))
 		return
 	}
 
@@ -196,8 +179,7 @@ func CreateLink(c *gin.Context) {
 
 		if result.Error != nil {
 			tx.Rollback()
-			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-				"userInfo":    userInfo,
+			c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "分享新链接",
 				"error":       "处理标签失败: " + result.Error.Error(),
 				"link_title":  title,
@@ -205,7 +187,7 @@ func CreateLink(c *gin.Context) {
 				"description": description,
 				"tags":        tags,
 				"checkTags":   checkTags,
-			})
+			}))
 			return
 		}
 
@@ -220,8 +202,7 @@ func CreateLink(c *gin.Context) {
 		// 关联标签和链接
 		if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
 			tx.Rollback()
-			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-				"userInfo":    userInfo,
+			c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "分享新链接",
 				"error":       "关联标签失败: " + err.Error(),
 				"link_title":  title,
@@ -229,15 +210,14 @@ func CreateLink(c *gin.Context) {
 				"description": description,
 				"tags":        tags,
 				"checkTags":   checkTags,
-			})
+			}))
 			return
 		}
 	}
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "分享新链接",
 			"error":       "保存链接失败: " + err.Error(),
 			"link_title":  title,
@@ -245,7 +225,7 @@ func CreateLink(c *gin.Context) {
 			"description": description,
 			"tags":        tags,
 			"checkTags":   checkTags,
-		})
+		}))
 		return
 	}
 
@@ -255,11 +235,6 @@ func CreateLink(c *gin.Context) {
 
 // ShowLink 显示链接详情页面
 func ShowLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
-	userInfo := GetCurrentUser(c)
 	// 获取链接ID
 	id := c.Param("id")
 
@@ -267,13 +242,11 @@ func ShowLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().Preload("User").Preload("Tags").First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -287,6 +260,7 @@ func ShowLink(c *gin.Context) {
 		Find(&comments)
 
 	// 检查当前用户是否已投票
+	userInfo := GetCurrentUser(c)
 	voted := false
 	if userInfo != nil {
 		var count int64
@@ -313,32 +287,25 @@ func ShowLink(c *gin.Context) {
 	}
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "link_detail", gin.H{
+	c.HTML(http.StatusOK, "link_detail", OutputCommonSession(c, gin.H{
 		"title":        link.Title,
 		"link":         link,
 		"comments":     comments,
 		"voted":        voted,
-		"userInfo":     userInfo,
 		"relatedLinks": relatedLinks,
-	})
+	}))
 }
 
 // ShowUpdateLink 显示修改链接页面
 func ShowUpdateLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	// 获取链接ID
@@ -347,25 +314,21 @@ func ShowUpdateLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().Preload("Tags").First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "链接不存在",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 验证用户权限
 	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusForbidden, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "没有权限",
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "您没有权限编辑此链接",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	// 查询所有标签
@@ -378,16 +341,15 @@ func ShowUpdateLink(c *gin.Context) {
 	}
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "new_link", gin.H{
+	c.HTML(http.StatusOK, "new_link", OutputCommonSession(c, gin.H{
 		"title":       "编辑链接",
 		"id":          id,
-		"userInfo":    userInfo,
 		"link_title":  link.Title,
 		"url":         link.URL,
 		"description": link.Description,
 		"tags":        tags,
 		"checkTags":   checkTags,
-	})
+	}))
 }
 
 // UpdateLink 更新链接处理函数
@@ -397,13 +359,12 @@ func UpdateLink(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  "/links/" + id,
-		})
+			"refer":         "/links/" + id,
+		}))
 		return
 	}
 
@@ -411,25 +372,23 @@ func UpdateLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusNotFound, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "链接不存在",
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  "/links/" + id,
-		})
+			"refer":         "/links/" + id,
+		}))
 		return
 	}
 
 	// 验证用户权限
 	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusForbidden, "result", gin.H{
-			"userInfo":      userInfo,
-			"title":         "没有权限",
+		c.HTML(http.StatusForbidden, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
 			"message":       "您没有权限编辑此链接",
 			"redirect_text": "返回",
-			"redirect_url":  "/links/" + id,
-		})
+			"refer":         "/links/" + id,
+		}))
 		return
 	}
 
@@ -448,8 +407,7 @@ func UpdateLink(c *gin.Context) {
 
 	// 验证表单数据
 	if title == "" || url == "" {
-		c.HTML(http.StatusBadRequest, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
 			"error":       "标题和URL是必填的",
 			"link":        link,
@@ -458,7 +416,7 @@ func UpdateLink(c *gin.Context) {
 			"description": description,
 			"tags":        tags,
 			"checkTags":   checkTags,
-		})
+		}))
 		return
 	}
 
@@ -474,8 +432,7 @@ func UpdateLink(c *gin.Context) {
 	// 保存链接
 	if err := tx.Save(&link).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
 			"error":       "更新链接失败: " + err.Error(),
 			"link":        link,
@@ -484,15 +441,14 @@ func UpdateLink(c *gin.Context) {
 			"description": description,
 			"checkTags":   checkTags,
 			"tags":        tags,
-		})
+		}))
 		return
 	}
 
 	// 清除现有标签关联
 	if err := tx.Model(&link).Association("Tags").Delete(); err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
 			"error":       "清除标签关联失败: " + err.Error(),
 			"link":        link,
@@ -501,7 +457,7 @@ func UpdateLink(c *gin.Context) {
 			"description": description,
 			"checkTags":   checkTags,
 			"tags":        tags,
-		})
+		}))
 		return
 	}
 
@@ -520,8 +476,7 @@ func UpdateLink(c *gin.Context) {
 
 		if result.Error != nil {
 			tx.Rollback()
-			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-				"userInfo":    userInfo,
+			c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "编辑链接",
 				"error":       "处理标签失败: " + result.Error.Error(),
 				"link":        link,
@@ -530,7 +485,7 @@ func UpdateLink(c *gin.Context) {
 				"description": description,
 				"checkTags":   checkTags,
 				"tags":        tags,
-			})
+			}))
 			return
 		}
 
@@ -545,8 +500,7 @@ func UpdateLink(c *gin.Context) {
 		// 关联标签和链接
 		if err := tx.Model(&link).Association("Tags").Append(&tag); err != nil {
 			tx.Rollback()
-			c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-				"userInfo":    userInfo,
+			c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "编辑链接",
 				"error":       "关联标签失败: " + err.Error(),
 				"link":        link,
@@ -555,7 +509,7 @@ func UpdateLink(c *gin.Context) {
 				"description": description,
 				"checkTags":   checkTags,
 				"tags":        tags,
-			})
+			}))
 			return
 		}
 	}
@@ -563,8 +517,7 @@ func UpdateLink(c *gin.Context) {
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusInternalServerError, "new_link", gin.H{
-			"userInfo":    userInfo,
+		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
 			"error":       "保存链接失败: " + err.Error(),
 			"link":        link,
@@ -573,7 +526,7 @@ func UpdateLink(c *gin.Context) {
 			"description": description,
 			"checkTags":   checkTags,
 			"tags":        tags,
-		})
+		}))
 		return
 	}
 
@@ -583,19 +536,14 @@ func UpdateLink(c *gin.Context) {
 
 // DeleteLink 删除链接处理函数
 func DeleteLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -606,25 +554,21 @@ func DeleteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 验证用户权限
 	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "您没有权限删除此链接",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -636,13 +580,11 @@ func DeleteLink(c *gin.Context) {
 	// 清除标签关联
 	if err := tx.Model(&link).Association("Tags").Unscoped().Delete(); err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "清除标签关联失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -651,67 +593,55 @@ func DeleteLink(c *gin.Context) {
 	// 清除投票关联
 	if err := tx.Model(&link).Association("Votes").Unscoped().Delete(); err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "清除投票关联失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 删除链接
 	if err := tx.Unscoped().Delete(&link).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "删除链接失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "删除链接失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 返回成功响应
-	c.HTML(http.StatusOK, "result", gin.H{
-		"userInfo":      userInfo,
+	c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
 		"title":         "Success",
 		"message":       "删除链接成功",
 		"redirect_text": "返回首页",
-		"redirect_url":  "/",
-	})
+		"refer":         "/",
+	}))
 }
 
 // VoteLink 投票链接处理函数
 func VoteLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -722,12 +652,11 @@ func VoteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -735,12 +664,11 @@ func VoteLink(c *gin.Context) {
 	var count int64
 	database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).Count(&count)
 	if count > 0 {
-		c.HTML(http.StatusOK, "result", gin.H{
+		c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
 			"title":         "Warning",
 			"message":       "您已经投过票了",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -756,56 +684,52 @@ func VoteLink(c *gin.Context) {
 	// 保存投票
 	if err := tx.Create(&vote).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "投票失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 更新链接投票计数
 	if err := tx.Model(&link).Update("vote_count", link.VoteCount+1).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "更新投票计数失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "投票失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
+	}
+	refer := c.GetHeader("Referer")
+	if refer == "" {
+		refer = "/"
 	}
 	c.Redirect(302, refer)
 }
 
 // UnVoteLink 取消投票处理函数
 func UnVoteLink(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -816,12 +740,11 @@ func UnVoteLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "链接不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -829,12 +752,11 @@ func UnVoteLink(c *gin.Context) {
 	var vote models.Vote
 	result = database.GetDB().Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).First(&vote)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "您还没有投过票",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -844,46 +766,42 @@ func UnVoteLink(c *gin.Context) {
 	// 删除投票记录
 	if err := tx.Delete(&vote).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "取消投票失败",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 更新链接投票计数
 	if err := tx.Model(&link).Update("vote_count", link.VoteCount-1).Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "更新投票计数失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "取消投票失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 返回成功响应
-	c.HTML(http.StatusOK, "result", gin.H{
+	c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
 		"title":         "Success",
 		"message":       "已成功取消投票",
 		"redirect_text": "返回",
-		"redirect_url":  refer,
-	})
+	}))
 }
 
 // ClickLink 点击链接处理函数
@@ -891,7 +809,7 @@ func ClickLink(c *gin.Context) {
 	// 获取链接ID
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusOK, gin.H{"message": "参数错误"})
+		c.JSON(http.StatusOK, OutputApi(400, "参数错误"))
 		return
 	}
 
@@ -902,7 +820,7 @@ func ClickLink(c *gin.Context) {
 	// 检查是否是新点击（同一IP 24小时内对同一链接只记录一次）
 	_, isClicked := utils.GlobalCache.Get(cacheKey)
 	if isClicked {
-		c.JSON(http.StatusOK, gin.H{"message": "重复点击"})
+		c.JSON(http.StatusOK, OutputApi(400, "重复点击"))
 		return
 	}
 
@@ -910,13 +828,13 @@ func ClickLink(c *gin.Context) {
 	var link models.Link
 	result := database.GetDB().First(&link, id)
 	if result.Error != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "参数错误，未查询到链接ID"})
+		c.JSON(http.StatusOK, OutputApi(400, "参数错误，未查询到链接ID"))
 		return
 	}
 
 	// 更新链接点击计数
 	if err := database.GetDB().Model(&link).Update("click_count", link.ClickCount+1).Error; err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "更新链接点击计数失败: " + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "更新链接点击计数失败: "+err.Error()))
 		return
 	} else {
 		// 设置缓存
@@ -924,21 +842,19 @@ func ClickLink(c *gin.Context) {
 	}
 
 	// 重定向到链接URL
-	c.JSON(http.StatusOK, gin.H{"message": "Success"})
+	c.JSON(http.StatusOK, OutputApi(200, "Success"))
 }
 
 // SearchLinks 搜索链接API
 func SearchLinks(c *gin.Context) {
-	userInfo := GetCurrentUser(c)
 	// 获取查询参数
 	query := c.Query("q")
 	if query == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "搜索词不能为空",
-			"redirect_text": "返回首页",
-			"redirect_url":  "/",
-		})
+			"redirect_text": "返回",
+		}))
 		return
 	}
 	// 获取分页参数
@@ -963,13 +879,12 @@ func SearchLinks(c *gin.Context) {
 	// 计算总页数
 	totalPages := (int(total) + pageSize - 1) / pageSize
 	// 渲染模板
-	c.HTML(http.StatusOK, "search", gin.H{
+	c.HTML(http.StatusOK, "search", OutputCommonSession(c, gin.H{
 		"title":      query,
 		"query":      query,
 		"links":      links,
 		"page":       page,
 		"totalPages": totalPages,
-		"userInfo":   userInfo,
 		"total":      total,
-	})
+	}))
 }

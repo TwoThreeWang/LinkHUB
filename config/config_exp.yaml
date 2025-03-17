@@ -17,16 +17,8 @@ jwt:
   secret: your-secret-key
   expire_hours: 24
 
-# 分页配置
-pagination:
-  default_page_size: 10
-  max_page_size: 100
-
-# 上传配置
-upload:
-  max_size: 5 # MB
-  allowed_types:
-    - .jpg
-    - .jpeg
-    - .png
-  storage_path: ./uploads
+# 网站配置
+site:
+  name: LinkHUB
+  url: http://127.0.0.1:5002
+  version: 0.1

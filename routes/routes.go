@@ -3,7 +3,6 @@ package routes
 import (
 	"LinkHUB/handlers"
 	"LinkHUB/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -65,6 +64,15 @@ func SetupRoutes(r *gin.Engine) {
 		tags.GET("/add", handlers.CreateTag)        // 创建链接
 		tags.GET("/:id/update", handlers.UpdateTag) // 修改链接
 		tags.GET("/:id/delete", handlers.DeleteTag) // 删除链接
+	}
+
+	// 分类相关路由
+	categories := r.Group("/categories")
+	{
+		categories.GET("/:id", handlers.ShowCategory)                                     // 分类详情
+		categories.GET("/add", middleware.AuthRequired(), handlers.CreateCategory)        // 创建分类
+		categories.GET("/:id/update", middleware.AuthRequired(), handlers.UpdateCategory) // 修改分类
+		categories.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteCategory) // 删除分类
 	}
 
 	// 文章相关路由

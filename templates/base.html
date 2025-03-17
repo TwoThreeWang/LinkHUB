@@ -2,16 +2,23 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .title }} - LinkHUB</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="max-age=7200" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="next-size-adjust">
+    <link rel="icon" href='/static/img/icon.png'/>
+    {{ template "meta" . }}
+    <link rel="dns-prefetch" href="https://lf3-cdn-tos.bytecdntp.com">
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">LinkHUB</a>
+                <a href="/" class="logo">{{ .siteName }}</a>
                 <button class="menu-toggle" aria-label="切换菜单">
                     <span>☰</span>
                 </button>
@@ -49,7 +56,7 @@
                     <a href="#">联系我们</a>
                 </div>
                 <div class="copyright">
-                    © 2025 LinkHUB.
+                     © 2025 {{ .siteName }}. 版本:v{{.version}}
                 </div>
             </div>
         </div>

@@ -1,7 +1,16 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},网址导航">
+<meta name="description" content="在{{ .siteName }}创建新链接">
+{{ end }}
+
 {{ define "content" }}
     <div class="content">
         <h2>✨️ {{.title}}</h2>
         <br>
+        {{ if .error }}
+        <div class="error-message">{{ .error }}</div>
+        {{ end }}
         <form action="{{if .id}}/links/{{.id}}/update{{else}}/links/new{{end}}" method="POST" class="link-form">
             <div class="form-group">
                 <label for="title">标题</label>

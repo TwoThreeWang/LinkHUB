@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="description" content="{{ .siteName }} 网站上的所有标签">
+{{ end }}
+
 {{ define "content" }}
     <div class="tags-container">
         <h2><i class="fa fa-tags"></i>&nbsp;&nbsp;{{.title}}</h2>

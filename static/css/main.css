@@ -142,7 +142,7 @@ button:hover,.btn:hover {
     font-size: var(--font-size-sm);
 }
 
-input, textarea {
+input, textarea, select {
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
@@ -151,9 +151,13 @@ input, textarea {
     transition: border-color 0.2s ease-out;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
     border-color: var(--color-primary);
     outline: none;
+}
+
+select{
+    max-width: 250px;
 }
 /* 标签选择样式 */
 .product-tags {

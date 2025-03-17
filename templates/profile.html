@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="description" content="{{ .siteName }} 的第 {{ .user.ID }} 号会员，{{ .title }}">
+{{ end }}
+
 {{ define "content" }}
     <div class="grid-container-left">
         <div class="sidebar">

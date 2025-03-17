@@ -1,3 +1,9 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},网址导航">
+<meta name="description" content="{{ .siteName }}网站上的文章编辑页面">
+{{ end }}
+
 {{ define "content" }}
 <div class="content">
     <h2>✏️ 编辑文章</h2>

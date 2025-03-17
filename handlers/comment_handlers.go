@@ -18,25 +18,22 @@ func CreateComment(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "请先登录",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
 	// 获取表单数据
 	linkID, err := strconv.Atoi(c.PostForm("link_id"))
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "无效的链接ID",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 	content := c.PostForm("content")
@@ -44,13 +41,11 @@ func CreateComment(c *gin.Context) {
 
 	// 验证评论内容
 	if content == "" {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "评论内容不能为空",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
@@ -65,38 +60,32 @@ func CreateComment(c *gin.Context) {
 	if parentIDStr != "" {
 		parentID, err := strconv.Atoi(parentIDStr)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "无效的父评论ID",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
 		// 验证父评论是否存在
 		var parentComment models.Comment
 		if err := database.GetDB().First(&parentComment, parentID).Error; err != nil {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "父评论不存在",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
 		// 确保父评论属于同一个链接
 		if parentComment.LinkID != uint(linkID) {
-			c.HTML(http.StatusBadRequest, "result", gin.H{
-				"userInfo":      userInfo,
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
 				"message":       "父评论必须属于同一个链接",
 				"redirect_text": "返回",
-				"redirect_url":  refer,
-			})
+			}))
 			return
 		}
 
@@ -107,13 +96,11 @@ func CreateComment(c *gin.Context) {
 
 	// 保存评论
 	if err := database.GetDB().Create(&comment).Error; err != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
-			"userInfo":      userInfo,
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "创建评论失败: " + err.Error(),
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-		})
+		}))
 		return
 	}
 
