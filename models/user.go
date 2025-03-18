@@ -17,6 +17,7 @@ type User struct {
 	Links    []Link    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"links,omitempty"`
 	Votes    []Vote    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"votes,omitempty"`
 	Comments []Comment `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"comments,omitempty"`
+	Articles []Article `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"articles,omitempty"`
 }
 
 // BeforeSave 保存前的钩子函数，用于加密密码

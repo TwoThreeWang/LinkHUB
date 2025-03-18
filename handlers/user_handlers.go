@@ -255,6 +255,8 @@ func ShowProfile(c *gin.Context) {
 		result = database.GetDB().Preload("Comments.Link").First(&user, userID).Error
 	case "votes":
 		result = database.GetDB().Preload("Votes.Link").First(&user, userID).Error
+	case "article":
+		result = database.GetDB().Preload("Articles.Category").First(&user, userID).Error
 	default:
 		user = *userInfo
 		result = nil

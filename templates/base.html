@@ -22,8 +22,8 @@
                 <button class="menu-toggle" aria-label="切换菜单">
                     <span>☰</span>
                 </button>
-                <form action="/links/search" class="search-bar">
-                    <input type="text" name="q" placeholder="搜索链接、标签或用户..." {{ if .query }}value="{{.query}}"{{end}}>
+                <form action="{{if .search_article}}/articles/search{{else}}/links/search{{end}}" class="search-bar">
+                    <input type="text" name="q" placeholder="搜索链接、文章..." {{ if .query }}value="{{.query}}"{{end}}>
                 </form>
                 <div class="nav-links">
                     <a class="menu-close" aria-label="关闭菜单">✕</a>
@@ -61,4 +61,5 @@
     </footer>
 
     <script src="/static/js/script.js"></script>
+</body>
 </html>

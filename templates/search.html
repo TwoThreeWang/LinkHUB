@@ -5,46 +5,55 @@
 {{ end }}
 
 {{ define "content" }}
-<div class="content">
-    <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
+<div class="grid-container-left">
+    <div class="sidebar">
+        <h3 class="sidebar-title">发现</h3>
+        <ul class="sidebar-links">
+            <li><a href="/links/search?q={{.title}}" class="primary-link"><i class="fa fa-link"></i>搜链接</a></li>
+            <li><a href="/articles/search?q={{.title}}"><i class="fa fa-newspaper-o"></i>搜文章</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
 
-    <div class="product-list">
-        {{ range .links }}
-        <article class="product-card">
-            <div class="product-vote">
-                <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
-                    <span aria-hidden="true">▲</span>
-                    <span class="vote-count">{{ .VoteCount }}</span>
-                </a>
-            </div>
-            <div class="product-info">
-                <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                <p class="product-description">{{ TruncateString .Description 250 }}</p>
-                <div class="product-tags" role="list">
-                    <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
-                    {{ range .Tags }}
-                    <a href="/tags/{{ .ID }}" class="tag" role="listitem">{{ .Name }}</a>
-                    {{ end }}
+        <div class="product-list">
+            {{ range .links }}
+            <article class="product-card">
+                <div class="product-vote">
+                    <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
+                        <span aria-hidden="true">▲</span>
+                        <span class="vote-count">{{ .VoteCount }}</span>
+                    </a>
                 </div>
-            </div>
-        </article>
-        {{else}}
-                <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无搜索结果</p>
+                <div class="product-info">
+                    <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
+                    <p class="product-description">{{ TruncateString .Description 250 }}</p>
+                    <div class="product-tags" role="list">
+                        <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
+                        {{ range .Tags }}
+                        <a href="/tags/{{ .ID }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
+                        {{ end }}
+                    </div>
                 </div>
+            </article>
+            {{else}}
+                    <div class="empty-state">
+                        <p><i class="fa fa-circle-o-notch"></i> 暂无搜索结果</p>
+                    </div>
+            {{ end }}
+        </div>
+
+        {{ if gt .totalPages 1 }}
+        <div class="pagination">
+            {{ if gt .page 1 }}
+            <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn btn-outline">上一页</a>
+            {{ end }}
+            <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
+            {{ if lt .page .totalPages }}
+            <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn btn-outline">下一页</a>
+            {{ end }}
+        </div>
         {{ end }}
     </div>
-
-    {{ if gt .totalPages 1 }}
-    <div class="pagination">
-        {{ if gt .page 1 }}
-        <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn btn-outline">上一页</a>
-        {{ end }}
-        <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
-        {{ if lt .page .totalPages }}
-        <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn btn-outline">下一页</a>
-        {{ end }}
-    </div>
-    {{ end }}
 </div>
 {{ end }}

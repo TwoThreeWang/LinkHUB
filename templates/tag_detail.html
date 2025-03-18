@@ -9,8 +9,8 @@
         <div class="sidebar">
             <h3 class="sidebar-title">排序</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><i class="fa fa-fire"></i>热门排序</a></li>
-                <li><a href="?sort=new"><i class="fa fa-clock-o"></i>最新排序</a></li>
+                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门排序</a></li>
+                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新排序</a></li>
             </ul>
             <h3 class="sidebar-title mt-xxl">标签管理</h3>
             <ul class="sidebar-links">
@@ -39,7 +39,7 @@
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
-                            <a href="/tags/{{ .ID }}" class="tag" role="listitem">{{ .Name }}</a>
+                            <a href="/tags/{{ .ID }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
                             {{ end }}
                         </div>
                     </div>

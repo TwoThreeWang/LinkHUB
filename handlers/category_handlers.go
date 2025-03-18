@@ -41,12 +41,6 @@ func CreateCategory(c *gin.Context) {
 
 // ShowCategory 显示分类详情
 func ShowCategory(c *gin.Context) {
-	refer := c.GetHeader("Referer")
-	if refer == "" {
-		refer = "/"
-	}
-	// 从上下文中获取用户信息
-	userInfo := GetCurrentUser(c)
 	// 获取分类id
 	id := c.Param("id")
 	// 获取分页参数
@@ -62,13 +56,11 @@ func ShowCategory(c *gin.Context) {
 	var category models.Category
 	result := database.GetDB().Where("id = ?", id).First(&category)
 	if result.Error != nil {
-		c.HTML(http.StatusBadRequest, "result", gin.H{
+		c.HTML(http.StatusNotFound, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
 			"message":       "分类不存在或已被删除",
 			"redirect_text": "返回",
-			"redirect_url":  refer,
-			"userInfo":      userInfo,
-		})
+		}))
 		return
 	}
 
@@ -96,20 +88,19 @@ func ShowCategory(c *gin.Context) {
 
 	// 执行查询
 	query.Count(&total)
-	query.Offset(offset).Limit(pageSize).Find(&articles)
+	query.Offset(offset).Preload("User").Limit(pageSize).Find(&articles)
 
 	// 计算总页数
 	totalPages := (int(total) + pageSize - 1) / pageSize
 
-	c.HTML(http.StatusOK, "category_detail", gin.H{
+	c.HTML(http.StatusOK, "category_detail", OutputCommonSession(c, gin.H{
 		"title":      category.Name,
 		"category":   category,
 		"articles":   articles,
 		"page":       page,
 		"totalPages": totalPages,
 		"sort":       sort,
-		"userInfo":   userInfo,
-	})
+	}))
 }
 
 // UpdateCategory 更新分类
@@ -117,11 +108,11 @@ func UpdateCategory(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "请先登录"})
+		c.JSON(http.StatusOK, OutputApi(403, "用户未登录"))
 		return
 	}
 	if userInfo.Role != "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "权限错误，非管理员无法更新分类！"})
+		c.JSON(http.StatusOK, OutputApi(403, "权限错误，非管理员无法更新分类"))
 		return
 	}
 
@@ -129,18 +120,18 @@ func UpdateCategory(c *gin.Context) {
 	id := c.Param("id")
 	newName := c.Query("name")
 	if newName == "" {
-		c.JSON(http.StatusOK, gin.H{"message": "分类名称不能为空"})
+		c.JSON(http.StatusOK, OutputApi(400, "分类名称不能为空"))
 		return
 	}
 
 	// 更新分类
 	result := database.GetDB().Model(&models.Category{}).Where("id = ?", id).Update("name", newName)
 	if result.Error != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "分类更新失败：" + result.Error.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "分类更新失败："+result.Error.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "分类更新成功"})
+	c.JSON(http.StatusOK, OutputApi(200, "分类更新成功"))
 }
 
 // DeleteCategory 删除分类
@@ -148,11 +139,11 @@ func DeleteCategory(c *gin.Context) {
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
 	if userInfo == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "请先登录"})
+		c.JSON(http.StatusOK, OutputApi(403, "用户未登录"))
 		return
 	}
 	if userInfo.Role != "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "权限错误，非管理员无法删除分类！"})
+		c.JSON(http.StatusOK, OutputApi(403, "权限错误，非管理员无法删除分类"))
 		return
 	}
 
@@ -162,7 +153,7 @@ func DeleteCategory(c *gin.Context) {
 	// 检查分类是否存在
 	var category models.Category
 	if err := database.GetDB().First(&category, id).Error; err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "分类不存在"})
+		c.JSON(http.StatusOK, OutputApi(400, "分类不存在"))
 		return
 	}
 
@@ -170,15 +161,15 @@ func DeleteCategory(c *gin.Context) {
 	var count int64
 	database.GetDB().Model(&models.Article{}).Where("category_id = ?", id).Count(&count)
 	if count > 0 {
-		c.JSON(http.StatusOK, gin.H{"message": "该分类下还有文章，无法删除"})
+		c.JSON(http.StatusOK, OutputApi(400, "该分类下还有文章，无法删除"))
 		return
 	}
 
 	// 删除分类
 	if err := database.GetDB().Delete(&category).Error; err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "分类删除失败：" + err.Error()})
+		c.JSON(http.StatusOK, OutputApi(400, "分类删除失败："+err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "分类删除成功"})
+	c.JSON(http.StatusOK, OutputApi(200, "分类删除成功"))
 }

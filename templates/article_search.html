@@ -1,0 +1,54 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="description" content="{{ .title }}在{{ .siteName }}网站上的搜索结果">
+{{ end }}
+
+{{ define "content" }}
+<div class="grid-container-left">
+    <div class="sidebar">
+        <h3 class="sidebar-title">发现</h3>
+        <ul class="sidebar-links">
+            <li><a href="/links/search?q={{.title}}"><i class="fa fa-link"></i>搜链接</a></li>
+            <li><a href="/articles/search?q={{.title}}" class="primary-link"><i class="fa fa-newspaper-o"></i>搜文章</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
+
+        <div class="product-list">
+            {{ range .articles }}
+            <article class="product-card">
+                <div class="product-info">
+                    <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
+                    <p class="product-description">{{ TruncateString .Content 250 }}</p>
+                    <div class="tags-group" role="list">
+                        <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
+                        <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
+                        <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
+                        <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
+                        <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+                    </div>
+                </div>
+            </article>
+            {{else}}
+            <div class="empty-state">
+                <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+            </div>
+            {{ end }}
+        </div>
+
+        {{ if gt .totalPages 1 }}
+        <div class="pagination">
+            {{ if gt .page 1 }}
+            <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn btn-outline">上一页</a>
+            {{ end }}
+            <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
+            {{ if lt .page .totalPages }}
+            <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn btn-outline">下一页</a>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}

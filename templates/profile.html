@@ -18,14 +18,15 @@
             <br>
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=overview" class="active"><i class="fa fa-tachometer"></i>概览</a></li>
-                <li><a href="?sort=links"><i class="fa fa-link"></i>所有链接</a></li>
-                <li><a href="?sort=votes"><i class="fa fa-star"></i>投票链接</a></li>
-                <li><a href="?sort=comments"><i class="fa fa-comments-o"></i>所有评论</a></li>
+                <li><a href="?sort=overview" {{if eq .sort "overview"}}class="primary-link"{{end}}><i class="fa fa-tachometer"></i>概览</a></li>
+                <li><a href="?sort=links" {{if eq .sort "links"}}class="primary-link"{{end}}><i class="fa fa-link"></i>所有链接</a></li>
+                <li><a href="?sort=votes" {{if eq .sort "votes"}}class="primary-link"{{end}}><i class="fa fa-star"></i>投票链接</a></li>
+                <li><a href="?sort=article" {{if eq .sort "article"}}class="primary-link"{{end}}><i class="fa fa-newspaper-o"></i>所有文章</a></li>
+                <li><a href="?sort=comments" {{if eq .sort "comments"}}class="primary-link"{{end}}><i class="fa fa-comments-o"></i>所有评论</a></li>
                 {{ if .userInfo }}
                     {{ if eq .user.ID .userInfo.ID }}
-                    <li><a href="?sort=notifications"><i class="fa fa-bell-o"></i>通知中心</a></li>
-                    <li><a href="?sort=setting"><i class="fa fa-cog"></i>账户设置</a></li>
+                    <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
+                    <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><i class="fa fa-cog"></i>账户设置</a></li>
                     <li><a href="/auth/logout"><i class="fa fa-power-off"></i>退出登录</a></li>
                     {{ end }}
                 {{ end }}
@@ -121,7 +122,7 @@
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
-                            <a href="/tags/{{ .Name }}" class="tag" role="listitem">{{ .Name }}</a>
+                            <a href="/tags/{{ .Name }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
                             {{ end }}
                         </div>
                     </div>
@@ -129,6 +130,30 @@
                 {{else}}
                 <div class="empty-state">
                     <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
+                </div>
+                {{ end }}
+            </div>
+            {{ else if eq .sort "article" }}
+            <h2><i class="fa fa-newspaper-o"></i>&nbsp;&nbsp;&nbsp;所有文章</h2>
+
+            <div class="comment-list">
+                {{ range .user.Articles }}
+                <article class="product-card">
+                    <div class="product-info">
+                        <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
+                        <p class="product-description">{{ TruncateString .Content 250 }}</p>
+                        <div class="tags-group" role="list">
+                            <a href="/user/profile/{{ $.user.ID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ $.user.Username }}</a>
+                            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
+                            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
+                            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
+                            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+                        </div>
+                    </div>
+                </article>
+                {{else}}
+                <div class="empty-state">
+                    <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
                 </div>
                 {{ end }}
             </div>

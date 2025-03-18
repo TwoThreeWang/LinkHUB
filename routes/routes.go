@@ -44,7 +44,7 @@ func SetupRoutes(r *gin.Engine) {
 		links.GET("/search", handlers.SearchLinks)                                   // 搜索
 	}
 
-	// 评论相关路由
+	// 链接评论相关路由
 	comments := r.Group("/comments", middleware.AuthRequired())
 	{
 		comments.POST("/", handlers.CreateComment) // 创建链接评论
@@ -56,7 +56,7 @@ func SetupRoutes(r *gin.Engine) {
 		articleComments.POST("/", handlers.CreateArticleComment) // 创建文章评论
 	}
 
-	// 标签相关路由
+	// 链接标签相关路由
 	tags := r.Group("/tags")
 	{
 		tags.GET("/", handlers.ListTags)            // 所有标签
@@ -66,7 +66,7 @@ func SetupRoutes(r *gin.Engine) {
 		tags.GET("/:id/delete", handlers.DeleteTag) // 删除链接
 	}
 
-	// 分类相关路由
+	// 文章分类相关路由
 	categories := r.Group("/categories")
 	{
 		categories.GET("/:id", handlers.ShowCategory)                                     // 分类详情

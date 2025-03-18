@@ -845,7 +845,7 @@ func ClickLink(c *gin.Context) {
 	c.JSON(http.StatusOK, OutputApi(200, "Success"))
 }
 
-// SearchLinks 搜索链接API
+// SearchLinks 搜索处理函数
 func SearchLinks(c *gin.Context) {
 	// 获取查询参数
 	query := c.Query("q")

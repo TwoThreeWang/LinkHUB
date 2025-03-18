@@ -20,6 +20,7 @@
     --color-error: #dc3545; /* 错误色 */
 
     /* 间距 */
+    --space-xss: 0.15rem; /* 极小间距 */
     --space-xs: 0.3rem; /* 极小间距 */
     --space-sm: 0.5rem; /* 小间距 */
     --space-md: 0.75rem; /* 中间距 */
@@ -28,6 +29,7 @@
     --space-xxl: 2rem; /* 超大间距 */
 
     /* 字体大小 */
+    --font-size-xss: 0.75rem; /* 极小字体 */
     --font-size-xs: 0.85rem; /* 极小字体 */
     --font-size-sm: 0.9rem; /* 小字体 */
     --font-size-base: 1rem; /* 基础字体 */
@@ -342,7 +344,7 @@ header {
 /* 产品卡片样式 */
 .product-card {
     display: flex;
-    padding: var(--space-lg) var(--space-sm);
+    padding: var(--space-sm);
     border-bottom: 1px solid var(--color-border);
 }
 .product-vote {
@@ -395,9 +397,9 @@ header {
 }
 .tag {
     background-color: var(--color-background-light);
-    padding: var(--space-xs) var(--space-md);
+    padding: var(--space-xss) var(--space-sm);
     border-radius: var(--border-radius);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-xss);
     transition: background-color 0.2s ease-out;
     text-decoration: none;
 }
@@ -409,7 +411,6 @@ header {
     color: var(--color-primary);
     text-decoration: none;
     font-weight: 500;
-    display: flex;
 }
 .empty-state{
     margin: var(--space-xxl) 0;

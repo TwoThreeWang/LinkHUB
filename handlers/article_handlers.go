@@ -451,67 +451,48 @@ func DeleteArticle(c *gin.Context) {
 
 // SearchArticles 搜索文章
 func SearchArticles(c *gin.Context) {
-	userInfo := GetCurrentUser(c)
-	// 获取搜索关键词
-	keyword := c.Query("q")
+	// 获取查询参数
+	query := c.Query("q")
+	if query == "" {
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "搜索词不能为空",
+			"redirect_text": "返回",
+		}))
+		return
+	}
 
 	// 获取分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1
 	}
-
-	// 获取排序参数
-	sort := c.DefaultQuery("sort", "new")
-
+	// 获取分页数据
+	pageSize := 10
+	offset := (page - 1) * pageSize
 	// 获取文章列表
 	var articles []models.Article
 	var total int64
 
 	// 构建查询
-	query := database.GetDB().Model(&models.Article{})
-
-	// 添加搜索条件
-	if keyword != "" {
-		query = query.Where("title LIKE ? OR content LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
-	}
-
-	// 计算总数
-	query.Count(&total)
-
-	// 获取分页数据
-	pageSize := 10
-	offset := (page - 1) * pageSize
-
-	// 根据排序参数设置排序方式
-	switch sort {
-	case "top":
-		query = query.Order("view_count DESC")
-	case "new":
-		query = query.Order("created_at DESC")
-	default:
-		query = query.Order("created_at DESC")
-	}
-
-	// 执行查询
-	query.Limit(pageSize).
-		Offset(offset).
-		Preload("User").
-		Preload("Category").
-		Find(&articles)
-
+	queryDB := database.GetDB().Where(
+		"title ILIKE ? OR content ILIKE ?", "%"+query+"%", "%"+query+"%",
+	)
+	// 先计算总记录数
+	queryDB.Model(&models.Article{}).Count(&total)
+	// 执行分页查询
+	queryDB.Preload("Category").Preload("User").Limit(pageSize).Offset(offset).Find(&articles)
 	// 计算总页数
 	totalPages := (int(total) + pageSize - 1) / pageSize
 
 	// 渲染模板
-	c.HTML(http.StatusOK, "search", gin.H{
-		"title":      "搜索结果: " + keyword,
-		"articles":   articles,
-		"page":       page,
-		"totalPages": totalPages,
-		"sort":       sort,
-		"keyword":    keyword,
-		"total":      total,
-		"userInfo":   userInfo,
-	})
+	c.HTML(http.StatusOK, "article_search", OutputCommonSession(c, gin.H{
+		"title":          query,
+		"articles":       articles,
+		"page":           page,
+		"totalPages":     totalPages,
+		"query":          query,
+		"total":          total,
+		"search_article": "search_article",
+	}))
 }

@@ -1,0 +1,109 @@
+{{ define "meta" }}
+<title>{{ .title }} 分类 - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="description" content="{{ .title }} 分类在 {{ .siteName }} 上的主页">
+{{ end }}
+
+{{ define "content" }}
+<div class="grid-container-left">
+  <div class="sidebar">
+    <h3 class="sidebar-title">排序</h3>
+    <ul class="sidebar-links">
+      <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门排序</a></li>
+      <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新排序</a></li>
+    </ul>
+    <h3 class="sidebar-title mt-xxl">分类管理</h3>
+    <ul class="sidebar-links">
+      <li><a href="?sort=top"><i class="fa fa-folder-open-o"></i>共 {{ .category.Count }} 篇文章</a></li>
+      {{ if and .userInfo (eq .userInfo.Role "admin") }}
+      <li><a href="javascript:void(0)" onclick="updateCategory('{{.category.ID}}')"><i class="fa fa-edit"></i>编辑分类</a></li>
+      <li><a href="javascript:void(0)" onclick="deleteCategory('{{.category.ID}}')"><i class="fa fa-remove"></i>删除分类</a></li>
+      {{end}}
+    </ul>
+  </div>
+
+  <div class="content">
+    <h2><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp;{{ .category.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
+    <div class="product-list">
+      {{ range .articles }}
+      <article class="product-card">
+        <div class="product-info">
+          <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
+          <p class="product-description">{{ TruncateString .Content 250 }}</p>
+          <div class="tags-group" role="list">
+            <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
+            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ $.category.Name }}</a>
+            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
+            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
+            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+          </div>
+        </div>
+      </article>
+      {{else}}
+      <div class="empty-state">
+        <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+      </div>
+      {{ end }}
+    </div>
+
+    {{ if gt .totalPages 1 }}
+    <div class="pagination">
+      {{ if gt .page 1 }}
+      <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn btn-outline">上一页</a>
+      {{ end }}
+      <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
+      {{ if lt .page .totalPages }}
+      <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn btn-outline">下一页</a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+<script>
+  function updateCategory(id) {
+    const Name = prompt('请输入分类新名称：');
+    if (Name) {
+      fetch('/categories/'+id+'/update?name=' + encodeURIComponent(Name), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+              .then(response => response.json())
+              .then(data => {
+                if (data.status == 200) {
+                  window.location.reload();
+                } else {
+                  alert(data.message || '修改分类失败');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('修改分类失败');
+              });
+    }
+  }
+  function deleteCategory(id) {
+    if (confirm("确定要删除这个分类吗？此操作不可撤销。")) {
+      fetch('/categories/'+id+'/delete', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+              .then(response => response.json())
+              .then(data => {
+                if (data.status == 200) {
+                  window.location.href = '/articles';
+                } else {
+                  alert(data.message || '删除分类失败');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('删除分类失败');
+              });
+    }
+  }
+</script>
+{{ end }}

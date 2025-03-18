@@ -13,8 +13,8 @@
 
             <h3 class="sidebar-title mt-xxl">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><i class="fa fa-fire"></i>热门</a></li>
-                <li><a href="?sort=new"><i class="fa fa-clock-o"></i>最新</a></li>
+                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门</a></li>
+                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新</a></li>
             </ul>
 
             <h3 class="sidebar-title mt-xxl">分类</h3>
@@ -38,7 +38,7 @@
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Content 250 }}</p>
                         <div class="tags-group" role="list">
-                            <span class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</span>
+                            <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
                             <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
                             <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
                             <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
