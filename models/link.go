@@ -14,6 +14,7 @@ type Link struct {
 	User        User      `json:"user,omitempty"`
 	VoteCount   int       `gorm:"default:0" json:"vote_count"`
 	ClickCount  int       `gorm:"default:0" json:"click_count"`
+	IsPinned    bool      `gorm:"default:false" json:"is_pinned"`
 	Tags        []Tag     `gorm:"many2many:link_tags;constraint:OnDelete:CASCADE;" json:"tags,omitempty"`
 	Votes       []Vote    `gorm:"constraint:OnDelete:CASCADE;" json:"votes,omitempty"`
 	Comments    []Comment `gorm:"constraint:OnDelete:CASCADE;" json:"comments,omitempty"`

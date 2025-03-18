@@ -58,11 +58,31 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-function click_link(linkId){
-    // 创建一个新的XMLHttpRequest对象
-    const xhr = new XMLHttpRequest();
-    // 配置请求
-    xhr.open('GET', `/links/${linkId}/click`, true);
-    // 发送请求
-    xhr.send();
+// 点击链接
+function click_link(id) {
+    fetch(`/links/${id}/click`, {
+        method: 'POST',
+    });
+}
+
+// 切换置顶状态
+function togglePin(id) {
+    fetch(`/links/${id}/pin`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('操作失败');
+    });
 }

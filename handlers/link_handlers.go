@@ -40,6 +40,9 @@ func Home(c *gin.Context) {
 	offset := (page - 1) * pageSize
 
 	// 根据排序参数设置排序方式
+	// 首先按照置顶状态排序
+	query = query.Order("is_pinned DESC")
+
 	switch sort {
 	case "top":
 		// 使用vote_count和click_count的和进行排序
@@ -350,6 +353,41 @@ func ShowUpdateLink(c *gin.Context) {
 		"tags":        tags,
 		"checkTags":   checkTags,
 	}))
+}
+
+// TogglePinLink 切换链接置顶状态
+func TogglePinLink(c *gin.Context) {
+	// 获取链接ID
+	id := c.Param("id")
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.JSON(http.StatusUnauthorized, OutputApi(403, "用户未登录"))
+		return
+	}
+
+	// 查询链接
+	var link models.Link
+	result := database.GetDB().First(&link, id)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, OutputApi(404, "链接不存在或已被删除"))
+		return
+	}
+
+	// 验证用户权限
+	if link.UserID != userInfo.ID && userInfo.Role != "admin" {
+		c.JSON(http.StatusForbidden, OutputApi(403, "您没有权限操作此链接"))
+		return
+	}
+
+	// 切换置顶状态
+	link.IsPinned = !link.IsPinned
+	if err := database.GetDB().Save(&link).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, OutputApi(400, "操作失败"))
+		return
+	}
+
+	c.JSON(http.StatusOK, OutputApi(200, "操作成功"))
 }
 
 // UpdateLink 更新链接处理函数

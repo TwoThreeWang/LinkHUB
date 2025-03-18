@@ -40,8 +40,9 @@ func SetupRoutes(r *gin.Engine) {
 		links.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteLink)     // 删除链接
 		links.GET("/:id/vote", middleware.AuthRequired(), handlers.VoteLink)         // 链接投票
 		links.GET("/:id/unvote", middleware.AuthRequired(), handlers.UnVoteLink)     // 取消投票
-		links.GET("/:id/click", handlers.ClickLink)                                  // 点击链接
+		links.POST("/:id/click", handlers.ClickLink)                                 // 点击链接
 		links.GET("/search", handlers.SearchLinks)                                   // 搜索
+		links.POST("/:id/pin", handlers.TogglePinLink)                               // 切换置顶
 	}
 
 	// 链接评论相关路由

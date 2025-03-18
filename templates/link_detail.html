@@ -23,6 +23,12 @@
                 <a href="{{ .link.URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .link.ID }}')">访问网站 →</a>
                 <span class="tag"><i class="fa fa-eye"></i>{{.link.ClickCount}} 次点击</span>
                 <span class="tag"><i class="fa fa-comments-o"></i>{{ len .comments }} 条评论</span>
+                {{ if and .userInfo (eq .userInfo.Role "admin") }}
+                <a href="javascript:void(0)" onclick="togglePin('{{ .link.ID }}')" class="tag {{ if .link.IsPinned }}primary-link{{end}}">
+                    <i class="fa fa-thumb-tack"></i>
+                    {{ if .link.IsPinned }}取消置顶{{ else }}置顶{{ end }}
+                </a>
+                {{end}}
             </div>
             <div class="product-tags">
                 {{ range .link.Tags }}
