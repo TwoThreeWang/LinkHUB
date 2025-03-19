@@ -1,6 +1,6 @@
 {{ define "meta" }}
 <title>{{ .title }} - {{ .siteName }}</title>
-<meta name="keywords" content="{{ .siteName }},{{ .title }}">
+<meta name="keywords" content="{{ .title }},{{ .siteName }}">
 <meta name="description" content="{{ TruncateString .link.Description 250 }}">
 {{ end }}
 

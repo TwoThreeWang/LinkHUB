@@ -7,6 +7,7 @@ import (
 	"LinkHUB/config"
 	"LinkHUB/database"
 	"LinkHUB/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +33,9 @@ func main() {
 
 	// 设置静态文件目录
 	r.Static("/static", "./static")
+
+	// 设置robots.txt直接访问
+	r.StaticFile("/robots.txt", "./static/robots.txt")
 
 	// 注册路由
 	routes.SetupRoutes(r)

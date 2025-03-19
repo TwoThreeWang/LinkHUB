@@ -1,0 +1,23 @@
+User-agent: mauibot
+Disallow: /
+
+User-agent: mj12bot
+Disallow: /
+
+User-agent: *
+Allow: /
+Allow: /links/*
+Allow: /articles/*
+Allow: /categories/*
+Allow: /tags/*
+Allow: /user/*
+Disallow: /auth/*
+Disallow: /api/*
+Disallow: /articles/*/update
+Disallow: /articles/*/delete
+Disallow: /links/*/update
+Disallow: /links/*/delete
+
+Crawl-delay: 3
+
+Sitemap: /sitemap.xml

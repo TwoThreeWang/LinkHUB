@@ -271,7 +271,7 @@ func ShowProfile(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "profile", OutputCommonSession(c, gin.H{
-		"title": user.Username + "'s 主页",
+		"title": user.Username + " 的主页",
 		"user":  user,
 		"sort":  sort,
 	}))

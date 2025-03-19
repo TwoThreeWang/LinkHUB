@@ -1,7 +1,7 @@
 {{ define "meta" }}
 <title>{{ .title }} - {{ .siteName }}</title>
-<meta name="keywords" content="{{ .siteName }},网址导航">
-<meta name="description" content="{{ .siteName }}">
+<meta name="keywords" content="{{ .title }},{{ .siteName }},网址导航">
+<meta name="description" content="{{ TruncateString .article.Content 250 }}">
 {{ end }}
 
 {{ define "content" }}

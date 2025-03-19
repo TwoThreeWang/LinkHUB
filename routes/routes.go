@@ -3,6 +3,7 @@ package routes
 import (
 	"LinkHUB/handlers"
 	"LinkHUB/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -88,4 +89,7 @@ func SetupRoutes(r *gin.Engine) {
 		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)     // 删除文章
 		articles.GET("/search", handlers.SearchArticles)                                   // 搜索文章
 	}
+
+	// Sitemap
+	r.GET("/sitemap.xml", handlers.GenerateSitemap) // 生成网站地图
 }
