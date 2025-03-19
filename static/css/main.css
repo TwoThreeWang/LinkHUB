@@ -478,6 +478,8 @@ header {
     border-bottom: 1px dashed var(--color-border);
     padding-bottom: var(--space-md);
     margin-bottom: var(--space-xxl);
+    display: flex;
+    align-items: flex-start;
 }
 /* 文章内侧栏样式 */
 .sidebar-main {
@@ -509,14 +511,21 @@ header {
     font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
 }
-/* 侧栏用户头像 */
+/* 用户头像 */
 .avatar {
     width: 80px;
     height: 80px;
     border-radius: var(--border-radius);
     object-fit: cover;
     margin-bottom: var(--spacing-sm);
-    border: 2px solid var(--light-gray);
+}
+.avatar-small {
+    width: 23px;
+    height: 23px;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    margin-right: 0.3rem;
+    vertical-align: text-bottom;
 }
 /* 用户中心卡片 */
 .stats-cards {

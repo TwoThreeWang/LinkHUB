@@ -62,14 +62,17 @@
                     <p>请 <a href="/auth/login" class="btn btn-outline">登录</a> 或 <a href="/auth/register" class="btn btn-outline">注册</a> 以发表评论</p>
                 </div>
                 {{ end }}
-
+                <br>
                 <div class="comment-list">
                     {{ range .comments }}
                     <div class="comment">
                         <div class="comment-header">
-                            <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
-                            <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
-                            <a href="javascript:void(0);" class="comment-time" onclick="toggleReplyForm('{{ .ID }}')">回复</a>
+                            <img src="{{.User.Avatar }}" alt="{{.User.Username }}" class="avatar-small" style="float: inline-start;">
+                            <span>
+                                <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
+                                <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                                <a href="javascript:void(0);" class="comment-time" onclick="toggleReplyForm('{{ .ID }}')">回复</a>
+                            </span>
                         </div>
                         <p class="comment-text">{{ .Content }}</p>
                         {{ if $.userInfo }}
@@ -91,8 +94,11 @@
                             <div class="comment reply">
                                 <div class="comment-content">
                                     <div class="comment-header">
-                                        <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
-                                        <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                                        <img src="{{.User.Avatar }}" alt="{{.User.Username }}" class="avatar-small" style="float: inline-start;">
+                                        <span>
+                                            <a class="comment-author" href="/user/profile/{{.User.ID}}">{{ .User.Username }}</a>
+                                            <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                                        </span>
                                     </div>
                                     <p class="comment-text">{{ .Content }}</p>
                                 </div>
@@ -113,8 +119,15 @@
         <div class="product-sidebar">
             <div class="sidebar-main">
                 <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
-                <p>{{ .link.User.Username }}</p>
-                <small>{{ .link.User.Bio }}</small>
+                <div class="grid-container-left">
+                    <div class="product-avatar" style="margin-right:10px;">
+                        <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
+                    </div>
+                    <div class="product-info">
+                        <p>{{ .link.User.Username }}</p>
+                        <small>{{ .link.User.Bio }}</small>
+                    </div>
+                </div>
                 <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">
                     <i class="fa fa-home"></i> 查看创建者
                 </a>

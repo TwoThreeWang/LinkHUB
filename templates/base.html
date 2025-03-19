@@ -32,7 +32,7 @@
                     <a href="/tags">标签</a>
                     <a href="/links/new" class="btn btn-primary">分享链接</a>
                     {{ if .userInfo }}
-                        <a href="/user/profile"><i class="fa fa-user-circle-o"></i>{{ .userInfo.Username }}</a>
+                        <a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a>
                     {{ else }}
                         <a href="/auth/login"><i class="fa fa-user-circle-o"></i>登录</a>
                     {{ end }}
