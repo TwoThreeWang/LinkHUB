@@ -756,7 +756,7 @@ footer {
         gap: var(--space-sm);
     }
     .sidebar-links li {
-        margin: 0;
+        margin: 0.2rem 0;
     }
     .sidebar-links a {
         background-color: var(--color-background-light);
