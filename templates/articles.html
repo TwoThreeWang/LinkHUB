@@ -7,10 +7,11 @@
 {{ define "content" }}
     <div class="grid-container-left">
         <div class="sidebar">
+            {{ if .userInfo }}
             <a href="/articles/new/" class="btn btn-primary">
                 <i class="fa fa-plus"></i> 发布文章
             </a>
-
+            {{ end }}
             <h3 class="sidebar-title mt-xxl">发现</h3>
             <ul class="sidebar-links">
                 <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门</a></li>
