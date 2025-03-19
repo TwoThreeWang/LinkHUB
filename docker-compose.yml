@@ -1,0 +1,22 @@
+version: '3'
+services:
+  link-hub:
+    container_name: link-hub
+    image: link-hub:latest
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./config:/config
+      - ./templates:/templates
+      - ./static:/static
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+    networks:
+      - docker-app-network
+
+networks:
+  docker-app-network:
+    external: true
