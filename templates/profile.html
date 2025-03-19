@@ -70,7 +70,7 @@
                             <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
                             <a href="/links/{{ .LinkID }}" class="comment-time">评论：{{ .Link.Title }}</a>
                         </div>
-                        <p class="comment-text">{{ TruncateString .Content 250 }}</p>
+                        <p class="comment-text">{{ TruncateString .Content 120 }}</p>
                     </div>
                     {{else}}
                 <div class="empty-state">
@@ -92,7 +92,7 @@
                     </div>
                     <div class="product-info">
                         <a href="/links/{{ .Link.ID }}" class="product-title">{{ .Link.Title }}</a>
-                        <p class="product-description">{{ TruncateString .Link.Description 250 }}</p>
+                        <p class="product-description">{{ TruncateString .Link.Description 120 }}</p>
                         <div class="product-tags" role="list">
                             <a href="{{ .Link.URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .Link.ID }}')">访问网站 →</a>
                         </div>
@@ -118,7 +118,7 @@
                     </div>
                     <div class="product-info">
                         <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                        <p class="product-description">{{ TruncateString .Description 250 }}</p>
+                        <p class="product-description">{{ TruncateString .Description 120 }}</p>
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
@@ -141,7 +141,7 @@
                 <article class="product-card">
                     <div class="product-info">
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                        <p class="product-description">{{ TruncateString .Content 250 }}</p>
+                        <p class="product-description">{{ TruncateString .Content 120 }}</p>
                         <div class="tags-group" role="list">
                             <a href="/user/profile/{{ $.user.ID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ $.user.Username }}</a>
                             <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>

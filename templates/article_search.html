@@ -21,7 +21,7 @@
             <article class="product-card">
                 <div class="product-info">
                     <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                    <p class="product-description">{{ TruncateString .Content 250 }}</p>
+                    <p class="product-description">{{ TruncateString .Content 120 }}</p>
                     <div class="tags-group" role="list">
                         <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
                         <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>

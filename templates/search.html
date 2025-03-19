@@ -27,7 +27,7 @@
                 </div>
                 <div class="product-info">
                     <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                    <p class="product-description">{{ TruncateString .Description 250 }}</p>
+                    <p class="product-description">{{ TruncateString .Description 120 }}</p>
                     <div class="product-tags" role="list">
                         <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                         {{ range .Tags }}

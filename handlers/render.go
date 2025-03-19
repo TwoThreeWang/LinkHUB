@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"unicode/utf8"
 )
 
 func LoadLocalTemplates(templatesDir string) render.HTMLRender {
@@ -108,8 +109,9 @@ func StringInSlice(target string, strList []string) bool {
 
 // TruncateString 将字符串截取为指定长度的字符串
 func TruncateString(str string, length int) string {
-	if len(str) <= length {
+	if utf8.RuneCountInString(str) <= length {
 		return str
 	}
-	return str[:length] + "..."
+	runes := []rune(str)
+	return string(runes[:length]) + "..."
 }
