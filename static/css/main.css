@@ -669,6 +669,16 @@ footer {
     gap: 2rem;
     flex-wrap: wrap;
 }
+.ads-block{
+    display: none;
+    border: 2px dashed var(--color-primary);
+    text-align: center;
+    color: var(--color-primary);
+    padding: var(--space-xl);
+    border-radius: var(--border-radius);
+    margin: var(--space-xl) auto;
+    font-weight: var(--font-weight-bold);
+}
 /* 响应式设计 */
 /* 笔记本屏幕下的布局 */
 @media (max-width: 900px) {

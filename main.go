@@ -36,6 +36,8 @@ func main() {
 
 	// 设置robots.txt直接访问
 	r.StaticFile("/robots.txt", "./static/robots.txt")
+	// 设置静态文件直接访问
+	r.StaticFile("/hahahaha.ads.controller.js", "./static/js/hahahaha.ads.controller.js")
 
 	// 注册路由
 	routes.SetupRoutes(r)

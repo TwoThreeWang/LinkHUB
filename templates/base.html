@@ -10,7 +10,7 @@
     <link rel="icon" href='/static/img/icon.png'/>
     {{ template "meta" . }}
     <link rel="dns-prefetch" href="https://lf3-cdn-tos.bytecdntp.com">
-    <link rel="stylesheet" href="/static/css/main.css?v=0.1">
+    <link rel="stylesheet" href="/static/css/main.css?v=0.2">
     <link rel="stylesheet" href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
 </head>
@@ -41,6 +41,7 @@
         </div>
     </header>
     <div class="container main">
+        <div class="ads-block" id="ads-block">我们致力于为您提供优质内容，但广告是我们维持网站运营和提供免费内容的主要收入来源，禁用广告拦截器将有助于我们持续发展，感谢理解。</div>
         {{ template "content" . }}
     </div>
     <div class="menu-overlay"></div>
@@ -62,5 +63,18 @@
     </footer>
 
     <script src="/static/js/script.js"></script>
+    <script>
+        var script = document.createElement('script');
+        script.src = '/hahahaha.ads.controller.js';
+        script.onload = function() {
+            console.log('脚本加载成功');
+        };
+        script.onerror = function() {
+            console.log('脚本加载失败，被AdBlock/AdBlock Plus拦截了');
+            let element = document.getElementById("ads-block");
+            element.style.display = "block";
+        };
+        document.head.appendChild(script);
+    </script>
 </body>
 </html>
