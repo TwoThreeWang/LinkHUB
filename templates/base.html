@@ -67,10 +67,10 @@
         var script = document.createElement('script');
         script.src = '/hahahaha.ads.controller.js';
         script.onload = function() {
-            console.log('脚本加载成功');
+            console.log('Welcome');
         };
         script.onerror = function() {
-            console.log('脚本加载失败，被AdBlock/AdBlock Plus拦截了');
+            console.log('糟糕！小广告被 AdBlock/AdBlock Plus 拦截了');
             let element = document.getElementById("ads-block");
             element.style.display = "block";
         };
