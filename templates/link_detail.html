@@ -2,6 +2,36 @@
 <title>{{ .title }} - {{ .siteName }}</title>
 <meta name="keywords" content="{{ .title }},{{ .siteName }}">
 <meta name="description" content="{{ TruncateString .link.Description 250 }}">
+<!-- Open Graph 标签 -->
+<meta property="og:title" content="{{ .link.Title }} - {{ .siteName }}" />
+<meta property="og:description" content="{{ TruncateString .link.Description 250 }}" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="{{.SiteUrl}}{{.path}}" />
+<meta property="og:site_name" content="{{ .siteName }}" />
+
+<!-- 文章特定标签 -->
+<meta property="article:published_time" content="{{ .link.CreatedAt.Format "2006-01-02 15:04:05" }}" />
+<meta property="article:modified_time" content="{{ .link.UpdatedAt.Format "2006-01-02 15:04:05" }}" />
+<meta property="article:author" content="{{ .link.User.Username }}" />
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": "{{ .link.Title }} - {{ .siteName }}",
+      "datePublished": "{{ .link.CreatedAt.Format "2006-01-02 15:04:05" }}",
+      "dateModified": "{{ .link.UpdatedAt.Format "2006-01-02 15:04:05" }}",
+      "author": [{
+        "@type": "Person",
+        "name": "{{ .link.User.Username }}"
+        "url": "{{.SiteUrl}}/user/profile/{{ .link.User.ID }}"
+      }],
+      "publisher":{
+          "@type": "Organization",
+          "name": "{{ .siteName }}",
+          "url": "{{.SiteUrl}}"
+      }
+    }
+</script>
 {{ end }}
 
 {{ define "content" }}
