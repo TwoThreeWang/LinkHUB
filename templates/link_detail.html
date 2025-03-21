@@ -22,7 +22,7 @@
       "dateModified": "{{ .link.UpdatedAt.Format "2006-01-02 15:04:05" }}",
       "author": [{
         "@type": "Person",
-        "name": "{{ .link.User.Username }}"
+        "name": "{{ .link.User.Username }}",
         "url": "{{.SiteUrl}}/user/profile/{{ .link.User.ID }}"
       }],
       "publisher":{
