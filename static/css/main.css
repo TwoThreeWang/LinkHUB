@@ -525,7 +525,7 @@ header {
     border-radius: var(--border-radius);
     object-fit: cover;
     margin-right: 0.3rem;
-    vertical-align: text-bottom;
+    vertical-align: top;
 }
 /* 用户中心卡片 */
 .stats-cards {

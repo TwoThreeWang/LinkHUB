@@ -20,5 +20,9 @@ jwt:
 # 网站配置
 site:
   name: LinkHUB
-  url: http://127.0.0.1:5002
+  url: http://localhost:5002
   version: 0.1
+
+# Google 登录配置
+clientID: google登录客户端ID
+clientSecret: google登录客户端密钥

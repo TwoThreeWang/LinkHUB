@@ -6,10 +6,12 @@ import (
 
 // Config 应用配置结构体
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
-	Site     SiteConfig
+	Server       ServerConfig
+	Database     DatabaseConfig
+	JWT          JWTConfig
+	Site         SiteConfig
+	ClientID     string
+	ClientSecret string
 }
 
 // ServerConfig 服务器配置

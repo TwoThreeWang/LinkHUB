@@ -3,6 +3,9 @@ package handlers
 import (
 	"LinkHUB/config"
 	"LinkHUB/utils"
+	"errors"
+	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +14,7 @@ import (
 
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"google.golang.org/api/idtoken"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,7 +87,7 @@ func Register(c *gin.Context) {
 		Password: password,
 		Role:     "user",
 		Avatar:   "/static/img/avatar.jpg",
-		Bio:      "记得多微笑，这些年的牙不能白刷啊！",
+		Bio:      "TA 还没有介绍自己.",
 	}
 
 	// 保存用户到数据库
@@ -129,8 +133,10 @@ func Register(c *gin.Context) {
 
 // ShowLogin 显示登录页面
 func ShowLogin(c *gin.Context) {
+	clientId := config.GetConfig().ClientID
 	c.HTML(http.StatusOK, "login", OutputCommonSession(c, gin.H{
-		"title": "登录",
+		"title":    "登录",
+		"clientId": clientId,
 	}))
 }
 
@@ -269,11 +275,12 @@ func ShowProfile(c *gin.Context) {
 		}))
 		return
 	}
-
+	clientId := config.GetConfig().ClientID
 	c.HTML(http.StatusOK, "profile", OutputCommonSession(c, gin.H{
-		"title": user.Username + " 的主页",
-		"user":  user,
-		"sort":  sort,
+		"title":    user.Username + " 的主页",
+		"user":     user,
+		"sort":     sort,
+		"clientId": clientId,
 	}))
 }
 
@@ -388,4 +395,148 @@ func GetCurrentUser(c *gin.Context) *models.User {
 	cacheMutex.Unlock()
 
 	return &user
+}
+
+// Oauth 三方登录回调处理逻辑
+func Oauth(c *gin.Context) {
+	refer := c.GetHeader("refer")
+	if refer == "" {
+		refer = "/"
+	}
+	userinfo := GetCurrentUser(c)
+	gCsrfToken := c.PostForm("g_csrf_token")
+	if gCsrfToken == "" {
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "参数错误：No CSRF token in post body.",
+			"redirect_text": "返回",
+		}))
+		return
+	}
+	CookiegCsrfToken, err := c.Request.Cookie("g_csrf_token")
+	if err != nil || CookiegCsrfToken.Value != gCsrfToken {
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "参数错误：Failed to verify double submit cookie.",
+			"redirect_text": "返回",
+		}))
+		return
+	}
+	ClientID := config.GetConfig().ClientID
+	credential := c.PostForm("credential")
+	data, err := idtoken.Validate(c, credential, ClientID)
+	if err != nil {
+		fmt.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "Google 登陆失败，请稍后再试！",
+			"redirect_text": "返回",
+		}))
+		return
+	}
+	userInfo := data.Claims
+	gid := userInfo["sub"].(string)
+	username := userInfo["name"].(string)
+	email := userInfo["email"].(string)
+	avatar := userInfo["picture"].(string)
+	var user models.User
+	// 如果用户已经登录，默认就是绑定三方账号
+	if userinfo != nil {
+		if err := database.GetDB().Where("google_id = ?", gid).First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			updateData := map[string]interface{}{
+				"google_id": gid,
+			}
+			affected := database.GetDB().Model(&models.User{}).Where("id = ?", userinfo.ID).
+				Updates(updateData)
+			if affected.RowsAffected == 0 {
+				// 没有记录被更新，可能是没有找到匹配的记录
+				c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
+					"title":         "Error",
+					"message":       "操作成功，但是没有内容被更新！",
+					"redirect_text": "返回",
+				}))
+				return
+			}
+			// 清除用户缓存
+			cacheMutex.Lock()
+			delete(userCache, userinfo.ID)
+			cacheMutex.Unlock()
+			c.Redirect(302, refer)
+			return
+		} else {
+			// 已经绑定了其他用户
+			c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+				"title":         "Error",
+				"message":       "该 Google 账号已经绑定其他用户，用户名为：" + user.Username,
+				"redirect_text": "返回",
+			}))
+			return
+		}
+	}
+	// 先查一下用户是否已存在，如果存在直接登录，如果不存在新增用户并登录
+Login:
+	if err := database.GetDB().Where("google_id = ?", gid).First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		// 如果用户不存在，先去注册
+		user.Email = email
+		user.Username = username
+		user.Avatar = "/img_dl?url=" + avatar
+		user.GoogleId = gid
+		err := OauthRegister(c, user)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+				"title":         "Error",
+				"message":       err.Error(),
+				"redirect_text": "返回",
+			}))
+			return
+		} else {
+			// 注册成功，重新尝试登陆
+			goto Login
+		}
+	}
+	// 加密用户ID
+	encryptedID, err := utils.EncryptUserID(strconv.FormatUint(uint64(user.ID), 10))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
+			"error": "系统错误: " + err.Error(),
+			"email": email,
+			"refer": refer,
+		}))
+		return
+	}
+	// 设置Cookie
+	expireHours := config.GetConfig().JWT.ExpireHours
+	c.SetCookie("user_id", encryptedID, expireHours*3600, "/", "", false, true)
+
+	// 根据refer参数决定重定向地址
+	redirectURL := "/"
+	if refer != "" && !strings.Contains(refer, "login") {
+		redirectURL = refer
+	}
+
+	// 重定向到指定页面
+	c.Redirect(http.StatusFound, redirectURL)
+}
+
+// OauthRegister 三方登录新用户注册流程
+func OauthRegister(c *gin.Context, user models.User) error {
+	user.Bio = "TA 还没有介绍自己."
+	user.Role = "user"
+Save:
+	err := database.GetDB().Transaction(func(tx *gorm.DB) error {
+		err := tx.Save(&user).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		// 如果用户名重复了，添加尾缀后重试
+		user.Username = user.Username + "_G"
+		goto Save
+	} else if err != nil {
+		return errors.New("系统异常，新用户注册失败！")
+	}
+	return nil
 }

@@ -3,6 +3,7 @@ package routes
 import (
 	"LinkHUB/handlers"
 	"LinkHUB/middleware"
+	"LinkHUB/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,8 +11,11 @@ import (
 // SetupRoutes 设置所有路由
 func SetupRoutes(r *gin.Engine) {
 	// 首页路由
-	r.GET("/", handlers.Home) // 网站首页
-
+	r.GET("/", handlers.Home)
+	// Sitemap 生成网站地图
+	r.GET("/sitemap.xml", handlers.GenerateSitemap)
+	// 图片代理
+	r.GET("/img_dl", utils.GetImg)
 	// 用户认证相关路由
 	auth := r.Group("/auth")
 	{
@@ -20,6 +24,7 @@ func SetupRoutes(r *gin.Engine) {
 		auth.GET("/login", handlers.ShowLogin)                          // 用户登录
 		auth.POST("/login", handlers.Login)                             // 用户登录处理逻辑
 		auth.GET("/logout", middleware.AuthRequired(), handlers.Logout) // 退出登录
+		auth.POST("/callback/google", handlers.Oauth)                   // 三方登录
 	}
 
 	// 用户相关路由
@@ -89,7 +94,4 @@ func SetupRoutes(r *gin.Engine) {
 		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)     // 删除文章
 		articles.GET("/search", handlers.SearchArticles)                                   // 搜索文章
 	}
-
-	// Sitemap
-	r.GET("/sitemap.xml", handlers.GenerateSitemap) // 生成网站地图
 }

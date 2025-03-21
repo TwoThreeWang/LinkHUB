@@ -14,6 +14,7 @@ type User struct {
 	Avatar   string    `gorm:"type:varchar(500);" json:"avatar"`
 	Bio      string    `gorm:"type:varchar(150);" json:"bio"`
 	Role     string    `gorm:"column:role;type:varchar(20)" json:"role"`
+	GoogleId string    `gorm:"column:google_id;type:varchar(100)" json:"google_id"`
 	Links    []Link    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"links,omitempty"`
 	Votes    []Vote    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"votes,omitempty"`
 	Comments []Comment `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"comments,omitempty"`

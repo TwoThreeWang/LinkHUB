@@ -2,6 +2,10 @@
 <title>{{ .title }} - {{ .siteName }}</title>
 <meta name="keywords" content="{{ .siteName }},{{ .title }}">
 <meta name="description" content="{{ .siteName }} 的第 {{ .user.ID }} 号会员，{{ .title }}">
+{{ if not .userInfo.GoogleId }}
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<script src="https://accounts.google.com/gsi/client" async></script>
+{{ end }}
 {{ end }}
 
 {{ define "content" }}
@@ -181,6 +185,29 @@
                     <div class="form-group">
                         <label for="Bio">个性签名</label>
                         <input type="text" id="Bio" name="Bio" value="{{ .userInfo.Bio }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Bio">绑定 Google 账号</label>
+                        {{ if .userInfo.GoogleId }}
+                        <div class="btn btn-outline">已绑定</div>
+                        {{ else }}
+                        <div id="g_id_onload"
+                             data-client_id="{{ .clientId }}"
+                             data-context="signin"
+                             data-ux_mode="popup"
+                             data-login_uri="{{.SiteUrl}}/auth/callback/google"
+                             data-itp_support="false">
+                        </div>
+
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-shape="rectangular"
+                             data-theme="outline"
+                             data-text="signin_with"
+                             data-size="medium"
+                             data-logo_alignment="center">
+                        </div>
+                        {{ end }}
                     </div>
                     <div class="form-group">
                         <label for="password">密码<small>（不修改请留空）</small></label>

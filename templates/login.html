@@ -2,6 +2,8 @@
 <title>{{ .title }} - {{ .siteName }}</title>
 <meta name="keywords" content="{{ .siteName }},网址导航">
 <meta name="description" content="登录{{ .siteName }}">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<script src="https://accounts.google.com/gsi/client" async></script>
 {{ end }}
 
 {{ define "content" }}
@@ -10,6 +12,25 @@
         {{ if .error }}
         <div class="error-message">{{ .error }}</div>
         {{ end }}
+        <center>
+        <div id="g_id_onload"
+             data-client_id="{{ .clientId }}"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-login_uri="{{.SiteUrl}}/auth/callback/google"
+             data-itp_support="true">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="medium"
+             data-logo_alignment="center">
+        </div>
+        <h3>OR</h3>
+        </center>
         <form action="/auth/login?refer={{.refer}}" method="POST">
             <div class="form-group">
                 <label for="email">邮箱</label>
