@@ -1,6 +1,6 @@
 {{ define "meta" }}
 <title>{{ .title }} - {{ .siteName }}</title>
-<meta name="keywords" content="{{ .title }},{{ .siteName }},网址导航">
+<meta name="keywords" content="{{ .title }},{{ .siteName }},{{.Keywords}}">
 <meta name="description" content="{{ TruncateString .article.Content 250 }}">
 <!-- Open Graph 标签 -->
 <meta property="og:title" content="{{ .article.Title }} - {{ .siteName }}" />

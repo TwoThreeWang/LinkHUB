@@ -69,6 +69,8 @@ func OutputCommonSession(c *gin.Context, h ...gin.H) gin.H {
 	result["userInfo"] = userInfo
 	result["siteName"] = siteConfig.Name
 	result["SiteUrl"] = siteConfig.Url
+	result["Keywords"] = siteConfig.Keywords
+	result["Description"] = siteConfig.Description
 	result["path"] = c.Request.URL.Path
 	result["refer"] = c.Request.Referer()
 	result["version"] = siteConfig.Version

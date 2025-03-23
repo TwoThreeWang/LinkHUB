@@ -38,9 +38,11 @@ type JWTConfig struct {
 
 // SiteConfig 网站配置
 type SiteConfig struct {
-	Name    string
-	Url     string
-	Version string
+	Name        string
+	Url         string
+	Keywords    string
+	Description string
+	Version     string
 }
 
 var config Config
