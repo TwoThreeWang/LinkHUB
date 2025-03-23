@@ -3,6 +3,7 @@ package handlers
 import (
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -91,6 +92,12 @@ func ShowTag(c *gin.Context) {
 
 	// 计算总数
 	query.Count(&total)
+	tag.Count = int(total)
+
+	// 更新标签的count字段，使其与实际关联的链接数量一致
+	if err := database.GetDB().Model(&models.Tag{}).Where("id = ?", tag.ID).Update("count", total).Error; err != nil {
+		fmt.Println("更新标签的count字段失败：", err)
+	}
 
 	// 根据排序参数设置排序方式
 	switch sort {

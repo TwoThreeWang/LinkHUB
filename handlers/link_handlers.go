@@ -484,7 +484,7 @@ func UpdateLink(c *gin.Context) {
 	}
 
 	// 清除现有标签关联
-	if err := tx.Model(&link).Association("Tags").Delete(); err != nil {
+	if err := tx.Model(&link).Association("Tags").Clear(); err != nil {
 		tx.Rollback()
 		c.HTML(http.StatusInternalServerError, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
