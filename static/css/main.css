@@ -197,10 +197,20 @@ select{
 .tag-checkbox:hover .checkbox-label {
     border-color: var(--color-primary);
 }
-/* 文章内容样式 */
 p{
-    margin-bottom: var(--space-md);
     line-height: 1.7rem;
+}
+/* 文章内容样式 */
+#post-content p{
+    margin-bottom: var(--space-md);
+    line-height: 2.5rem;
+    font-size: 1rem;
+}
+#post-content h1,#post-content h2,#post-content h3{
+    margin-top: 1.5rem;
+    margin-left: -1rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-primary);
 }
 blockquote, ul, ol, dl, li, table, pre {
     margin: var(--space-xs) 0;
