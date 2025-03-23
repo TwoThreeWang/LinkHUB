@@ -2,7 +2,7 @@
 <title>{{ .title }} - {{ .siteName }}</title>
 <meta name="keywords" content="{{ .siteName }},{{ .title }},{{.Keywords}}">
 <meta name="description" content="{{ .siteName }} 的第 {{ .user.ID }} 号会员，{{ .title }}">
-{{ if not .userInfo.GoogleId }}
+{{ if and .userInfo (not .userInfo.GoogleId) (eq .userInfo.ID .user.ID) }}
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <script src="https://accounts.google.com/gsi/client" async></script>
 {{ end }}
