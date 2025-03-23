@@ -15,7 +15,7 @@ database:
 # JWT配置
 jwt:
   secret: your-secret-key
-  expire_hours: 24
+  expire_hours: 168
 
 # 网站配置
 site:
