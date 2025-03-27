@@ -752,10 +752,12 @@ func VoteLink(c *gin.Context) {
 		return
 	}
 	// 发送消息
-	go func() {
-		content := fmt.Sprintf("您的链接《<a href='/links/%d'>%s</a>》被用户 <a href='/user/profile/%d'>%s</a> 投票了", link.ID, link.Title, userInfo.ID, userInfo.Username)
-		_ = CreateNotification(link.UserID, content, 0)
-	}()
+	if link.UserID!= userInfo.ID {
+		go func() {
+			content := fmt.Sprintf("您的链接《<a href='/links/%d'>%s</a>》被用户 <a href='/user/profile/%d'>%s</a> 投票了", link.ID, link.Title, userInfo.ID, userInfo.Username)
+			_ = CreateNotification(link.UserID, content, 0)
+		}()
+	}
 	refer := c.GetHeader("Referer")
 	if refer == "" {
 		refer = "/"
