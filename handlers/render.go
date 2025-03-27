@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"LinkHUB/config"
-	"github.com/gin-contrib/multitemplate"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/render"
 	"html/template"
 	"os"
 	"path/filepath"
 	"unicode/utf8"
+
+	"github.com/gin-contrib/multitemplate"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/render"
 )
 
 func LoadLocalTemplates(templatesDir string) render.HTMLRender {
@@ -64,6 +65,12 @@ func OutputCommonSession(c *gin.Context, h ...gin.H) gin.H {
 	result := gin.H{}
 	// 从上下文中获取用户信息
 	userInfo := GetCurrentUser(c)
+	// 获取未读通知数量
+	result["notificationsCount"] = 0
+	if userInfo != nil {
+		notificationsCount := GetUnreadCount(userInfo.ID)
+		result["notificationsCount"] = notificationsCount
+	}
 	// 获取网站配置
 	siteConfig := config.GetConfig().Site
 	result["userInfo"] = userInfo

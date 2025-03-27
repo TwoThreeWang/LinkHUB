@@ -94,4 +94,11 @@ func SetupRoutes(r *gin.Engine) {
 		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)     // 删除文章
 		articles.GET("/search", handlers.SearchArticles)                                   // 搜索文章
 	}
+
+	// 通知相关路由
+	notifications := r.Group("/notifications", middleware.AuthRequired())
+	{
+		notifications.GET("/:id/delete", handlers.DeleteNotification)  // 删除通知
+		notifications.GET("/:id/read", handlers.ReadNotification)      // 标记通知为已读
+	}
 }

@@ -70,6 +70,7 @@ func InitDB() error {
 		&models.ArticleComment{},
 		&models.Article{},
 		&models.Category{},
+		&models.Notification{},
 	); err != nil {
 		return fmt.Errorf("自动迁移数据库表结构失败: %v", err)
 	}

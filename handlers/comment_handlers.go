@@ -3,6 +3,7 @@ package handlers
 import (
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -57,6 +58,7 @@ func CreateComment(c *gin.Context) {
 	}
 
 	// 如果有父评论ID，验证并设置父评论
+	var parentComment models.Comment
 	if parentIDStr != "" {
 		parentID, err := strconv.Atoi(parentIDStr)
 		if err != nil {
@@ -69,7 +71,6 @@ func CreateComment(c *gin.Context) {
 		}
 
 		// 验证父评论是否存在
-		var parentComment models.Comment
 		if err := database.GetDB().First(&parentComment, parentID).Error; err != nil {
 			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 				"title":         "Error",
@@ -103,7 +104,24 @@ func CreateComment(c *gin.Context) {
 		}))
 		return
 	}
-
+	// 发送消息
+	go func() {
+		// 根据linkID查询文章标题
+		var link models.Link
+		if err := database.GetDB().First(&link, uint(linkID)).Error; err != nil {
+			return
+		}
+		// 如果是回复评论，发送消息给父评论的作者
+		if parentComment.ID != 0 && parentComment.UserID!= userInfo.ID{
+			content := fmt.Sprintf("<a href='/links/%d'>您在链接《%s》上的评论有新回复了，点击查看</a>", link.ID, link.Title)
+			_ = CreateNotification(parentComment.UserID, content, 0)
+		}
+		// 如果评论自己的文章， 就不用通知了;如果父评论和文章作者是同一个人，只保留上边的通知就行了
+		if link.UserID != userInfo.ID && parentComment.UserID != link.UserID{
+			content := fmt.Sprintf("<a href='/links/%d'>您的链接《%s》有新评论了，点击查看</a>", link.ID, link.Title)
+			_ = CreateNotification(link.UserID, content, 0)
+		}
+	}()
 	// 重定向到指定页面
 	c.Redirect(http.StatusFound, refer)
 }

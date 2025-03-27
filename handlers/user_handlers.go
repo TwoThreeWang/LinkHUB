@@ -5,15 +5,17 @@ import (
 	"LinkHUB/utils"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"gorm.io/gorm"
+
 	"LinkHUB/database"
 	"LinkHUB/models"
+
 	"google.golang.org/api/idtoken"
 
 	"github.com/gin-gonic/gin"
@@ -263,6 +265,11 @@ func ShowProfile(c *gin.Context) {
 		result = database.GetDB().Preload("Votes.Link").First(&user, userID).Error
 	case "article":
 		result = database.GetDB().Preload("Articles.Category").First(&user, userID).Error
+	case "notifications":
+		Notifications,err := GetUserNotifications(userInfo.ID)
+		user = *userInfo
+		user.Notifications = Notifications
+		result = err
 	default:
 		user = *userInfo
 		result = nil

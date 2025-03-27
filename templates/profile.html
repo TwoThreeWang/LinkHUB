@@ -162,9 +162,28 @@
                 {{ end }}
             </div>
             {{ else if eq .sort "notifications" }}
-            <h2><i class="fa fa-bell-o"></i>&nbsp;&nbsp;&nbsp;通知中心</h2>
-            <div class="empty-state">
-                <p>😀 功能开发中。</p>
+            <h2><i class="fa fa-bell-o"></i>&nbsp;&nbsp;&nbsp;通知中心（{{.notificationsCount}}）</h2>
+            <div class="comment-list">
+                {{ range .user.Notifications }}
+                    <div class="comment {{ if eq .Status 1}}readed{{end}}">
+                        <div class="comment-header">
+                            {{ if eq .FromID 0 }}
+                            <span class="comment-author">{{ .FromName }}</span>
+                            {{ else }}
+                            <a href="/user/profile/{{.FromID}}" class="comment-author">{{.FromName }}</a>
+                            {{ end }}
+                            <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
+                            <span class="comment-time" style="float:inline-end;">
+                                {{ if eq .Status 0}}<a href="/notifications/{{.ID}}/read">标为已读</a> | {{end}}<a href="/notifications/{{.ID}}/delete">删除</a>
+                            </span>
+                        </div>
+                        <p class="comment-text" {{ if eq .Status 0}}onclick="fetch('/notifications/{{.ID}}/read')"{{end}}>{{ .Content | safeHTML }}</p>
+                    </div>
+                {{else}}
+                    <div class="empty-state">
+                        <p><i class="fa fa-circle-o-notch"></i> 暂无通知</p>
+                    </div>
+                {{ end }}
             </div>
             {{ else if eq .sort "setting" }}
                 <h2><i class="fa fa-cog"></i>&nbsp;&nbsp;&nbsp;账户设置</h2>

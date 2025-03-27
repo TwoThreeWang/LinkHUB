@@ -689,6 +689,10 @@ footer {
     margin: var(--space-xl) auto;
     font-weight: var(--font-weight-bold);
 }
+/* 已读消息样式 */
+.readed{
+    opacity: 0.5;
+}
 /* 响应式设计 */
 /* 笔记本屏幕下的布局 */
 @media (max-width: 900px) {
