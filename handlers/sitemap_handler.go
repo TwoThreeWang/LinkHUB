@@ -27,7 +27,7 @@ type URL struct {
 
 // GenerateSitemap 生成网站地图
 func GenerateSitemap(c *gin.Context) {
-	baseURL := "http://" + c.Request.Host
+	baseURL := "https://" + c.Request.Host
 
 	urlSet := URLSet{
 		XMLNS: "http://www.sitemaps.org/schemas/sitemap/0.9",
