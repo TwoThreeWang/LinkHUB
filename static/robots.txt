@@ -20,4 +20,4 @@ Disallow: /links/*/delete
 
 Crawl-delay: 3
 
-Sitemap: /sitemap.xml
+Sitemap: https://linkhub.zhulink.vip/sitemap.xml
