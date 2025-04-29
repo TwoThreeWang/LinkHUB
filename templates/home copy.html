@@ -5,69 +5,6 @@
 {{ end }}
 
 {{ define "content" }}
-<style>
-    .grid-auto-card {
-  display: grid;
-  gap: var(--space-lg); /* 设置卡片之间的间距 */
-  padding: var(--space-xss); /* 设置容器的内边距 */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 默认 PC 界面每行至少 300px 宽度的三个卡片 */
-}
-
-.card {
-  border: 1px solid var(--color-border);
-  padding: var(--space-xss);
-    border-radius:var(--border-radius);
-}
-.card-title{
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    padding: var(--space-xs) var(--space-xs);
-    border-radius:var(--border-radius);
-}
-.card-a{
-    background-color: var(--color-background-light);
-    padding: var(--space-xs) var(--space-sm);
-    display: block;
-    border-radius:var(--border-radius);
-    margin-top: var(--space-xs);
-    font-weight: var(--font-weight-bold);
-}
-.card-a span{
-    font-size: 0.7rem;
-    color: var(--color-text);
-    margin-left: var(--space-sm);
-    font-weight: var(--font-weight-base);
-}
-
-/* Pad 屏幕 (例如，宽度大于等于 768px 且小于 1024px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .grid-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Pad 界面每行至少 400px 宽度的两个卡片 */
-  }
-}
-
-/* 手机屏幕 (例如，宽度小于 768px) */
-@media (max-width: 767px) {
-  .grid-container {
-    grid-template-columns: 1fr; /* 手机界面每行一个卡片，宽度占据 1 个 fr 单位 */
-  }
-}
-</style>
-    <div class="grid-auto-card">
-        {{ range .popularTags }}
-        <div class="card">
-            <div class="card-title">▸ {{ .Name }}</div>
-            <a class="card-a" href="">网站标题<span>网站描述</span></a>
-            <a class="card-a">网站标题<span>网站描述</span></a>
-            <a class="card-a" href="/tags/{{ .ID }}"><center>查看更多</center></a>
-        </div>
-        {{ end }}
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-    </div>
     <div class="grid-container-left">
         <div class="sidebar">
             <h3 class="sidebar-title">发现</h3>
