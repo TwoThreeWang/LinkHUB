@@ -924,3 +924,6 @@ footer {
         scroll-behavior: smooth;
     }
 }
+ins.adsbygoogle[data-ad-status="unfilled"] {
+    display: none !important;
+}
