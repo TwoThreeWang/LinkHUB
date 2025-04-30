@@ -378,7 +378,8 @@ header {
     display: grid;
     gap: var(--space-lg); /* 设置卡片之间的间距 */
     padding: var(--space-xss); /* 设置容器的内边距 */
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 默认 PC 界面每行至少 300px 宽度的三个卡片 */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    overflow: hidden;
 }
 
 .card {
