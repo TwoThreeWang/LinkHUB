@@ -98,9 +98,7 @@ button,.btn {
     cursor: pointer;
     text-decoration: none;
     text-align: center;
-    transition: color 0.2s ease-out;
-    transition: background-color 0.2s ease-out;
-    transition: border-color 0.2s ease-out;
+    transition: all 0.2s ease-out;
     background-color: var(--color-background);
     color: var(--color-text);
     border: 1px solid var(--color-border);
@@ -316,7 +314,7 @@ header {
 }
 .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
     padding: 0 var(--space-md);
 }
@@ -380,7 +378,7 @@ header {
     display: grid;
     gap: var(--space-lg); /* 设置卡片之间的间距 */
     padding: var(--space-xss); /* 设置容器的内边距 */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 默认 PC 界面每行至少 300px 宽度的三个卡片 */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 默认 PC 界面每行至少 300px 宽度的三个卡片 */
 }
 
 .card {
@@ -402,6 +400,9 @@ header {
     border-radius:var(--border-radius);
     margin-top: var(--space-xs);
     font-weight: var(--font-weight-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .tag-nav {
     display: flex;
@@ -777,7 +778,7 @@ footer {
     right: 20px;
     opacity: 0.8;
     z-index: var(--z-index-tooltip);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
 #back-to-top:hover {
     opacity: 1;
