@@ -5,126 +5,39 @@
 {{ end }}
 
 {{ define "content" }}
-<style>
-    .grid-auto-card {
-  display: grid;
-  gap: var(--space-lg); /* 设置卡片之间的间距 */
-  padding: var(--space-xss); /* 设置容器的内边距 */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 默认 PC 界面每行至少 300px 宽度的三个卡片 */
-}
-
-.card {
-  border: 1px solid var(--color-border);
-  padding: var(--space-xss);
-    border-radius:var(--border-radius);
-}
-.card-title{
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    padding: var(--space-xs) var(--space-xs);
-    border-radius:var(--border-radius);
-}
-.card-a{
-    background-color: var(--color-background-light);
-    padding: var(--space-xs) var(--space-sm);
-    display: block;
-    border-radius:var(--border-radius);
-    margin-top: var(--space-xs);
-    font-weight: var(--font-weight-bold);
-}
-.card-a span{
-    font-size: 0.7rem;
-    color: var(--color-text);
-    margin-left: var(--space-sm);
-    font-weight: var(--font-weight-base);
-}
-
-/* Pad 屏幕 (例如，宽度大于等于 768px 且小于 1024px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .grid-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Pad 界面每行至少 400px 宽度的两个卡片 */
-  }
-}
-
-/* 手机屏幕 (例如，宽度小于 768px) */
-@media (max-width: 767px) {
-  .grid-container {
-    grid-template-columns: 1fr; /* 手机界面每行一个卡片，宽度占据 1 个 fr 单位 */
-  }
-}
-</style>
-    <div class="grid-auto-card">
+    <h3 class="sidebar-title"><i class="fa fa-tag"></i> 热门标签</h3>
+    <ul class="tag-nav">
         {{ range .popularTags }}
-        <div class="card">
+        <li><a href="#{{ .ID }}">{{ .Name }}</a></li>
+        {{ end }}
+        <li><a href="/tags/">More</a></li>
+    </ul>
+    <div class="grid-auto-card">
+        <div class="card" id="tips">
+            <div class="card-title">Tips⁾⁾ 公告说明</div>
+            <a class="card-a" href="">欢迎大家留言分享自己收藏的好站！</a>
+            <a class="card-a">网站任何问题帮忙留言反馈啊，持续优化中</a>
+        </div>
+        <div class="card" id="new">
+            <div class="card-title"><i class="fa fa-clock-o"></i> 最新链接</div>
+            {{ range .newLinks }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+            {{ end }}
+        </div>
+        <div class="card" id="hot">
+            <div class="card-title"><i class="fa fa-fire"></i> 热门链接</div>
+            {{ range .hotLinks }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+            {{ end }}
+        </div>
+        {{ range .popularTags }}
+        <div class="card" id="{{ .ID }}">
             <div class="card-title">▸ {{ .Name }}</div>
-            <a class="card-a" href="">网站标题<span>网站描述</span></a>
-            <a class="card-a">网站标题<span>网站描述</span></a>
+            {{ range index $.tagLinks .ID }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
+            {{ end }}
             <a class="card-a" href="/tags/{{ .ID }}"><center>查看更多</center></a>
         </div>
         {{ end }}
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-        <div class="card">1</div>
-    </div>
-    <div class="grid-container-left">
-        <div class="sidebar">
-            <h3 class="sidebar-title">发现</h3>
-            <ul class="sidebar-links">
-                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门</a></li>
-                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新</a></li>
-            </ul>
-
-            <h3 class="sidebar-title mt-xxl">热门标签</h3>
-            <ul class="sidebar-links">
-                {{ range .popularTags }}
-                <li><a href="/tags/{{ .ID }}"><i class="fa fa-tag"></i>{{ .Name }}</a></li>
-                {{ end }}
-            </ul>
-        </div>
-
-        <div class="content">
-            <h2>{{ if eq .sort "top" }}<i class="fa fa-fire"></i> 热门链接{{ else }}<i class="fa fa-clock-o"></i> 最新链接{{ end }}</h2>
-
-            <div class="product-list">
-                {{ range .links }}
-                <article class="product-card">
-                    <div class="product-vote">
-                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
-                            <span aria-hidden="true">▲</span>
-                            <span class="vote-count">{{ .VoteCount }}</span>
-                        </a>
-                    </div>
-                    <div class="product-info">
-                        <a href="/links/{{ .ID }}" class="product-title">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
-                        <p class="product-description">{{ TruncateString .Description 120 }}</p>
-                        <div class="tags-group" role="list">
-                            <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
-                            {{ range .Tags }}
-                            <a href="/tags/{{ .ID }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
-                            {{ end }}
-                        </div>
-                    </div>
-                </article>
-                {{else}}
-                <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
-                </div>
-                {{ end }}
-            </div>
-
-            {{ if gt .totalPages 1 }}
-            <div class="pagination">
-                {{ if gt .page 1 }}
-                <a href="?page={{ sub .page 1 }}&sort={{ .sort }}" class="btn btn-outline">上一页</a>
-                {{ end }}
-                <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
-                {{ if lt .page .totalPages }}
-                <a href="?page={{ add .page 1 }}&sort={{ .sort }}" class="btn btn-outline">下一页</a>
-                {{ end }}
-            </div>
-            {{ end }}
-        </div>
     </div>
 {{ end }}

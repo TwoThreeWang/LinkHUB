@@ -51,7 +51,6 @@
                 {{if .voted}}
                 <a href="/links/{{ .link.ID }}/unvote" class="tag primary-link">▲ 取消投票</a>
                 {{end}}
-                <a href="{{ .link.URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .link.ID }}')">访问网站 →</a>
                 <span class="tag"><i class="fa fa-eye"></i>{{.link.ClickCount}} 次点击</span>
                 <span class="tag"><i class="fa fa-comments-o"></i>{{ len .comments }} 条评论</span>
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
@@ -60,12 +59,15 @@
                     {{ if .link.IsPinned }}取消置顶{{ else }}置顶{{ end }}
                 </a>
                 {{end}}
-            </div>
-            <div class="product-tags">
                 {{ range .link.Tags }}
                 <a href="/tags/{{ .ID }}" class="tag"><i class="fa fa-tag"></i>{{ .Name }}</a>
                 {{ end }}
             </div>
+            <br>
+            <a href="{{ .link.URL }}" target="_blank" rel="noopener" class="visit-btn" onclick="click_link('{{ .link.ID }}')">
+                <span class="visit-text">立即访问</span>
+                <span class="visit-icon"><i class="fa fa-long-arrow-right"></i></span>
+            </a>
         </div>
     </div>
 
@@ -150,13 +152,13 @@
         <div class="product-sidebar">
             <div class="sidebar-main">
                 <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
-                <div class="grid-container-left">
-                    <div class="product-avatar" style="margin-right:10px;">
-                        <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
-                    </div>
+                <div class="grid-container-right">
                     <div class="product-info">
                         <p>{{ .link.User.Username }}</p>
                         <small>{{ .link.User.Bio }}</small>
+                    </div>
+                    <div class="product-avatar" style="margin-right:10px;">
+                        <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
                     </div>
                 </div>
                 <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">

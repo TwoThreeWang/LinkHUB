@@ -24,7 +24,7 @@
 
         <div class="content">
             <h2><i class="fa fa-tag"></i>&nbsp;&nbsp;{{ .tag.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
-            <div class="product-list">
+            <div class="grid-auto-card">
                 {{ range .links }}
                 <article class="product-card">
                     <div class="product-vote">
@@ -34,8 +34,8 @@
                         </a>
                     </div>
                     <div class="product-info">
-                        <a href="/links/{{ .ID }}" class="product-title">{{ .Title }}</a>
-                        <p class="product-description">{{ TruncateString .Description 120 }}</p>
+                        <a href="/links/{{ .ID }}" class="product-title">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
+                        <p class="product-description">{{ TruncateString .Description 50 }}</p>
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}

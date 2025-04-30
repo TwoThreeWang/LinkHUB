@@ -56,6 +56,7 @@ func CreateTag(c *gin.Context) {
 func ShowTag(c *gin.Context) {
 	// 获取标签id
 	id := c.Param("id")
+	size := c.DefaultQuery("size", "12")
 	// 获取分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -82,7 +83,7 @@ func ShowTag(c *gin.Context) {
 	var total int64
 
 	// 获取分页数据
-	pageSize := 10
+	pageSize, _ := strconv.Atoi(size)
 	offset := (page - 1) * pageSize
 
 	// 使用EXISTS子查询获取标签关联的链接
@@ -100,6 +101,8 @@ func ShowTag(c *gin.Context) {
 	}
 
 	// 根据排序参数设置排序方式
+	// 首先按照置顶状态排序
+	query = query.Order("is_pinned DESC")
 	switch sort {
 	case "top":
 		// 使用vote_count和click_count的和进行排序

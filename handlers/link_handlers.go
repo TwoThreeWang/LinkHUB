@@ -16,65 +16,39 @@ import (
 
 // Home 首页处理函数
 func Home(c *gin.Context) {
-	// 获取分页参数
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 {
-		page = 1
-	}
-
-	// 获取排序参数
-	sort := c.DefaultQuery("sort", "new")
-
-	// 获取链接列表
-	var links []models.Link
-	var total int64
-
-	// 构建查询
-	query := database.GetDB().Model(&models.Link{})
-
-	// 计算总数
-	query.Count(&total)
-
-	// 获取分页数据
-	pageSize := 10
-	offset := (page - 1) * pageSize
-
-	// 根据排序参数设置排序方式
-	// 首先按照置顶状态排序
-	query = query.Order("is_pinned DESC")
-
-	switch sort {
-	case "top":
-		// 使用vote_count和click_count的和进行排序
-		query = query.Order("(vote_count + click_count) DESC")
-	case "new":
-		query = query.Order("created_at DESC")
-	default:
-		query = query.Order("created_at DESC")
-	}
-
-	// 执行查询
-	query.Limit(pageSize).
-		Offset(offset).
-		Preload("User").
-		Preload("Tags").
-		Find(&links)
-
-	// 计算总页数
-	totalPages := (int(total) + pageSize - 1) / pageSize
-
 	// 获取热门标签
 	var popularTags []models.Tag
-	database.GetDB().Order("count DESC").Limit(10).Find(&popularTags)
+	database.GetDB().Order("count DESC").Limit(15).Find(&popularTags)
+
+	// 获取热门文章
+	var hotLinks []models.Link
+	database.GetDB().Order("(vote_count + click_count) DESC").Limit(12).Find(&hotLinks)
+
+	// 获取最新文章
+	var newLinks []models.Link
+	database.GetDB().Order("created_at DESC").Limit(12).Find(&newLinks)
+
+	// 获取热门标签下的文章
+	tagLinks := make(map[uint][]models.Link)
+	for _, tag := range popularTags {
+		var links []models.Link
+		database.GetDB().
+			Joins("JOIN link_tags ON link_tags.link_id = links.id").
+			Where("link_tags.tag_id = ?", tag.ID).
+			Order("is_pinned DESC").
+			Order("(vote_count + click_count) DESC").
+			Limit(12).
+			Find(&links)
+		tagLinks[tag.ID] = links
+	}
 
 	// 渲染模板
 	c.HTML(http.StatusOK, "home", OutputCommonSession(c, gin.H{
 		"title":       "发现精彩链接",
-		"links":       links,
-		"page":        page,
-		"totalPages":  totalPages,
-		"sort":        sort,
+		"hotLinks":    hotLinks,
+		"newLinks":    newLinks,
 		"popularTags": popularTags,
+		"tagLinks":    tagLinks,
 	}))
 }
 
@@ -752,7 +726,7 @@ func VoteLink(c *gin.Context) {
 		return
 	}
 	// 发送消息
-	if link.UserID!= userInfo.ID {
+	if link.UserID != userInfo.ID {
 		go func() {
 			content := fmt.Sprintf("您的链接《<a href='/links/%d'>%s</a>》被用户 <a href='/user/profile/%d'>%s</a> 投票了", link.ID, link.Title, userInfo.ID, userInfo.Username)
 			_ = CreateNotification(link.UserID, content, 0)
