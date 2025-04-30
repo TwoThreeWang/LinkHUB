@@ -880,6 +880,9 @@ footer {
     .grid-container-left, .grid-container-right {
         grid-template-columns: 1fr; /* 单列布局 */
       }
+    .grid-auto-card {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
       /* 侧栏样式 */
     .sidebar {
         width: 100%;
@@ -917,6 +920,9 @@ footer {
 @media (max-width: 576px) {
     body {
         font-size: 15px;
+    }
+    .grid-auto-card {
+        grid-template-columns: 1fr;
     }
 }
 @media screen and (prefers-reduced-motion: no-preference) {
