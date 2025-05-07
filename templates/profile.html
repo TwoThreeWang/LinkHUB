@@ -27,8 +27,10 @@
                 <li><a href="?sort=votes" {{if eq .sort "votes"}}class="primary-link"{{end}}><i class="fa fa-star"></i>投票链接</a></li>
                 <li><a href="?sort=article" {{if eq .sort "article"}}class="primary-link"{{end}}><i class="fa fa-newspaper-o"></i>所有文章</a></li>
                 <li><a href="?sort=comments" {{if eq .sort "comments"}}class="primary-link"{{end}}><i class="fa fa-comments-o"></i>所有评论</a></li>
-                <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
                 {{ if .userInfo }}
+                    {{ if eq .user.Role "admin" }}
+                    <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
+                    {{ end }}
                     {{ if eq .user.ID .userInfo.ID }}
                     <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
                     <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><i class="fa fa-cog"></i>账户设置</a></li>
@@ -310,10 +312,6 @@
                             <td>{{ .CreatedAt.Format "2006-01-02" }}</td>
                             <td><a href="javascript:void(0)" onclick="fillAdForm(this)">编辑</a> | <a href="/ads/{{ .ID }}/delete">删除</a></td>
                         </tr>
-                        {{ else }}
-                        <div class="empty-state">
-                            <p><i class="fa fa-circle-o-notch"></i> 暂无广告</p>
-                        </div>
                         {{ end }}
                         </tbody>
                     </table>
