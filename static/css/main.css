@@ -274,7 +274,7 @@ table tr {
     padding: 0;
 }
 table tr:nth-child(2n), table tr:hover {
-    background-color: color-mix(in srgb, var(--color-border) 50%, white 50%);
+    background-color: color-mix(in srgb, var(--color-border) 50%, var(--color-background) 50%);
 }
 table tr th, table tr td {
     border: 1px solid var(--color-border);
