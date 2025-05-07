@@ -3,10 +3,9 @@ package handlers
 import (
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ListArticles 获取文章列表
@@ -106,12 +105,18 @@ func ShowArticle(c *gin.Context) {
 	// 按相关度（浏览量）和时间排序，限制5篇
 	query.Order("view_count DESC, created_at DESC").Limit(5).Find(&relatedArticles)
 
+	// 内容区广告
+	contentAds := GetAdsByType(c, "content")
+	sidebarAds := GetAdsByType(c, "sidebar")
+
 	// 渲染模板
 	c.HTML(http.StatusOK, "article_detail", OutputCommonSession(c, gin.H{
 		"title":           article.Title,
 		"article":         article,
 		"comments":        comments,
 		"relatedArticles": relatedArticles,
+		"contentAds":      contentAds,
+		"sidebarAds":      sidebarAds,
 	}))
 }
 

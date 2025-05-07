@@ -71,6 +71,8 @@ func OutputCommonSession(c *gin.Context, h ...gin.H) gin.H {
 		notificationsCount := GetUnreadCount(userInfo.ID)
 		result["notificationsCount"] = notificationsCount
 	}
+	// 获取全站广告
+	result["ads"] = GetAdsByType(c, "top-tip")
 	// 获取网站配置
 	siteConfig := config.GetConfig().Site
 	result["userInfo"] = userInfo

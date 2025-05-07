@@ -56,6 +56,9 @@
 
             <div class="product-description">
                 <center>
+                    {{ range .contentAds }}
+                    <a class="tip-box" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
+                    {{ end }}
                     <!-- 自适应 -->
                     <ins class="adsbygoogle"
                          style="display:block"
@@ -165,6 +168,12 @@
                     <div class="empty-state">
                         <p><i class="fa fa-circle-o-notch"></i> 暂无相关文章</p>
                     </div>
+                {{ end }}
+            </div>
+
+            <div class="sidebar-main">
+                {{ range .sidebarAds }}
+                <a class="tip-box" href="{{.Url}}" id="sidebar-{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
                 {{ end }}
             </div>
         </div>

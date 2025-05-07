@@ -50,7 +50,12 @@
         </div>
     </header>
     <div class="container main">
-        <div class="ads-block" id="ads-block">我们致力于为您提供优质内容，但广告是我们维持网站运营和提供免费内容的主要收入来源，禁用广告拦截器将有助于我们持续发展，感谢理解。</div>
+        <a class="tip-box" href="/articles/2#禁用广告拦截" id="ads-block" style="display:none">❤️ 再忍不住，也不要做这种事啊 ❤️</a>
+        <div class="grid-auto-card">
+            {{ range .ads }}
+            <a class="tip-box" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
+            {{ end }}
+        </div>
         {{ template "content" . }}
     </div>
     <div class="menu-overlay"></div>

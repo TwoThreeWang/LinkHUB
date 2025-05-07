@@ -253,6 +253,7 @@ func ShowProfile(c *gin.Context) {
 
 	// 查询指定用户数据
 	var user models.User
+	var ads []models.Ads
 	var result error
 	switch sort {
 	case "overview":
@@ -266,10 +267,13 @@ func ShowProfile(c *gin.Context) {
 	case "article":
 		result = database.GetDB().Preload("Articles.Category").First(&user, userID).Error
 	case "notifications":
-		Notifications,err := GetUserNotifications(userInfo.ID)
+		Notifications, err := GetUserNotifications(userInfo.ID)
 		user = *userInfo
 		user.Notifications = Notifications
 		result = err
+	case "ads":
+		result = database.GetDB().Model(&models.Ads{}).Find(&ads).Order("created_at").Error
+		user = *userInfo
 	default:
 		user = *userInfo
 		result = nil
@@ -287,6 +291,7 @@ func ShowProfile(c *gin.Context) {
 		"title":    user.Username + " 的主页",
 		"user":     user,
 		"sort":     sort,
+		"ads_user": ads,
 		"clientId": clientId,
 	}))
 }

@@ -74,6 +74,9 @@
     <div class="grid-container-right">
         <div class="content-main">
             <center>
+                {{ range .contentAds }}
+                <a class="tip-box" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
+                {{ end }}
                 <!-- 自适应 -->
                 <ins class="adsbygoogle"
                      style="display:block"
@@ -205,6 +208,12 @@
                         </div>
                     {{ end }}
                 </div>
+            </div>
+
+            <div class="sidebar-main">
+                {{ range .sidebarAds }}
+                <a class="tip-box" href="{{.Url}}" id="sidebar-{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
+                {{ end }}
             </div>
         </div>
     </div>

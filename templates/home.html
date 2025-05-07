@@ -17,6 +17,9 @@
             <div class="card-title">Tips⁾⁾ 公告说明</div>
             <a class="card-a" href="/links/new">欢迎大家分享自己收藏的好站！</a>
             <a class="card-a" href="/articles/1">网站任何问题帮忙留言反馈啊，持续优化中</a>
+            {{ range .indexTipAds }}
+            <a class="card-a" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{.Name}}</a>
+            {{ end }}
             <br>
             <center>
                 <!-- 300*250矩形 -->

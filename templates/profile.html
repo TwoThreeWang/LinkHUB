@@ -27,6 +27,7 @@
                 <li><a href="?sort=votes" {{if eq .sort "votes"}}class="primary-link"{{end}}><i class="fa fa-star"></i>投票链接</a></li>
                 <li><a href="?sort=article" {{if eq .sort "article"}}class="primary-link"{{end}}><i class="fa fa-newspaper-o"></i>所有文章</a></li>
                 <li><a href="?sort=comments" {{if eq .sort "comments"}}class="primary-link"{{end}}><i class="fa fa-comments-o"></i>所有评论</a></li>
+                <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
                 {{ if .userInfo }}
                     {{ if eq .user.ID .userInfo.ID }}
                     <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
@@ -234,6 +235,119 @@
                     </div>
                     <button type="submit" class="btn btn-primary">保存设置</button>
                 </form>
+            {{ else if eq .sort "ads" }}
+            <h2><i class="fa fa-bullhorn"></i>&nbsp;&nbsp;&nbsp;广告管理</h2>
+                <br>
+                <div class="ad-management">
+                    <div id="adFormContainer" style="display: none;">
+                        <h3>创建新广告</h3>
+                        <form action="/ads/edit" method="POST" class="form-group">
+                            <div class="form-group">
+                                <label>广告ID</label>
+                                <input type="text" name="ad_id" id="ad_id" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>广告标题</label>
+                                <textarea name="ad_name" rows="2" id="ad_name" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>广告链接</label>
+                                <input type="text"  name="ad_url" id="ad_url" required>
+                            </div>
+                            <div class="form-group">
+                                <label>广告图片</label>
+                                <input type="text" name="ad_img" id="ad_img">
+                            </div>
+                            <div class="form-group">
+                                <label>联系邮箱</label>
+                                <input type="text" name="ad_email" id="ad_email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>广告类型</label>
+                                <select name="ad_type" id="ad_type" required>
+                                    <option value="top-tip">全站顶部</option>
+                                    <option value="index-tip">首页公告区</option>
+                                    <option value="sidebar">侧边栏</option>
+                                    <option value="content">内容区域顶部</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>结束时间</label>
+                                <input type="date" name="ad_endDate" id="ad_endDate" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">创建广告</button>
+                        </form>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>现有广告</h3>
+                        <button type="button" class="btn btn-primary" onclick="showAdForm(true)">新增广告</button>
+                    </div>
+                    <table id="ads">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>链接</th>
+                            <th>图片</th>
+                            <th>类型</th>
+                            <th>邮箱</th>
+                            <th>到期日期</th>
+                            <th>创建日期</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ range .ads_user }}
+                        <tr>
+                            <td>{{ .ID }}</td>
+                            <td>{{ .Name }}</td>
+                            <td>{{ .Url }}</td>
+                            <td>{{ .Img }}</td>
+                            <td>{{ .AdType }}</td>
+                            <td>{{ .Email }}</td>
+                            <td>{{ .EndDate.Format "2006-01-02" }}</td>
+                            <td>{{ .CreatedAt.Format "2006-01-02" }}</td>
+                            <td><a href="javascript:void(0)" onclick="fillAdForm(this)">编辑</a> | <a href="/ads/{{ .ID }}/delete">删除</a></td>
+                        </tr>
+                        {{ else }}
+                        <div class="empty-state">
+                            <p><i class="fa fa-circle-o-notch"></i> 暂无广告</p>
+                        </div>
+                        {{ end }}
+                        </tbody>
+                    </table>
+                    <script>
+                        function showAdForm(isNew) {
+                            const form = document.getElementById('adFormContainer');
+                            form.style.display = 'block';
+                            if (isNew) {
+                                document.getElementById('ad_id').value = '';
+                                document.getElementById('ad_name').value = '';
+                                document.getElementById('ad_url').value = '';
+                                document.getElementById('ad_img').value = '';
+                                document.getElementById('ad_email').value = '';
+                                document.getElementById('ad_type').value = 'top-tip';
+                                document.getElementById('ad_endDate').value = '';
+                            }
+                            form.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        function fillAdForm(element) {
+                            showAdForm(false);
+                            const row = element.closest('tr');
+                            const cells = row.cells;
+                            document.getElementById('ad_id').value = cells[0].textContent;
+                            document.getElementById('ad_name').value = cells[1].textContent;
+                            document.getElementById('ad_url').value = cells[2].textContent;
+                            document.getElementById('ad_img').value = cells[3].textContent;
+                            document.getElementById('ad_type').value = cells[4].textContent;
+                            document.getElementById('ad_email').value = cells[5].textContent;
+                            const endDate = cells[6].textContent.split(' ')[0];
+                            document.getElementById('ad_endDate').value = endDate;
+                            document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    </script>
+                </div>
             {{ end }}
         </div>
     </div>

@@ -98,7 +98,14 @@ func SetupRoutes(r *gin.Engine) {
 	// 通知相关路由
 	notifications := r.Group("/notifications", middleware.AuthRequired())
 	{
-		notifications.GET("/:id/delete", handlers.DeleteNotification)  // 删除通知
-		notifications.GET("/:id/read", handlers.ReadNotification)      // 标记通知为已读
+		notifications.GET("/:id/delete", handlers.DeleteNotification) // 删除通知
+		notifications.GET("/:id/read", handlers.ReadNotification)     // 标记通知为已读
+	}
+
+	// 广告相关路由
+	ad := r.Group("/ads")
+	{
+		ad.POST("/edit", middleware.AuthRequired(), handlers.CreateAd) // 更新或新增广告
+		ad.GET("/:id/delete", handlers.DeleteAd)                       // 删除广告
 	}
 }

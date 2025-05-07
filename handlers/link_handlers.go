@@ -42,6 +42,9 @@ func Home(c *gin.Context) {
 		tagLinks[tag.ID] = links
 	}
 
+	// 获取公告区广告
+	indexTipAds := GetAdsByType(c, "index-tip")
+
 	// 渲染模板
 	c.HTML(http.StatusOK, "home", OutputCommonSession(c, gin.H{
 		"title":       "发现精彩链接",
@@ -49,6 +52,7 @@ func Home(c *gin.Context) {
 		"newLinks":    newLinks,
 		"popularTags": popularTags,
 		"tagLinks":    tagLinks,
+		"indexTipAds": indexTipAds,
 	}))
 }
 
@@ -262,6 +266,9 @@ func ShowLink(c *gin.Context) {
 			Limit(6).
 			Find(&relatedLinks)
 	}
+	// 内容区广告
+	contentAds := GetAdsByType(c, "content")
+	sidebarAds := GetAdsByType(c, "sidebar")
 
 	// 渲染模板
 	c.HTML(http.StatusOK, "link_detail", OutputCommonSession(c, gin.H{
@@ -270,6 +277,8 @@ func ShowLink(c *gin.Context) {
 		"comments":     comments,
 		"voted":        voted,
 		"relatedLinks": relatedLinks,
+		"contentAds":   contentAds,
+		"sidebarAds":   sidebarAds,
 	}))
 }
 

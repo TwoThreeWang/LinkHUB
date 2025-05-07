@@ -86,3 +86,19 @@ function togglePin(id) {
         alert('操作失败');
     });
 }
+// table 添加data-label属性
+window.onload = function() {
+    const allTables = document.getElementsByTagName('table');
+    for (let i = 0; i < allTables.length; i++) {
+        const table = allTables[i]; // 获取当前的 table 元素
+        const headers = table.querySelectorAll('th');
+        const rows = table.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach((cell, index) => {
+                cell.setAttribute('data-label', headers[index].textContent);
+            });
+        });
+    }
+}
