@@ -20,7 +20,7 @@
             {{ range .links }}
             <article class="product-card">
                 <div class="product-vote">
-                    <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
+                    <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote" data-no-instant>
                         <span aria-hidden="true">▲</span>
                         <span class="vote-count">{{ .VoteCount }}</span>
                     </a>

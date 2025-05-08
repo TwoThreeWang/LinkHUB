@@ -148,8 +148,8 @@
             {{ if and .userInfo (or (eq .userInfo.ID .article.UserID) (eq .userInfo.Role "admin")) }}
             <div class="sidebar-main">
                 <p class="title"><i class="fa fa-cog"></i>管理</p>
-                <a href="/articles/{{ .article.ID }}/update" class="btn btn-outline w-100">编辑文章</a>
-                <a href="/articles/{{ .article.ID }}/delete" class="btn btn-outline w-100" onclick="return confirm('确定要删除这篇文章吗？');">删除文章</a>
+                <a href="/articles/{{ .article.ID }}/update" class="btn btn-outline w-100" data-no-instant>编辑文章</a>
+                <a href="/articles/{{ .article.ID }}/delete" class="btn btn-outline w-100" onclick="return confirm('确定要删除这篇文章吗？');" data-no-instant>删除文章</a>
             </div>
             {{ end }}
 

@@ -4,6 +4,7 @@ import (
 	"LinkHUB/handlers"
 	"LinkHUB/middleware"
 	"LinkHUB/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,11 +12,11 @@ import (
 // SetupRoutes 设置所有路由
 func SetupRoutes(r *gin.Engine) {
 	// 首页路由
-	r.GET("/", handlers.Home)
+	r.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.Home)
 	// Sitemap 生成网站地图
-	r.GET("/sitemap.xml", handlers.GenerateSitemap)
+	r.GET("/sitemap.xml", middleware.CacheMiddleware(5*time.Minute), handlers.GenerateSitemap)
 	// 图片代理
-	r.GET("/img_dl", utils.GetImg)
+	r.GET("/img_dl", middleware.CacheMiddleware(5*time.Minute), utils.GetImg)
 	// 用户认证相关路由
 	auth := r.Group("/auth")
 	{
@@ -30,25 +31,25 @@ func SetupRoutes(r *gin.Engine) {
 	// 用户相关路由
 	user := r.Group("/user")
 	{
-		user.GET("/profile", middleware.AuthRequired(), handlers.ShowProfile)    // 用户主页
-		user.GET("/profile/:id", handlers.ShowProfile)                           // 指定ID用户主页
-		user.POST("/profile", middleware.AuthRequired(), handlers.UpdateProfile) // 用户资料更新
+		user.GET("/profile", middleware.CacheMiddleware(5*time.Minute), middleware.AuthRequired(), handlers.ShowProfile) // 用户主页
+		user.GET("/profile/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowProfile)                        // 指定ID用户主页
+		user.POST("/profile", middleware.AuthRequired(), handlers.UpdateProfile)                                         // 用户资料更新
 	}
 
 	// 链接相关路由
 	links := r.Group("/links")
 	{
-		links.GET("/:id", handlers.ShowLink)                                         // 链接详情
-		links.GET("/new", middleware.AuthRequired(), handlers.ShowNewLink)           // 新增链接
-		links.POST("/new", middleware.AuthRequired(), handlers.CreateLink)           // 新增链接处理逻辑
-		links.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateLink) // 修改链接
-		links.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateLink)    // 修改链接处理逻辑
-		links.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteLink)     // 删除链接
-		links.GET("/:id/vote", middleware.AuthRequired(), handlers.VoteLink)         // 链接投票
-		links.GET("/:id/unvote", middleware.AuthRequired(), handlers.UnVoteLink)     // 取消投票
-		links.POST("/:id/click", handlers.ClickLink)                                 // 点击链接
-		links.GET("/search", handlers.SearchLinks)                                   // 搜索
-		links.POST("/:id/pin", handlers.TogglePinLink)                               // 切换置顶
+		links.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowLink)       // 链接详情
+		links.GET("/new", middleware.AuthRequired(), handlers.ShowNewLink)                    // 新增链接
+		links.POST("/new", middleware.AuthRequired(), handlers.CreateLink)                    // 新增链接处理逻辑
+		links.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateLink)          // 修改链接
+		links.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateLink)             // 修改链接处理逻辑
+		links.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteLink)              // 删除链接
+		links.GET("/:id/vote", middleware.AuthRequired(), handlers.VoteLink)                  // 链接投票
+		links.GET("/:id/unvote", middleware.AuthRequired(), handlers.UnVoteLink)              // 取消投票
+		links.POST("/:id/click", handlers.ClickLink)                                          // 点击链接
+		links.GET("/search", middleware.CacheMiddleware(5*time.Minute), handlers.SearchLinks) // 搜索
+		links.POST("/:id/pin", handlers.TogglePinLink)                                        // 切换置顶
 	}
 
 	// 链接评论相关路由
@@ -66,33 +67,33 @@ func SetupRoutes(r *gin.Engine) {
 	// 链接标签相关路由
 	tags := r.Group("/tags")
 	{
-		tags.GET("/", handlers.ListTags)            // 所有标签
-		tags.GET("/:id", handlers.ShowTag)          // 标签下链接
-		tags.GET("/add", handlers.CreateTag)        // 创建链接
-		tags.GET("/:id/update", handlers.UpdateTag) // 修改链接
-		tags.GET("/:id/delete", handlers.DeleteTag) // 删除链接
+		tags.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListTags)   // 所有标签
+		tags.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowTag) // 标签下链接
+		tags.GET("/add", handlers.CreateTag)                                          // 创建链接
+		tags.GET("/:id/update", handlers.UpdateTag)                                   // 修改链接
+		tags.GET("/:id/delete", handlers.DeleteTag)                                   // 删除链接
 	}
 
 	// 文章分类相关路由
 	categories := r.Group("/categories")
 	{
-		categories.GET("/:id", handlers.ShowCategory)                                     // 分类详情
-		categories.GET("/add", middleware.AuthRequired(), handlers.CreateCategory)        // 创建分类
-		categories.GET("/:id/update", middleware.AuthRequired(), handlers.UpdateCategory) // 修改分类
-		categories.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteCategory) // 删除分类
+		categories.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowCategory) // 分类详情
+		categories.GET("/add", middleware.AuthRequired(), handlers.CreateCategory)               // 创建分类
+		categories.GET("/:id/update", middleware.AuthRequired(), handlers.UpdateCategory)        // 修改分类
+		categories.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteCategory)        // 删除分类
 	}
 
 	// 文章相关路由
 	articles := r.Group("/articles")
 	{
-		articles.GET("/", handlers.ListArticles)                                           // 文章列表
-		articles.GET("/:id", handlers.ShowArticle)                                         // 文章详情
-		articles.GET("/new", middleware.AuthRequired(), handlers.ShowNewArticle)           // 新增文章
-		articles.POST("/new", middleware.AuthRequired(), handlers.CreateArticle)           // 新增文章处理逻辑
-		articles.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateArticle) // 修改文章
-		articles.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateArticle)    // 修改文章处理逻辑
-		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)     // 删除文章
-		articles.GET("/search", handlers.SearchArticles)                                   // 搜索文章
+		articles.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListArticles)         // 文章列表
+		articles.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowArticle)       // 文章详情
+		articles.GET("/new", middleware.AuthRequired(), handlers.ShowNewArticle)                    // 新增文章
+		articles.POST("/new", middleware.AuthRequired(), handlers.CreateArticle)                    // 新增文章处理逻辑
+		articles.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateArticle)          // 修改文章
+		articles.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateArticle)             // 修改文章处理逻辑
+		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)              // 删除文章
+		articles.GET("/search", middleware.CacheMiddleware(5*time.Minute), handlers.SearchArticles) // 搜索文章
 	}
 
 	// 通知相关路由

@@ -21,7 +21,7 @@
             <h3 class="sidebar-title mt-xxl">分类</h3>
             <ul class="sidebar-links">
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="javascript:void(0)" onclick="createCategory()"><i class="fa fa-plus"></i>新增分类</a></li>
+                <li><a href="javascript:void(0)" onclick="createCategory()" data-no-instant><i class="fa fa-plus"></i>新增分类</a></li>
                 {{end}}
                 {{ range .categories }}
                 <li><a href="/categories/{{ .ID }}"><i class="fa fa-folder-open-o"></i>{{ .Name }}</a></li>

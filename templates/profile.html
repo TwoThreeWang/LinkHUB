@@ -34,7 +34,7 @@
                     {{ if eq .user.ID .userInfo.ID }}
                     <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
                     <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><i class="fa fa-cog"></i>账户设置</a></li>
-                    <li><a href="/auth/logout"><i class="fa fa-power-off"></i>退出登录</a></li>
+                    <li><a href="/auth/logout" data-no-instant><i class="fa fa-power-off"></i>退出登录</a></li>
                     {{ end }}
                 {{ end }}
             </ul>
@@ -92,7 +92,7 @@
                 {{ range .user.Votes }}
                 <article class="product-card">
                     <div class="product-vote">
-                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .Link.ID }}/vote">
+                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .Link.ID }}/vote" data-no-instant>
                             <span aria-hidden="true">▲</span>
                             <span class="vote-count">{{ .Link.VoteCount }}</span>
                         </a>
@@ -118,7 +118,7 @@
                 {{ range .user.Links }}
                 <article class="product-card">
                     <div class="product-vote">
-                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
+                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote" data-no-instant>
                             <span aria-hidden="true">▲</span>
                             <span class="vote-count">{{ .VoteCount }}</span>
                         </a>
@@ -177,7 +177,7 @@
                             {{ end }}
                             <span class="comment-time">{{ .CreatedAt.Format "2006-01-02 15:04" }}</span>
                             <span class="comment-time" style="float:inline-end;">
-                                {{ if eq .Status 0}}<a href="/notifications/{{.ID}}/read">标为已读</a> | {{end}}<a href="/notifications/{{.ID}}/delete">删除</a>
+                                {{ if eq .Status 0}}<a href="/notifications/{{.ID}}/read" data-no-instant>标为已读</a> | {{end}}<a href="/notifications/{{.ID}}/delete" data-no-instant>删除</a>
                             </span>
                         </div>
                         <p class="comment-text" {{ if eq .Status 0}}onclick="fetch('/notifications/{{.ID}}/read')"{{end}}>{{ .Content | safeHTML }}</p>
@@ -310,7 +310,7 @@
                             <td>{{ .Email }}</td>
                             <td>{{ .EndDate.Format "2006-01-02" }}</td>
                             <td>{{ .CreatedAt.Format "2006-01-02" }}</td>
-                            <td><a href="javascript:void(0)" onclick="fillAdForm(this)">编辑</a> | <a href="/ads/{{ .ID }}/delete">删除</a></td>
+                            <td><a href="javascript:void(0)" onclick="fillAdForm(this)" data-no-instant>编辑</a> | <a href="/ads/{{ .ID }}/delete" data-no-instant>删除</a></td>
                         </tr>
                         {{ end }}
                         </tbody>

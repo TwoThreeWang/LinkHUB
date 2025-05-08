@@ -16,8 +16,8 @@
     <ul class="sidebar-links">
       <li><a href="?sort=top"><i class="fa fa-folder-open-o"></i>共 {{ .category.Count }} 篇文章</a></li>
       {{ if and .userInfo (eq .userInfo.Role "admin") }}
-      <li><a href="javascript:void(0)" onclick="updateCategory('{{.category.ID}}')"><i class="fa fa-edit"></i>编辑分类</a></li>
-      <li><a href="javascript:void(0)" onclick="deleteCategory('{{.category.ID}}')"><i class="fa fa-remove"></i>删除分类</a></li>
+      <li><a href="javascript:void(0)" onclick="updateCategory('{{.category.ID}}')" data-no-instant><i class="fa fa-edit"></i>编辑分类</a></li>
+      <li><a href="javascript:void(0)" onclick="deleteCategory('{{.category.ID}}')" data-no-instant><i class="fa fa-remove"></i>删除分类</a></li>
       {{end}}
     </ul>
   </div>

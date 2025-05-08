@@ -16,8 +16,8 @@
             <ul class="sidebar-links">
                 <li><a href="?sort=top"><i class="fa fa-tag"></i>共 {{ .tag.Count }} 个链接</a></li>
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')"><i class="fa fa-edit"></i>编辑标签</a></li>
-                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')"><i class="fa fa-remove"></i>删除标签</a></li>
+                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')" data-no-instant><i class="fa fa-edit"></i>编辑标签</a></li>
+                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')" data-no-instant><i class="fa fa-remove"></i>删除标签</a></li>
                 {{end}}
             </ul>
         </div>
@@ -28,7 +28,7 @@
                 {{ range .links }}
                 <article class="product-card">
                     <div class="product-vote">
-                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote">
+                        <a class="vote-button" aria-label="投票支持" href="/links/{{ .ID }}/vote" data-no-instant>
                             <span aria-hidden="true">▲</span>
                             <span class="vote-count">{{ .VoteCount }}</span>
                         </a>
