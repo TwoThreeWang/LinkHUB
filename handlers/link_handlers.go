@@ -916,3 +916,25 @@ func SearchLinks(c *gin.Context) {
 		"total":      total,
 	}))
 }
+
+// RandomLink 随机获取一个链接并重定向到链接详情页
+func RandomLink(c *gin.Context) {
+	var link models.Link
+	// 从数据库随机获取一个链接
+	result := database.GetDB().Order("RANDOM()").First(&link)
+	if result.Error != nil {
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "没有找到可用的链接",
+			"refer":         "/",
+			"redirect_text": "返回首页",
+		}))
+		return
+	}
+
+	// 重定向到链接详情页
+	c.HTML(http.StatusOK, "jump", OutputCommonSession(c, gin.H{
+		"title": "桃花源",
+		"link":  link,
+	}))
+}

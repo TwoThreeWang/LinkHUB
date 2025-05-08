@@ -50,6 +50,7 @@ func SetupRoutes(r *gin.Engine) {
 		links.POST("/:id/click", handlers.ClickLink)                                          // 点击链接
 		links.GET("/search", middleware.CacheMiddleware(5*time.Minute), handlers.SearchLinks) // 搜索
 		links.POST("/:id/pin", handlers.TogglePinLink)                                        // 切换置顶
+		links.GET("/random", handlers.RandomLink)                                             // 随机访问链接
 	}
 
 	// 链接评论相关路由

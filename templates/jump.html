@@ -1,0 +1,40 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="链接盲盒，{{ .siteName }}">
+<!-- 预解析DNS -->
+<link rel="dns-prefetch" href="{{ .link.URL }}">
+<!-- 预连接 -->
+<link rel="preconnect" href="{{ .link.URL }}" crossorigin>
+<!-- 预渲染页面 -->
+<link rel="prerender" href="{{ .link.URL }}">
+<link rel="prefetch" href="{{ .link.URL }}">
+{{ end }}
+
+{{ define "content" }}
+<div class="result-container">
+    <div>
+        <h2>即将进入桃花源 ...</h2>
+        <p class="result-message">初极狭，才通人。复行数十步，豁然开朗！</p>
+        <p class="result-message">注意：您即将离开本站跳转到三方链接，请注意您的帐号和财产安全。</p>
+        <small>将在 <span id="countdown">3</span> 秒后自动跳转...</small>
+        <div class="result-action">
+            <a href="{{ .link.URL }}" class="btn btn-primary" data-instant-intensity="viewport">{{ .link.Title }}</a>
+        </div>
+    </div>
+</div>
+<script>
+    function jump(seconds){
+        const countdownElement = document.getElementById('countdown');
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = {{ .link.URL }};
+            }
+        }, 1000);
+    }
+    jump(3);
+</script>
+{{ end }}
