@@ -80,6 +80,11 @@
 
     <div class="grid-container-right">
         <div class="content-main">
+            <!-- 添加投票用户头像展示区域 -->
+            <div class="voters-container" style="margin-bottom: 1rem;">
+                <h5 style="margin-bottom: 10px;"><i class="fa fa-users"></i> TA 们喜欢了当前站点</h5>
+                <div id="voters-avatars" style="display: flex; flex-wrap: wrap; gap:1px;"></div>
+            </div>
             <center>
                 {{ range .contentAds }}
                 <a class="tip-box" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
@@ -177,7 +182,7 @@
                 <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
                 <div class="grid-container-right">
                     <div class="product-info">
-                        <p>{{ .link.User.Username }}</p>
+                        <h3>{{ .link.User.Username }}</h3>
                         <small>{{ .link.User.Bio }}</small>
                     </div>
                     <div class="product-avatar" style="margin-right:10px;">
@@ -234,6 +239,40 @@
         document.getElementById('post-content').innerHTML = html;
         document.addEventListener('DOMContentLoaded', function() {
             click_link('{{ .link.ID }}');
+        });
+    </script>
+    <script>
+        // 获取投票用户
+        function fetchVoters() {
+            const linkId = '{{ .link.ID }}';
+            fetch(`/links/${linkId}/voters`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 200) {
+                        const votersContainer = document.getElementById('voters-avatars');
+                        if (data.data.users.length === 0) {
+                            votersContainer.innerHTML = '<p><i class="fa fa-circle-o-notch"></i> 暂无投票用户</p>';
+                            return;
+                        }
+
+                        const votersHtml = data.data.users.map(user => `
+                            <a href="/user/profile/${user.ID}" title="查看 ${user.username} 的主页">
+                                <img src="${user.avatar}" alt="${user.username}" class="avatar-small" onerror="this.src='/static/img/avatar.jpg'">
+                            </a>
+                        `).join('');
+
+                        votersContainer.innerHTML = votersHtml;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取投票用户失败:', error);
+                    document.getElementById('voters-avatars').innerHTML = '<p><i class="fa fa-circle-o-notch"></i> 获取投票用户失败</p>';
+                });
+        }
+
+        // 页面加载完成后获取投票用户
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchVoters();
         });
     </script>
 {{ end }}

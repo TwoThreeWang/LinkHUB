@@ -610,18 +610,22 @@ header {
     max-width: 80px;
     width: 100%;
     height: auto;
+    border: 2px solid var(--color-background);
     border-radius: var(--border-radius);
     object-fit: cover;
     margin-bottom: var(--spacing-sm);
     display: block;
+    box-shadow: 0 2px 4px var(--color-background-light);
 }
 .avatar-small {
-    width: 23px;
-    height: 23px;
-    border-radius: var(--border-radius);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     object-fit: cover;
+    border: 2px solid var(--color-background);
     margin-right: 0.3rem;
-    vertical-align: top;
+    vertical-align: bottom;
+    box-shadow: 0 2px 4px var(--color-background-light);
 }
 /* 用户中心卡片 */
 .stats-cards {

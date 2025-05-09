@@ -938,3 +938,35 @@ func RandomLink(c *gin.Context) {
 		"link":  link,
 	}))
 }
+
+// GetLinkVoters 获取链接的投票用户列表
+func GetLinkVoters(c *gin.Context) {
+	// 获取链接ID
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, OutputApi(400, "参数错误"))
+		return
+	}
+
+	// 查询投票用户
+	var users []models.User
+	result := database.GetDB().
+		Joins("JOIN votes ON votes.user_id = users.id").
+		Where("votes.link_id = ?", id).
+		Select("users.id, users.username, users.avatar").
+		Limit(20).
+		Find(&users)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, OutputApi(500, "获取投票用户列表失败"))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": 200,
+		"data": gin.H{
+			"total": len(users),
+			"users": users,
+		},
+	})
+}

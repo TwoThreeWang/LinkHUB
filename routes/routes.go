@@ -51,6 +51,7 @@ func SetupRoutes(r *gin.Engine) {
 		links.GET("/search", middleware.CacheMiddleware(5*time.Minute), handlers.SearchLinks) // 搜索
 		links.POST("/:id/pin", handlers.TogglePinLink)                                        // 切换置顶
 		links.GET("/random", handlers.RandomLink)                                             // 随机访问链接
+		links.GET("/:id/voters", handlers.GetLinkVoters)                                      // 获取链接投票用户列表
 	}
 
 	// 链接评论相关路由
