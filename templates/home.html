@@ -39,7 +39,7 @@
         <div class="card" id="hot">
             <div class="card-title"><i class="fa fa-fire"></i> 热门链接</div>
             {{ range .hotLinks }}
-            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
             {{ end }}
         </div>
         {{ range .popularTags }}
