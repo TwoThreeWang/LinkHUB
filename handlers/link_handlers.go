@@ -22,7 +22,7 @@ func Home(c *gin.Context) {
 
 	// 获取热门文章
 	var hotLinks []models.Link
-	database.GetDB().Order("(vote_count + click_count) DESC").Limit(12).Find(&hotLinks)
+	database.GetDB().Order("is_pinned DESC").Order("(vote_count + click_count) DESC").Limit(12).Find(&hotLinks)
 
 	// 获取最新文章
 	var newLinks []models.Link
