@@ -1,0 +1,505 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="简单、快速、高效的图片外链解决方案，{{ .siteName }}">
+{{ end }}
+
+{{ define "content" }}
+<style>
+/* 上传区域 */
+.upload{
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.card-upload, .card-links{
+    padding: 1.5rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.5rem;
+}
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.upload-zone.drag-over {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+#upload-prompt{
+    text-align: center;
+}
+
+.upload-icon {
+    font-size: 5rem;
+    width: auto;
+    height: auto;
+    margin-bottom: 1rem;
+    color: #9ca3af;
+}
+
+.upload-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.upload-text {
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.upload-text-highlight {
+    color: #6366f1;
+    font-weight: 500;
+}
+
+.upload-formats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.format-tag {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    background-color: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* 上传中状态 */
+.uploading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.spinner {
+    width: 4rem;
+    height: 4rem;
+    border: 0.25rem solid #e5e7eb;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.uploading-text {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+/* 图片预览 */
+.preview {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.preview-container {
+    position: relative;
+    width: 100%;
+    max-width: 28rem;
+    margin-bottom: 1rem;
+}
+
+.preview-image {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.file-name {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+/* 隐藏文件输入 */
+.file-input {
+    display: none;
+}
+/* 链接卡片 */
+.link-card {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.link-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.link-container {
+    display: flex;
+}
+
+.link-text {
+    flex: 1;
+    background-color: #f9fafb;
+    border-radius: 0.375rem 0 0 0.375rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.link-copy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    background-color: #f3f4f6;
+    border-radius: 0 0.375rem 0.375rem 0;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.link-copy:hover {
+    background-color: #e5e7eb;
+}
+
+.copy-icon {
+    width: 1rem;
+    height: 1rem;
+    color: #6b7280;
+}
+#msg{
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+.msg-success{
+    background-color: #d1fae5;
+    color: #155724;
+}
+.msg-error{
+    background-color: #f8d7da;
+    color: #721c24;
+}
+</style>
+    <div class="result-container">
+        <div class="upload">
+            <!-- 上传区域 -->
+            <div class="card-upload">
+                <div id="msg" style="display: none;"></div>
+                <div id="upload-zone" class="upload-zone">
+                    <!-- 上传提示 -->
+                    <div id="upload-prompt">
+                        <i class="fa fa-file-image-o upload-icon" aria-hidden="true" /></i>
+                        <h3 class="upload-title">上传您的图片</h3>
+                        <p class="upload-text">
+                            拖拽图片到此处，或<span class="upload-text-highlight">点击上传</span>
+                        </p>
+                        <p class="upload-text" style="font-size: 0.875rem;">
+                            您也可以直接<span class="upload-text-highlight">粘贴</span>图片 (Ctrl+V)
+                        </p>
+                        <div class="upload-formats">
+                            <span class="format-tag">JPG</span>
+                            <span class="format-tag">PNG</span>
+                            <span class="format-tag">GIF</span>
+                            <span class="format-tag">WEBP</span>
+                            <span class="format-tag">最大 10MB</span>
+                        </div>
+                        <br>
+                        <p class="upload-text" style="font-size: 0.875rem;">本站不存储任何图片文件，上传图片保存至 imgur，如本站链接失效，图片前缀改为 https://i.imgur.com/ 即可找回图片</p>
+                    </div>
+                </div>
+                <input id="file-input" type="file" accept="image/*" class="file-input">
+            </div>
+            <br>
+            <!-- 链接展示区域 -->
+            <div id="links-card" class="card-links" style="display: none;">
+                <h3 class="upload-title" style="margin-bottom: 1rem;">图片链接</h3>
+                <div class="links-grid">
+                        <div class="link-card">
+                            <div class="link-title">直接链接</div>
+                            <div class="link-container">
+                                <div id="link-direct" class="link-text"></div>
+                                <button class="link-copy" data-link="direct" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">Markdown</div>
+                            <div class="link-container">
+                                <div id="link-markdown" class="link-text"></div>
+                                <button class="link-copy" data-link="markdown" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">HTML</div>
+                            <div class="link-container">
+                                <div id="link-html" class="link-text"></div>
+                                <button class="link-copy" data-link="html" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">BBCode</div>
+                            <div class="link-container">
+                                <div id="link-bbcode" class="link-text"></div>
+                                <button class="link-copy" data-link="bbcode" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">论坛代码</div>
+                            <div class="link-container">
+                                <div id="link-forum" class="link-text"></div>
+                                <button class="link-copy" data-link="forum" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="del_btn"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+const uploadZone = document.querySelector('.upload-zone');
+const fileInput = document.querySelector('.file-input');
+const copyButtons = document.querySelectorAll('.link-copy');
+const msg = document.getElementById('msg');
+// 提示消息
+function showToast(title, message, type = 'success') {
+    // 显示提示消息
+    msg.style.display = 'block';
+    msg.classList.add("msg-"+type);
+    msg.textContent = message;
+}
+// 拖拽上传
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('drag-over');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+});
+
+// 点击上传
+uploadZone.addEventListener('click', () => {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+    const files = e.target.files;
+    handleFiles(files);
+});
+
+// 处理文件上传
+async function handleFiles(files) {
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+        showToast('错误', '请上传图片文件', 'error');
+        return;
+    }
+
+    // 显示上传中状态
+    showUploadingState();
+
+    try {
+        // 创建FormData对象
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('storageType', "imgur");
+
+        // 发送上传请求
+        const response = await fetch('/api/img_upload', {
+            method: 'POST',
+            body: formData
+        });
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = responseData.message || responseData.error || '上传失败';
+            throw new Error(errorMessage);
+        }
+
+        const data = responseData.data;
+        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://img.c2v2.com/imgur/');
+
+        // 显示预览
+        showPreview(dl_img_url, file.name);
+        // 更新链接
+        updateLinks(dl_img_url, file.name);
+        document.getElementById('del_btn').innerHTML = `<button class="btn btn-outline" onclick="deleteImg('${data.del_hash}')">
+            <i class="fa fa-close"></i>删除这张
+        </button>`;
+        // 显示链接区域
+        document.getElementById('links-card').style.display = 'block';
+        // 显示成功提示
+        showToast('成功', '图片上传成功', 'success');
+    } catch (error) {
+        console.error('上传失败:', error);
+        showToast('错误', error.message || '上传失败，请重试', 'error');
+        resetUpload();
+    }
+}
+
+// 显示上传中状态
+function showUploadingState() {
+    uploadZone.innerHTML = `
+        <div class="uploading">
+            <div class="spinner"></div>
+            <div class="uploading-text">正在上传...</div>
+        </div>
+    `;
+}
+
+// 显示预览
+function showPreview(dataUrl, fileName) {
+    uploadZone.innerHTML = `
+        <div class="preview">
+            <div class="preview-container">
+                <img id="preview-image" class="preview-image" src="${dataUrl}" alt="${fileName}">
+            </div>
+            <div class="file-name">${fileName}</div>
+            <button class="btn btn-outline" onclick="resetUpload()">
+                <i class="fa fa-cloud-upload"></i>
+                上传新图片
+            </button>
+        </div>
+    `;
+}
+
+// 更新链接
+function updateLinks(dataUrl, fileName) {
+    const linkTexts = document.querySelectorAll('.link-text');
+    const baseName = fileName.includes('.') ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+    linkTexts.forEach((linkText) => {
+        const linkType = linkText.closest('.link-card').querySelector('.link-title').textContent;
+
+        switch(linkType) {
+            case 'Markdown':
+                linkText.textContent = `![${baseName}](${dataUrl})`;
+                break;
+            case 'HTML':
+                linkText.textContent = `<img src="${dataUrl}" alt="${baseName}">`;
+                break;
+            case 'BBCode':
+                linkText.textContent = `[img]${dataUrl}[/img]`;
+                break;
+            case '论坛代码':
+                linkText.textContent = `[图片]${dataUrl}[/图片]`;
+                break;
+            default:
+                linkText.textContent = dataUrl;
+        }
+    });
+}
+
+// 重置上传区域
+function resetUpload() {
+    uploadZone.innerHTML = `
+        <div id="upload-prompt">
+            <i class="fa fa-file-image-o upload-icon" aria-hidden="true" /></i>
+            <h3 class="upload-title">上传您的图片</h3>
+            <p class="upload-text">
+                拖拽图片到此处，或<span class="upload-text-highlight">点击上传</span>
+            </p>
+            <p class="upload-text" style="font-size: 0.875rem;">
+                您也可以直接<span class="upload-text-highlight">粘贴</span>图片 (Ctrl+V)
+            </p>
+            <div class="upload-formats">
+                <span class="format-tag">JPG</span>
+                <span class="format-tag">PNG</span>
+                <span class="format-tag">GIF</span>
+                <span class="format-tag">WEBP</span>
+                <span class="format-tag">最大 10MB</span>
+            </div>
+        </div>
+    `;
+    msg.style.display = 'none';
+}
+
+// 删除图片处理
+function deleteImg(delHash) {
+    if (!confirm('确认删除这张图片吗？')) {
+        return;
+    }
+    // 滚动到顶部
+    window.scrollTo(0, 0);
+    fetch(`/api/img_delete?del_hash=${delHash}`)
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.code == 200) {
+                showToast('成功', '图片删除成功','success');
+            }else{
+                showToast('错误', result.message || '删除失败', 'error');
+            }
+        })
+}
+
+// 复制链接
+copyButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const linkText = button.previousElementSibling.textContent;
+        navigator.clipboard.writeText(linkText).then(() => {
+            showToast('成功', '链接已复制到剪贴板', 'success');
+        }).catch(() => {
+            showToast('错误', '复制失败，请手动复制', 'error');
+        });
+    });
+});
+// 粘贴上传
+document.addEventListener('paste', (e) => {
+    const items = e.clipboardData.items;
+    for (let item of items) {
+        if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            handleFiles([file]);
+            break;
+        }
+    }
+});
+    </script>
+{{ end }}

@@ -12,6 +12,7 @@ type Config struct {
 	Site         SiteConfig
 	ClientID     string
 	ClientSecret string
+	Upload       UploadConfig
 }
 
 // ServerConfig 服务器配置
@@ -43,6 +44,14 @@ type SiteConfig struct {
 	Keywords    string
 	Description string
 	Version     string
+}
+
+// UploadConfig 图床配置
+type UploadConfig struct {
+	MaxSize       int64    // 最大上传大小(字节)
+	AllowedExts   []string // 允许的文件扩展名列表
+	ImgurApiUrl   string
+	ImgurClientId string // imgur 客户端 ID
 }
 
 var config Config

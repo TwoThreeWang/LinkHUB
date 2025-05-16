@@ -3,7 +3,6 @@ package routes
 import (
 	"LinkHUB/handlers"
 	"LinkHUB/middleware"
-	"LinkHUB/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +14,6 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.Home)
 	// Sitemap 生成网站地图
 	r.GET("/sitemap.xml", middleware.CacheMiddleware(5*time.Minute), handlers.GenerateSitemap)
-	// 图片代理
-	r.GET("/img_dl", middleware.CacheMiddleware(5*time.Minute), utils.GetImg)
 	// 用户认证相关路由
 	auth := r.Group("/auth")
 	{
@@ -39,19 +36,19 @@ func SetupRoutes(r *gin.Engine) {
 	// 链接相关路由
 	links := r.Group("/links")
 	{
-		links.GET("/:id", handlers.ShowLink)       // 链接详情
-		links.GET("/new", middleware.AuthRequired(), handlers.ShowNewLink)                    // 新增链接
-		links.POST("/new", middleware.AuthRequired(), handlers.CreateLink)                    // 新增链接处理逻辑
-		links.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateLink)          // 修改链接
-		links.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateLink)             // 修改链接处理逻辑
-		links.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteLink)              // 删除链接
-		links.GET("/:id/vote", middleware.AuthRequired(), handlers.VoteLink)                  // 链接投票
-		links.GET("/:id/unvote", middleware.AuthRequired(), handlers.UnVoteLink)              // 取消投票
-		links.POST("/:id/click", handlers.ClickLink)                                          // 点击链接
-		links.GET("/search", handlers.SearchLinks) // 搜索
-		links.POST("/:id/pin", handlers.TogglePinLink)                                        // 切换置顶
-		links.GET("/random", handlers.RandomLink)                                             // 随机访问链接
-		links.GET("/:id/voters", handlers.GetLinkVoters)                                      // 获取链接投票用户列表
+		links.GET("/:id", handlers.ShowLink)                                         // 链接详情
+		links.GET("/new", middleware.AuthRequired(), handlers.ShowNewLink)           // 新增链接
+		links.POST("/new", middleware.AuthRequired(), handlers.CreateLink)           // 新增链接处理逻辑
+		links.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateLink) // 修改链接
+		links.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateLink)    // 修改链接处理逻辑
+		links.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteLink)     // 删除链接
+		links.GET("/:id/vote", middleware.AuthRequired(), handlers.VoteLink)         // 链接投票
+		links.GET("/:id/unvote", middleware.AuthRequired(), handlers.UnVoteLink)     // 取消投票
+		links.POST("/:id/click", handlers.ClickLink)                                 // 点击链接
+		links.GET("/search", handlers.SearchLinks)                                   // 搜索
+		links.POST("/:id/pin", handlers.TogglePinLink)                               // 切换置顶
+		links.GET("/random", handlers.RandomLink)                                    // 随机访问链接
+		links.GET("/:id/voters", handlers.GetLinkVoters)                             // 获取链接投票用户列表
 	}
 
 	// 链接评论相关路由
@@ -88,14 +85,14 @@ func SetupRoutes(r *gin.Engine) {
 	// 文章相关路由
 	articles := r.Group("/articles")
 	{
-		articles.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListArticles)         // 文章列表
-		articles.GET("/:id", handlers.ShowArticle)       // 文章详情
-		articles.GET("/new", middleware.AuthRequired(), handlers.ShowNewArticle)                    // 新增文章
-		articles.POST("/new", middleware.AuthRequired(), handlers.CreateArticle)                    // 新增文章处理逻辑
-		articles.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateArticle)          // 修改文章
-		articles.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateArticle)             // 修改文章处理逻辑
-		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)              // 删除文章
-		articles.GET("/search", handlers.SearchArticles) // 搜索文章
+		articles.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListArticles) // 文章列表
+		articles.GET("/:id", handlers.ShowArticle)                                          // 文章详情
+		articles.GET("/new", middleware.AuthRequired(), handlers.ShowNewArticle)            // 新增文章
+		articles.POST("/new", middleware.AuthRequired(), handlers.CreateArticle)            // 新增文章处理逻辑
+		articles.GET("/:id/update", middleware.AuthRequired(), handlers.ShowUpdateArticle)  // 修改文章
+		articles.POST("/:id/update", middleware.AuthRequired(), handlers.UpdateArticle)     // 修改文章处理逻辑
+		articles.GET("/:id/delete", middleware.AuthRequired(), handlers.DeleteArticle)      // 删除文章
+		articles.GET("/search", handlers.SearchArticles)                                    // 搜索文章
 	}
 
 	// 通知相关路由
@@ -110,5 +107,19 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		ad.POST("/edit", middleware.AuthRequired(), handlers.CreateAd) // 更新或新增广告
 		ad.GET("/:id/delete", handlers.DeleteAd)                       // 删除广告
+	}
+
+	// 小工具相关路由
+	tools := r.Group("/tools")
+	{
+		tools.GET("/image", handlers.ImageUploadHome)                                                    // 图床页面
+		tools.GET("/image/:type/:filename", middleware.CacheMiddleware(5*time.Minute), handlers.ImageDl) // 图床图片代理
+	}
+
+	// API相关路由
+	api := r.Group("/api")
+	{
+		api.POST("/img_upload", handlers.ApiImageUpload) // 图片上传接口
+		api.GET("/img_delete", handlers.ApiImageDelete)  // 图片删除接口
 	}
 }

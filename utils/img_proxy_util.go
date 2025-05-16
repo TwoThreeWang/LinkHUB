@@ -1,16 +1,16 @@
 package utils
 
 import (
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GetImg 图片代理
-func GetImg(c *gin.Context) {
-	imgUrl := c.Query("url")
+func GetImg(c *gin.Context, imgUrl string) {
 	u, err := url.Parse(imgUrl)
 	if err != nil {
 		log.Println("Error parsing URL:", err)
