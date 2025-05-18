@@ -32,6 +32,7 @@
                     <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
                     {{ end }}
                     {{ if eq .user.ID .userInfo.ID }}
+                    <li><a href="/tools/image/me" data-no-instant><i class="fa fa-file-image-o"></i>我的图片</a></li>
                     <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
                     <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><i class="fa fa-cog"></i>账户设置</a></li>
                     <li><a href="/auth/logout" data-no-instant><i class="fa fa-power-off"></i>退出登录</a></li>

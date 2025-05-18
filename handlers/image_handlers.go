@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,46 @@ func ImageUploadHome(c *gin.Context) {
 	// 渲染模板
 	c.HTML(http.StatusOK, "image_upload", OutputCommonSession(c, gin.H{
 		"title": "图床",
+	}))
+}
+
+// ImageMe 图床个人图片页面
+func ImageMe(c *gin.Context) {
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "请先登录",
+			"redirect_text": "返回",
+		}))
+		return
+	}
+	// 获取分页参数
+	size := c.DefaultQuery("size", "12")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if page < 1 {
+		page = 1
+	}
+	pageSize, _ := strconv.Atoi(size)
+	offset := (page - 1) * pageSize
+	// 查询用户的图片
+	var images []models.Image
+	var total int64
+	query := database.GetDB().Model(&models.Image{}).Where("user_id = ?", userInfo.ID)
+	query.Count(&total)
+	query.Order("created_at DESC").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&images)
+	// 计算总页数
+	totalPages := (int(total) + pageSize - 1) / pageSize
+	// 渲染模板
+	c.HTML(http.StatusOK, "image_show", OutputCommonSession(c, gin.H{
+		"title":      "图床",
+		"images":     images,
+		"page":       page,
+		"totalPages": totalPages,
 	}))
 }
 

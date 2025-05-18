@@ -1,0 +1,238 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="简单、快速、高效的图片外链解决方案，{{ .siteName }}">
+{{ end }}
+
+{{ define "content" }}
+<style>
+    /* 图片网格布局 */
+    .result-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--space-lg);
+        padding: var(--space-lg);
+    }
+
+    /* 图片项样式 */
+    .image-item {
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        background-color: var(--color-background);
+    }
+
+    .image-item:hover {
+        transform: translateY(-5px);
+    }
+
+    /* 图片容器，确保所有图片大小一致 */
+    .image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 75%; /* 4:3 宽高比 */
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .image-container:hover img {
+        transform: scale(1.05);
+    }
+
+    /* 图片标题 */
+    .image-title {
+        padding: var(--space-md);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text);
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 模态框样式 */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: var(--z-index-modal);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .modal-content {
+        position: relative;
+        max-width: 90%;
+        max-height: 80vh;
+        margin: auto;
+    }
+
+    .modal-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+    }
+
+    /* 按钮容器 */
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: var(--space-md);
+        margin-top: var(--space-lg);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .result-container {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-md);
+            padding: var(--space-md);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .result-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .image-title {
+            padding: var(--space-sm);
+            font-size: var(--font-size-xss);
+        }
+    }
+</style>
+
+<div class="result-container">
+    {{range .images}}
+    <div class="image-item">
+        <div class="image-container" onclick="openModal('{{.ImageURL}}', '{{.DeleteHash}}')">
+            <img src="{{.ImageURL}}" alt="图片">
+        </div>
+        <div class="image-title">图片 {{.ID}}</div>
+    </div>
+    {{end}}
+</div>
+
+<!-- 模态框 -->
+<div id="imageModal" class="image-modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img id="modalImage" class="modal-image" src="" alt="放大图片">
+        <div class="modal-buttons">
+            <button class="btn btn-primary" onclick="copyImageLink()">复制链接</button>
+            <button class="btn btn-outline" onclick="deleteImage()">删除图片</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 当前选中的图片信息
+    let currentImage = {
+        url: '',
+        deleteHash: ''
+    };
+
+    // 打开模态框
+    function openModal(imageUrl, deleteHash) {
+        currentImage.url = imageUrl;
+        currentImage.deleteHash = deleteHash;
+
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+
+        modalImage.src = imageUrl;
+        modal.style.display = 'flex';
+
+        // 阻止滚动
+        document.body.style.overflow = 'hidden';
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+
+        // 恢复滚动
+        document.body.style.overflow = '';
+    }
+
+    // 复制图片链接
+    function copyImageLink() {
+        navigator.clipboard.writeText(currentImage.url)
+            .then(() => {
+                alert('图片链接已复制到剪贴板');
+            })
+            .catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+    }
+
+    // 删除图片
+    function deleteImage() {
+        if (confirm('确定要删除这张图片吗？此操作不可撤销。')) {
+            fetch(`/api/image/delete?del_hash=${currentImage.deleteHash}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    alert('图片删除成功');
+                    closeModal();
+                    // 刷新页面以更新图片列表
+                    location.reload();
+                } else {
+                    alert(`删除失败: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请稍后重试');
+            });
+        }
+    }
+
+    // 点击模态框背景关闭
+    document.getElementById('imageModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+{{ end }}

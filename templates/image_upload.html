@@ -379,9 +379,9 @@ async function handleFiles(files) {
         // 显示成功提示
         showToast('成功', '图片上传成功', 'success');
     } catch (error) {
+        resetUpload();
         console.error('上传失败:', error);
         showToast('错误', error.message || '上传失败，请重试', 'error');
-        resetUpload();
     }
 }
 
