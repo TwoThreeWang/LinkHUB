@@ -46,4 +46,14 @@
             </p>
         </form>
     </div>
+    <script>
+        const rootPath = window.location.origin;
+        const googleButtonDiv = document.getElementById('g_id_onload');
+        if (googleButtonDiv) {
+          let loginUri = googleButtonDiv.getAttribute('data-login_uri');
+          if (loginUri) {
+            googleButtonDiv.setAttribute('data-login_uri', rootPath+"/auth/callback/google");
+          }
+        }
+      </script>
 {{ end }}
