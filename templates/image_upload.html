@@ -230,6 +230,7 @@
                         </div>
                         <br>
                         <p class="upload-text" style="font-size: 0.875rem;">本站不存储任何图片文件，上传图片保存至 imgur，如本站链接失效，图片前缀改为 https://i.imgur.com/ 即可找回图片</p>
+                        <p class="upload-text" style="font-size: 0.875rem;">禁止上传色情/擦边/反动/博彩等违法图片！</p>
                     </div>
                 </div>
                 <input id="file-input" type="file" accept="image/*" class="file-input">
@@ -244,6 +245,16 @@
                             <div class="link-container">
                                 <div id="link-direct" class="link-text"></div>
                                 <button class="link-copy" data-link="direct" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">缩略图</div>
+                            <div class="link-container">
+                                <div id="link-direct-thumb" class="link-text"></div>
+                                <button class="link-copy" data-link="direct-thumb" aria-label="复制链接">
                                     <i class="fa fa-copy copy-icon"></i>
                                 </button>
                             </div>
@@ -365,7 +376,7 @@ async function handleFiles(files) {
         }
 
         const data = responseData.data;
-        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://img.c2v2.com/imgur/');
+        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://cdn.wangtwothree.com/imgur/');
 
         // 显示预览
         showPreview(dl_img_url, file.name);
@@ -430,6 +441,9 @@ function updateLinks(dataUrl, fileName) {
                 break;
             case '论坛代码':
                 linkText.textContent = `[图片]${dataUrl}[/图片]`;
+                break;
+            case '缩略图':
+                linkText.textContent = `${dataUrl}?shape=thumb`;
                 break;
             default:
                 linkText.textContent = dataUrl;

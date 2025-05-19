@@ -60,11 +60,18 @@ func ImageMe(c *gin.Context) {
 		Limit(pageSize).
 		Offset(offset).
 		Find(&images)
+
+	// 替换图片链接为CDN链接
+	for i := range images {
+		if images[i].StorageType == "imgur" {
+			images[i].ImageURL = strings.Replace(images[i].ImageURL, "https://i.imgur.com/", "https://cdn.wangtwothree.com/imgur/", 1)
+		}
+	}
 	// 计算总页数
 	totalPages := (int(total) + pageSize - 1) / pageSize
 	// 渲染模板
 	c.HTML(http.StatusOK, "image_show", OutputCommonSession(c, gin.H{
-		"title":      "图床",
+		"title":      "我的图片",
 		"images":     images,
 		"page":       page,
 		"totalPages": totalPages,

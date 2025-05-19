@@ -7,9 +7,9 @@
 {{ define "content" }}
 <style>
     /* 图片网格布局 */
-    .result-container {
+    .img-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: var(--space-lg);
         padding: var(--space-lg);
     }
@@ -38,7 +38,7 @@
         cursor: pointer;
     }
 
-    .image-container img {
+    .image-container img, .image-container svg {
         position: absolute;
         top: 0;
         left: 0;
@@ -111,16 +111,16 @@
 
     /* 响应式调整 */
     @media (max-width: 768px) {
-        .result-container {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        .img-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: var(--space-md);
             padding: var(--space-md);
         }
     }
 
     @media (max-width: 480px) {
-        .result-container {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        .img-container {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: var(--space-sm);
         }
 
@@ -130,18 +130,32 @@
         }
     }
 </style>
-
-<div class="result-container">
+<h2><i class="fa fa-file-image-o"></i>&nbsp;&nbsp;{{.title}}</h2>
+<div class="img-container">
+    <a class="image-item" href="/tools/image" title="上传新图片">
+        <div class="image-container">
+            <svg t="1747633502901" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1502" width="200" height="200"><path d="M853.344 341.344C853.344 294.4 814.944 256 768 256s-85.344 38.4-85.344 85.344 38.4 85.344 85.344 85.344 85.344-38.4 85.344-85.344z" p-id="1503"></path><path d="M0 85.344v853.344h512v-85.344H85.344V742.4l256-256L512 657.056l59.744-59.744-230.4-230.4-256 256V170.656h853.344v298.656l85.344 85.344V85.312z" p-id="1504"></path><path d="M951.456 840.544L1011.2 780.8l-200.544-200.544-200.544 200.544 59.744 59.744L768 742.4v238.944h85.344V742.4z" p-id="1505"></path></svg>
+        </div>
+        <div class="image-title">上传新图片</div>
+    </a>
     {{range .images}}
     <div class="image-item">
         <div class="image-container" onclick="openModal('{{.ImageURL}}', '{{.DeleteHash}}')">
-            <img src="{{.ImageURL}}" alt="图片">
+            <img src="{{.ImageURL}}?shape=thumb" alt="图片">
         </div>
         <div class="image-title">图片 {{.ID}}</div>
     </div>
     {{end}}
 </div>
-
+<div class="pagination">
+    {{ if gt .page 1 }}
+    <a href="?page={{ sub .page 1 }}" class="btn btn-outline">上一页</a>
+    {{ end }}
+    <span class="page-info">第 {{ .page }} / {{ .totalPages }} 页</span>
+    {{ if lt .page .totalPages }}
+    <a href="?page={{ add .page 1 }}" class="btn btn-outline">下一页</a>
+    {{ end }}
+</div>
 <!-- 模态框 -->
 <div id="imageModal" class="image-modal">
     <div class="modal-content">
@@ -200,8 +214,8 @@
     // 删除图片
     function deleteImage() {
         if (confirm('确定要删除这张图片吗？此操作不可撤销。')) {
-            fetch(`/api/image/delete?del_hash=${currentImage.deleteHash}`, {
-                method: 'DELETE',
+            fetch(`/api/img_delete?del_hash=${currentImage.deleteHash}`, {
+                method: 'GET',
             })
             .then(response => response.json())
             .then(data => {

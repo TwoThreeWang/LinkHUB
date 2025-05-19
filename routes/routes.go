@@ -112,6 +112,7 @@ func SetupRoutes(r *gin.Engine) {
 	// 小工具相关路由
 	tools := r.Group("/tools")
 	{
+		tools.GET("/", handlers.ToolsHome)
 		tools.GET("/image", handlers.ImageUploadHome)                                                    // 图床页面
 		tools.GET("/image/me", handlers.ImageMe)                                                         // 图床图片页面
 		tools.GET("/image/:type/:filename", middleware.CacheMiddleware(5*time.Minute), handlers.ImageDl) // 图床图片代理

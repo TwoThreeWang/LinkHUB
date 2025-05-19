@@ -1,0 +1,71 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="自建在线工具，{{ .siteName }}">
+<style>
+.tool-category {
+    margin-bottom: 2rem;
+}
+.category-title {
+    margin: 1rem 0;
+    padding-left: 0.5rem;
+    border-left: 4px solid var(--primary-color);
+}
+.tool-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    transition: transform 0.2s;
+    margin-bottom: 0.5rem;
+}
+.tool-icon {
+    font-size: 2rem;
+    margin: 0 1.5rem 0 0.5rem;
+    color: var(--primary-color);
+}
+.tool-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+</style>
+{{ end }}
+
+{{ define "content" }}
+<div class="grid-container-left">
+    <div class="sidebar">
+        <h3 class="sidebar-title">工具分类</h3>
+        <ul class="sidebar-links">
+            <li><a href="#category-pic"><i class="fa fa-file-image-o"></i>图片类</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h2><i class="fa fa-cogs"></i>&nbsp;&nbsp;在线工具</h2>
+
+        <div id="category-pic" class="tool-category">
+            <h3 class="category-title"><i class="fa fa-file-image-o"></i>图片类</h3>
+            <div class="grid-auto-card">
+                <a href="/tools/image" class="card tool-card">
+                    <div class="tool-icon">
+                        <i class="fa fa-cloud-upload"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h4>无用图床</h4>
+                        <p>基于imgur的代理图床</p>
+                    </div>
+                </a>
+                <a href="/tools/image/me" class="card tool-card">
+                    <div class="tool-icon">
+                        <i class="fa fa-file-image-o"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h4>我的图片</h4>
+                        <p>管理图床已上传图片</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
