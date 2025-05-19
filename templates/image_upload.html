@@ -490,6 +490,7 @@ function deleteImg(delHash) {
         .then((response) => response.json())
         .then((result) => {
             if (result.code == 200) {
+                resetUpload();
                 showToast('成功', '图片删除成功','success');
             }else{
                 showToast('错误', result.message || '删除失败', 'error');
