@@ -12,3 +12,10 @@ func ToolsHome(c *gin.Context) {
 		"title": "在线工具",
 	}))
 }
+
+// ArticleInsightAiTools AI文章总结工具页面
+func ArticleInsightAiTools(c *gin.Context) {
+	c.HTML(http.StatusOK, "article_insight_ai", OutputCommonSession(c, gin.H{
+		"title": "AI文章总结工具",
+	}))
+}

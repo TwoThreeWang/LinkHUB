@@ -27,6 +27,8 @@ site:
 clientID: google登录客户端ID
 clientSecret: google登录客户端密钥
 
+geminiAPIKey: 你的Gemini API密钥
+
 # 图床配置
 upload:
   maxSize: 10485760

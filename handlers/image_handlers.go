@@ -64,7 +64,7 @@ func ImageMe(c *gin.Context) {
 	// 替换图片链接为CDN链接
 	for i := range images {
 		if images[i].StorageType == "imgur" {
-			images[i].ImageURL = strings.Replace(images[i].ImageURL, "https://i.imgur.com/", "https://cdn.wangtwothree.com/imgur/", 1)
+			images[i].ImageURL = strings.Replace(images[i].ImageURL, "https://i.imgur.com/", "https://cdn.c2v2.com/imgur/", 1)
 		}
 	}
 	// 计算总页数

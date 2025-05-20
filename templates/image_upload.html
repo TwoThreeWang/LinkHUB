@@ -191,19 +191,6 @@
     height: 1rem;
     color: #6b7280;
 }
-#msg{
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-.msg-success{
-    background-color: #d1fae5;
-    color: #155724;
-}
-.msg-error{
-    background-color: #f8d7da;
-    color: #721c24;
-}
 </style>
     <div class="upload-container">
         <div class="upload">
@@ -313,14 +300,7 @@
 const uploadZone = document.querySelector('.upload-zone');
 const fileInput = document.querySelector('.file-input');
 const copyButtons = document.querySelectorAll('.link-copy');
-const msg = document.getElementById('msg');
-// 提示消息
-function showToast(title, message, type = 'success') {
-    // 显示提示消息
-    msg.style.display = 'block';
-    msg.classList.add("msg-"+type);
-    msg.textContent = message;
-}
+
 // 拖拽上传
 uploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -354,7 +334,7 @@ async function handleFiles(files) {
 
     const file = files[0];
     if (!file.type.startsWith('image/')) {
-        showToast('错误', '请上传图片文件', 'error');
+        showToast('请上传图片文件', 'error');
         return;
     }
 
@@ -374,13 +354,13 @@ async function handleFiles(files) {
         });
         const responseData = await response.json();
 
-        if (!response.ok) {
+        if (response.code != 200) {
             const errorMessage = responseData.message || responseData.error || '上传失败';
             throw new Error(errorMessage);
         }
 
         const data = responseData.data;
-        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://cdn.wangtwothree.com/imgur/');
+        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://cdn.c2v2.com/imgur/');
 
         // 显示预览
         showPreview(dl_img_url, file.name);
@@ -392,11 +372,11 @@ async function handleFiles(files) {
         // 显示链接区域
         document.getElementById('links-card').style.display = 'block';
         // 显示成功提示
-        showToast('成功', '图片上传成功', 'success');
+        showToast('图片上传成功', 'success');
     } catch (error) {
         resetUpload();
         console.error('上传失败:', error);
-        showToast('错误', error.message || '上传失败，请重试', 'error');
+        showToast(error.message || '上传失败，请重试', 'error');
     }
 }
 
@@ -492,9 +472,9 @@ function deleteImg(delHash) {
         .then((result) => {
             if (result.code == 200) {
                 resetUpload();
-                showToast('成功', '图片删除成功','success');
+                showToast('图片删除成功','success');
             }else{
-                showToast('错误', result.message || '删除失败', 'error');
+                showToast(result.message || '删除失败', 'error');
             }
         })
 }
@@ -504,9 +484,9 @@ copyButtons.forEach((button) => {
     button.addEventListener('click', () => {
         const linkText = button.previousElementSibling.textContent;
         navigator.clipboard.writeText(linkText).then(() => {
-            showToast('成功', '链接已复制到剪贴板', 'success');
+            showToast('链接已复制到剪贴板', 'success');
         }).catch(() => {
-            showToast('错误', '复制失败，请手动复制', 'error');
+            showToast('复制失败，请手动复制', 'error');
         });
     });
 });

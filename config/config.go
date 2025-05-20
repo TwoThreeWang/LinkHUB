@@ -13,6 +13,7 @@ type Config struct {
 	ClientID     string
 	ClientSecret string
 	Upload       UploadConfig
+	GeminiAPIKey string
 }
 
 // ServerConfig 服务器配置

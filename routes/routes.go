@@ -116,6 +116,7 @@ func SetupRoutes(r *gin.Engine) {
 		tools.GET("/image", handlers.ImageUploadHome)                                                    // 图床页面
 		tools.GET("/image/me", handlers.ImageMe)                                                         // 图床图片页面
 		tools.GET("/image/:type/:filename", middleware.CacheMiddleware(5*time.Minute), handlers.ImageDl) // 图床图片代理
+		tools.GET("/article-insight-ai", handlers.ArticleInsightAiTools)
 	}
 
 	// API相关路由
@@ -123,5 +124,6 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		api.POST("/img_upload", handlers.ApiImageUpload) // 图片上传接口
 		api.GET("/img_delete", handlers.ApiImageDelete)  // 图片删除接口
+		api.POST("/article-insight-ai", handlers.HandleSummarize) // AI文章总结接口
 	}
 }
