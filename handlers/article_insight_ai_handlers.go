@@ -21,6 +21,12 @@ type SummaryRequest struct {
 
 // HandleSummarize 处理文章总结请求
 func HandleSummarize(c *gin.Context) {
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	if userInfo == nil {
+		utils.RespFail(c, http.StatusForbidden, "仅限登陆后使用")
+		return
+	}
 	// 从上下文获取配置
 	cfg := config.GetConfig()
 	if cfg == nil {
