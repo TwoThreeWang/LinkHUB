@@ -110,3 +110,48 @@ function showToast(message, type = 'success') {
     msg.classList.add("msg-"+type);
     msg.textContent = message;
 }
+// Tab切换
+class TabManager {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        if (!this.container) {
+            console.error(`Tab容器 #${containerId} 未找到`);
+            return;
+        }
+        this.tabs = this.container.querySelectorAll('[data-tab]');
+        this.panels = this.container.querySelectorAll('[data-panel]');
+        this.activeClass = 'active';
+        this.init();
+    }
+
+    init() {
+        // 初始化时激活第一个tab
+        if (this.tabs.length > 0) {
+            this.activateTab(this.tabs[0]);
+        }
+
+        // 为所有tab添加点击事件
+        this.tabs.forEach(tab => {
+            tab.addEventListener('click', () => this.activateTab(tab));
+        });
+    }
+
+    activateTab(selectedTab) {
+        const targetPanel = selectedTab.getAttribute('data-tab');
+
+        // 更新tab状态
+        this.tabs.forEach(tab => {
+            tab.classList.remove(this.activeClass);
+        });
+        selectedTab.classList.add(this.activeClass);
+
+        // 更新面板状态
+        this.panels.forEach(panel => {
+            if (panel.getAttribute('data-panel') === targetPanel) {
+                panel.classList.add(this.activeClass);
+            } else {
+                panel.classList.remove(this.activeClass);
+            }
+        });
+    }
+}

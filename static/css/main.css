@@ -811,6 +811,45 @@ footer {
     background-color: #f8d7da;
     color: #721c24;
 }
+/* 标签页样式 */
+.tab{
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+}
+.tab-buttons {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tab-buttons button {
+    padding: var(--space-sm) var(--space-lg);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text);
+    transition: all 0.3s ease;
+}
+
+.tab-buttons button.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+.tab-panels {
+    background: var(--color-background);
+    padding: var(--space-lg);
+}
+
+.tab-panels [data-panel] {
+    display: none;
+}
+
+.tab-panels [data-panel].active {
+    display: block;
+}
 /* 返回顶部按钮的样式 */
 #back-to-top {
     display: none;

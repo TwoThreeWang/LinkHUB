@@ -118,6 +118,7 @@ func SetupRoutes(r *gin.Engine) {
 		tools.GET("/image/:type/:filename", middleware.CacheMiddleware(5*time.Minute), handlers.ImageDl) // 图床图片代理
 		tools.GET("/article-insight-ai", handlers.ArticleInsightAiTools)
 		tools.GET("/html-run", handlers.HtmlRunTools)
+		tools.GET("/markdown", handlers.MdEditTools)
 	}
 
 	// API相关路由
