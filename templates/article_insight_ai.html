@@ -99,13 +99,13 @@
         </div>
 
         <button class="btn btn-primary" id="analyze-btn">开始总结</button>
-        <small> 使用 Google Gemini 生成</small>
+        <small style="color:#999"> 使用 Google Gemini 生成</small>
     </div>
 
     <div id="msg" style="display: none;"></div>
 
     <!-- 结果展示区域 -->
-    <div class="result-section">
+    <div class="result-section" id="result-section" style="display: none;">
         <div class="result-tabs">
             <div class="result-tab active" data-tab="summary">AI 解析结果</div>
             <div class="result-tab" data-tab="markdown">MD 原文</div>
@@ -116,9 +116,9 @@
         </div>
 
         <div class="result-content" id="markdown-content">
-            <pre id="md-content"><div class="empty-state"><p><i class="fa fa-circle-o-notch"></i> 暂无内容</p></div></div>
+            <pre id="md-content"><div class="empty-state"><p><i class="fa fa-circle-o-notch"></i> 暂无内容</p></div></pre>
         </div>
-<br>
+        <br>
         <button class="btn btn-outline-primary" id="copy-md-btn">复制 MD 原文</button>
     </div>
 </div>
@@ -181,6 +181,7 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
 
         const result = await response.json();
         if (result.code == 200) {
+            document.getElementById('result-section').style.display = 'block';
             showToast('已完成总结', 'success');
             document.getElementById('ai-result').innerHTML = marked.parse(result.data.summary);
             document.getElementById('md-content').innerHTML = result.data.summary;

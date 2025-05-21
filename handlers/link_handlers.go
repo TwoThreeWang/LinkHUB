@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"LinkHUB/database"
@@ -214,6 +215,84 @@ func CreateLink(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/links/"+strconv.Itoa(int(link.ID)))
 }
 
+// 缓存相关链接的过期时间（10分钟）
+const relatedLinksCacheExpiration = 10 * time.Minute
+
+// 相关链接缓存结构
+var relatedLinksCache = struct {
+	sync.RWMutex
+	items map[uint]cacheItem
+}{items: make(map[uint]cacheItem)}
+
+// 缓存项结构
+type cacheItem struct {
+	links      []models.Link
+	expiration time.Time
+}
+
+// 使缓存失效的函数，当链接被更新或删除时调用
+func invalidateRelatedLinksCache(linkID uint) {
+	// 清除指定链接的缓存
+	relatedLinksCache.Lock()
+	delete(relatedLinksCache.items, linkID)
+	relatedLinksCache.Unlock()
+}
+
+// 获取相关链接（带缓存）
+func getRelatedLinks(link models.Link) []models.Link {
+	linkID := link.ID
+
+	// 尝试从缓存获取
+	relatedLinksCache.RLock()
+	item, found := relatedLinksCache.items[linkID]
+	relatedLinksCache.RUnlock()
+
+	// 如果缓存有效，直接返回
+	if found && time.Now().Before(item.expiration) {
+		return item.links
+	}
+
+	// 缓存无效，需要查询数据库
+	var relatedLinks []models.Link
+	if len(link.Tags) > 0 {
+		// 获取当前链接的标签IDs
+		var tagIDs []uint
+		for _, tag := range link.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+
+		// 使用子查询计算标签匹配数量，实现更智能的相关性排序
+		query := database.GetDB().Distinct().
+			Table("links").
+			Select("links.*, COUNT(DISTINCT lt.tag_id) as tag_match_count").
+			Joins("JOIN link_tags lt ON lt.link_id = links.id").
+			Where("lt.tag_id IN (?) AND links.id != ?", tagIDs, linkID).
+			Group("links.id").
+			Order("tag_match_count DESC") // 首先按标签匹配数量排序
+
+		// 添加额外的排序条件，优先展示热门和最新的内容
+		query = query.Order("click_count DESC") // 热门程度
+		query = query.Order("vote_count DESC") // 热门程度
+		query = query.Order("created_at DESC") // 最新内容
+
+		// 执行查询并预加载关联数据
+		query.Limit(6).
+			Preload("User").
+			Preload("Tags").
+			Find(&relatedLinks)
+
+		// 更新缓存
+		relatedLinksCache.Lock()
+		relatedLinksCache.items[linkID] = cacheItem{
+			links:      relatedLinks,
+			expiration: time.Now().Add(relatedLinksCacheExpiration),
+		}
+		relatedLinksCache.Unlock()
+	}
+
+	return relatedLinks
+}
+
 // ShowLink 显示链接详情页面
 func ShowLink(c *gin.Context) {
 	// 获取链接ID
@@ -248,24 +327,9 @@ func ShowLink(c *gin.Context) {
 		database.GetDB().Model(&models.Vote{}).Where("user_id = ? AND link_id = ?", userInfo.ID, link.ID).Count(&count)
 		voted = count > 0
 	}
-	// 相关链接
-	var relatedLinks []models.Link
-	if len(link.Tags) > 0 {
-		// 获取当前链接的标签IDs
-		var tagIDs []uint
-		for _, tag := range link.Tags {
-			tagIDs = append(tagIDs, tag.ID)
-		}
 
-		// 查询具有相同标签的其他链接（不包括当前链接）
-		database.GetDB().Distinct().
-			Joins("JOIN link_tags ON link_tags.link_id = links.id").
-			Where("link_tags.tag_id IN (?) AND links.id != ?", tagIDs, link.ID).
-			Preload("User").
-			Preload("Tags").
-			Limit(6).
-			Find(&relatedLinks)
-	}
+	// 获取相关链接（使用缓存机制）
+	relatedLinks := getRelatedLinks(link)
 	// 内容区广告
 	contentAds := GetAdsByType(c, "content")
 	sidebarAds := GetAdsByType(c, "sidebar")
@@ -551,6 +615,9 @@ func UpdateLink(c *gin.Context) {
 		return
 	}
 
+	// 使相关链接缓存失效
+	invalidateRelatedLinksCache(link.ID)
+
 	// 重定向到链接详情页
 	c.Redirect(http.StatusFound, "/links/"+strconv.Itoa(int(link.ID)))
 }
@@ -643,6 +710,9 @@ func DeleteLink(c *gin.Context) {
 		}))
 		return
 	}
+
+	// 使相关链接缓存失效
+	invalidateRelatedLinksCache(link.ID)
 
 	// 返回成功响应
 	c.HTML(http.StatusOK, "result", OutputCommonSession(c, gin.H{
