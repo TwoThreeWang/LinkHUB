@@ -354,7 +354,7 @@ async function handleFiles(files) {
         });
         const responseData = await response.json();
 
-        if (response.code != 200) {
+        if (responseData.code != 200) {
             const errorMessage = responseData.message || responseData.error || '上传失败';
             throw new Error(errorMessage);
         }

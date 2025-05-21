@@ -19,3 +19,10 @@ func ArticleInsightAiTools(c *gin.Context) {
 		"title": "AI文章总结工具",
 	}))
 }
+
+// HtmlRunTools Html在线运行
+func HtmlRunTools(c *gin.Context) {
+	c.HTML(http.StatusOK, "tool_html_run", OutputCommonSession(c, gin.H{
+		"title": "Html在线运行测试工具",
+	}))
+}
