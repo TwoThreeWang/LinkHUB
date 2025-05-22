@@ -180,13 +180,13 @@
         <div class="product-sidebar">
             <div class="sidebar-main">
                 <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
-                <div class="grid-container-right">
-                    <div class="product-info">
-                        <h3>{{ .link.User.Username }}</h3>
-                        <small>{{ .link.User.Bio }}</small>
-                    </div>
-                    <div class="product-avatar" style="margin-right:10px;">
+                <div class="article-header" style="align-items:flex-end;">
+                    <div class="product-vote">
                         <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
+                    </div>
+                    <div class="product-header-info">
+                        <h1 class="product-title">{{ .link.User.Username }}</h1>
+                        <div><small class="maker-title">{{ .link.User.Bio }}</small></div>
                     </div>
                 </div>
                 <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">

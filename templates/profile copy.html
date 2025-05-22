@@ -9,18 +9,17 @@
 {{ end }}
 
 {{ define "content" }}
-<div class="article-header" style="align-items:flex-end;">
-    <div class="product-vote">
-        <img src="{{ .user.Avatar }}" alt="{{ .user.Username }}" class="avatar">
-    </div>
-    <div class="product-header-info">
-        <h1 class="product-title">{{ .user.Username }}</h1>
-        <div><small class="maker-title">{{ .user.Bio }}</small></div>
-        <div><small class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</small></div>
-    </div>
-</div>
     <div class="grid-container-left">
         <div class="sidebar">
+            <div class="maker-profile">
+                <div class="maker-info">
+                    <img src="{{ .user.Avatar }}" class="avatar">
+                    <h3 class="maker-name">{{ .user.Username }}</h3>
+                    <div><small class="maker-title">{{ .user.Bio }}</small></div>
+                    <div><small class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</small></div>
+                </div>
+            </div>
+            <br>
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
                 <li><a href="?sort=overview" {{if eq .sort "overview"}}class="primary-link"{{end}}><i class="fa fa-tachometer"></i>概览</a></li>
