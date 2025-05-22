@@ -71,7 +71,7 @@ func ShowNewLink(c *gin.Context) {
 	}
 	// 查询所有标签
 	var tags []models.Tag
-	database.GetDB().Find(&tags)
+	database.GetDB().Order("created_at DESC").Find(&tags)
 
 	// 渲染模板
 	c.HTML(http.StatusOK, "new_link", OutputCommonSession(c, gin.H{
@@ -383,7 +383,7 @@ func ShowUpdateLink(c *gin.Context) {
 	}
 	// 查询所有标签
 	var tags []models.Tag
-	database.GetDB().Find(&tags)
+	database.GetDB().Order("created_at DESC").Find(&tags)
 
 	var checkTags []string
 	for _, tag := range link.Tags {
