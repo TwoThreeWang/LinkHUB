@@ -72,6 +72,7 @@
     <br>
     <div class="editor-div">
         <div class="toolbar">
+            <button onclick="saveToLocalStorage()" title="浏览器本地保存">💾</button>
             <button onclick="insertMarkdown('# ')" title="标题1">H1</button>
             <button onclick="insertMarkdown('## ')" title="标题2">H2</button>
             <button onclick="insertMarkdown('### ')" title="标题3">H3</button>
@@ -79,11 +80,13 @@
             <button onclick="insertMarkdown('*', '*')" title="斜体"><i>I</i></button>
             <button onclick="insertMarkdown('- ')" title="无序列表">•</button>
             <button onclick="insertMarkdown('1. ')" title="有序列表">1.</button>
+            <button onclick="insertMarkdown('\n* [ ] 任务一\n* [x] 任务二\n')" title="任务列表">☑</button>
             <button onclick="insertMarkdown('[', '](url)')" title="链接">Link</button>
             <button onclick="insertMarkdown('![alt](', ')')" title="图片">Pic</button>
             <button onclick="insertMarkdown('`', '`')" title="代码">Code</button>
             <button onclick="insertMarkdown('```\n', '\n```')" title="代码块">Codes</button>
-            <button onclick="showEmojiPicker()" title="表情">😊</button>
+            <button onclick="insertMarkdown('\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n')" title="表格">Table</button>
+            <button onclick="showEmojiPicker()" title="表情">☺</button>
             <a href="/tools/image/me" target="_blank" title="图床"><button >图床</button></a>
             <div id="emoji-picker" class="toolbar" style="display: none;"></div>
         </div>
@@ -112,6 +115,18 @@
         const editor = document.getElementById('editor');
         const previewDiv = document.getElementById('post-content');
 
+        // 从localStorage加载保存的内容
+        const savedContent = localStorage.getItem('markdownContent');
+        if (savedContent) {
+            editor.value = savedContent;
+            updatePreview();
+        }
+
+        // 保存内容到localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('markdownContent', editor.value);
+        };
+
         // 实时预览功能
         function updatePreview() {
             const markdownContent = editor.value;
@@ -119,9 +134,15 @@
             previewDiv.innerHTML = htmlContent;
         }
 
-        // 监听输入事件实现实时预览
-        editor.addEventListener('input', updatePreview);
-        editor.addEventListener('change', updatePreview);
+        // 监听输入事件实现实时预览和自动保存
+        editor.addEventListener('input', () => {
+            updatePreview();
+            saveToLocalStorage();
+        });
+        editor.addEventListener('change', () => {
+            updatePreview();
+            saveToLocalStorage();
+        });
 
         // Markdown快捷键插入功能
         function insertMarkdown(prefix, suffix = '') {
