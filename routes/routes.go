@@ -119,6 +119,7 @@ func SetupRoutes(r *gin.Engine) {
 		tools.GET("/article-insight-ai", handlers.ArticleInsightAiTools)
 		tools.GET("/html-run", handlers.HtmlRunTools)
 		tools.GET("/markdown", handlers.MdEditTools)
+		tools.GET("/clear-cache", middleware.AuthRequired(), handlers.ClearCache)                       // 清除所有缓存
 	}
 
 	// API相关路由

@@ -31,6 +31,7 @@
                 {{ if .userInfo }}
                     {{ if eq .user.Role "admin" }}
                     <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
+                    <li><a href="/tools/clear-cache"><i class="fa fa-refresh"></i>清除缓存</a></li>
                     {{ end }}
                     {{ if eq .user.ID .userInfo.ID }}
                     <li><a href="/tools/image/me" data-no-instant><i class="fa fa-file-image-o"></i>我的图片</a></li>
