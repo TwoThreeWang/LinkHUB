@@ -6,6 +6,20 @@
 
 {{ define "content" }}
 <style>
+    /* 搜索框容器 */
+    .search-container {
+        margin-bottom: var(--space-lg);
+        padding: 0 var(--space-lg);
+    }
+    .search-box {
+        display: flex;
+        gap: var(--space-md);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .search-input {
+        flex: 1;
+    }
     /* 图片网格布局 */
     .img-container {
         display: grid;
@@ -131,6 +145,12 @@
     }
 </style>
 <h2><i class="fa fa-file-image-o"></i>&nbsp;&nbsp;{{.title}}</h2>
+<div class="search-container">
+    <form class="search-box" method="GET" action="">
+        <input type="text" name="search" class="search-input" placeholder="输入图片URL模糊搜索..." value="{{.search}}">
+        <button type="submit" class="btn btn-primary">搜索</button>
+    </form>
+</div>
 <div class="img-container">
     <a class="image-item" href="/tools/image" title="上传新图片">
         <div class="image-container">
@@ -143,7 +163,7 @@
         <div class="image-container" onclick="openModal('{{.ImageURL}}', '{{.DeleteHash}}')">
             <img src="{{.ImageURL}}?shape=thumb" alt="图片">
         </div>
-        <div class="image-title">图片 {{.ID}}</div>
+        <div class="image-title">{{.ImageName}}</div>
     </div>
     {{end}}
 </div>

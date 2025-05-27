@@ -51,10 +51,20 @@ func ImageMe(c *gin.Context) {
 	}
 	pageSize, _ := strconv.Atoi(size)
 	offset := (page - 1) * pageSize
+
+	// 获取搜索参数
+	search := c.DefaultQuery("search", "")
+
 	// 查询用户的图片
 	var images []models.Image
 	var total int64
 	query := database.GetDB().Model(&models.Image{}).Where("user_id = ?", userInfo.ID)
+
+	// 如果有搜索关键词，添加搜索条件
+	if search != "" {
+		query = query.Where("image_url LIKE ?", "%"+search+"%")
+	}
+
 	query.Count(&total)
 	query.Order("created_at DESC").
 		Limit(pageSize).
@@ -75,6 +85,7 @@ func ImageMe(c *gin.Context) {
 		"images":     images,
 		"page":       page,
 		"totalPages": totalPages,
+		"search":     search,
 	}))
 }
 
@@ -120,10 +131,14 @@ func ApiImageUpload(c *gin.Context) {
 		utils.RespFail(c, http.StatusBadRequest, fmt.Sprintf("上传失败: %v", err))
 		return
 	}
+	// 从imgUrl中提取文件名
+	parts := strings.Split(imgUrl, "/")
+	ImageName := parts[len(parts)-1]
 
 	// 图片信息保存到数据库
 	imgInfo := models.Image{
 		UserID:      userInfo.ID,
+		ImageName:   ImageName,
 		ImageURL:    imgUrl,
 		DeleteHash:  delHash,
 		StorageType: storageType,
