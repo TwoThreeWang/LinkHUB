@@ -91,7 +91,7 @@
             {{ else if eq .sort "votes" }}
             <h2><i class="fa fa-star"></i>&nbsp;&nbsp;&nbsp;投票链接</h2>
 
-            <div class="product-list">
+            <div class="grid-auto-card">
                 {{ range .user.Votes }}
                 <article class="product-card">
                     <div class="product-vote">
@@ -117,7 +117,7 @@
             {{ else if eq .sort "links" }}
             <h2><i class="fa fa-link"></i>&nbsp;&nbsp;&nbsp;所有链接</h2>
 
-            <div class="product-list">
+            <div class="grid-auto-card">
                 {{ range .user.Links }}
                 <article class="product-card">
                     <div class="product-vote">
