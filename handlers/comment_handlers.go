@@ -40,7 +40,7 @@ func CreateComment(c *gin.Context) {
 	}
 	content := c.PostForm("content")
 	parentIDStr := c.PostForm("parent_id")
-	CfTurnstile := c.PostForm("cf_turnstile")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
 
 	// 验证 Turnstile 令牌
 	if CfTurnstile != "" {

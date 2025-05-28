@@ -170,7 +170,7 @@ func CreateArticle(c *gin.Context) {
 	var categories []models.Category
 	database.GetDB().Find(&categories)
 
-	CfTurnstile := c.PostForm("cf_turnstile")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
 
 	// 验证 Turnstile 令牌
 	if CfTurnstile != "" {
@@ -362,7 +362,7 @@ func UpdateArticle(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	categoryID := c.PostForm("category")
-	CfTurnstile := c.PostForm("cf_turnstile")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
 
 	// 验证 Turnstile 令牌
 	if CfTurnstile != "" {

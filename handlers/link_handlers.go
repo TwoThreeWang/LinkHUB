@@ -105,7 +105,7 @@ func CreateLink(c *gin.Context) {
 	var tags []models.Tag
 	database.GetDB().Find(&tags)
 
-	CfTurnstile := c.PostForm("cf_turnstile")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
 
 	// 验证 Turnstile 令牌
 	if CfTurnstile != "" {
@@ -519,7 +519,7 @@ func UpdateLink(c *gin.Context) {
 	// 查询所有标签
 	var tags []models.Tag
 	database.GetDB().Find(&tags)
-	CfTurnstile := c.PostForm("cf_turnstile")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
 
 	// 验证 Turnstile 令牌
 	if CfTurnstile != "" {
