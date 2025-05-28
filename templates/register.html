@@ -10,6 +10,7 @@
         {{ if .error }}
         <div class="error-message">{{ .error }}</div>
         {{ end }}
+        <div id="msg" style="display: none;" class="msg"></div>
         <form action="/auth/register?refer={{.refer}}" method="POST">
             <div class="form-group">
                 <label for="email">邮箱</label>
@@ -23,10 +24,31 @@
                 <label for="confirm_password">确认密码</label>
                 <input type="password" id="confirm_password" name="confirm_password" required>
             </div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
             <button type="submit" class="btn btn-primary w-full">注册</button>
             <p class="auth-links">
                 已有账号？<a href="/auth/login">立即登录</a>
             </p>
         </form>
     </div>
+    <script>
+        // 表单提交验证
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const token = turnstile.getResponse();
+            if (!token) {
+                alert('请完成人机验证');
+                return;
+            }
+            // 添加 turnstile token 到表单
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cf_turnstile';
+            input.value = token;
+            this.appendChild(input);
+            // 提交表单
+            this.submit();
+        });
+      </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

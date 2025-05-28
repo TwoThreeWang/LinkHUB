@@ -40,6 +40,7 @@
                 <label for="password">密码</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
             <button type="submit" class="btn btn-primary w-100">登录</button>
             <p class="auth-links">
                 还没有账号？<a href="/auth/register">立即注册</a>
@@ -55,5 +56,24 @@
             googleButtonDiv.setAttribute('data-login_uri', rootPath+"/auth/callback/google");
           }
         }
+
+        // 表单提交验证
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const token = turnstile.getResponse();
+            if (!token) {
+                alert('请完成人机验证');
+                return;
+            }
+            // 添加 turnstile token 到表单
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cf_turnstile';
+            input.value = token;
+            this.appendChild(input);
+            // 提交表单
+            this.submit();
+        });
       </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

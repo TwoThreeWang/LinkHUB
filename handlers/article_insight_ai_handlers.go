@@ -58,7 +58,7 @@ func HandleSummarize(c *gin.Context) {
 			return
 		}
 	}else{
-		utils.RespFail(c, http.StatusBadRequest, "验证 Turnstile 令牌失败：" + "缺少验证参数")
+		utils.RespFail(c, http.StatusBadRequest, "验证 Turnstile 令牌失败：缺少验证参数")
 		return
 	}
 

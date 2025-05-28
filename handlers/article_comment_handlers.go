@@ -3,6 +3,7 @@ package handlers
 import (
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"LinkHUB/utils"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,6 +37,28 @@ func CreateArticleComment(c *gin.Context) {
 	}
 	content := c.PostForm("content")
 	parentIDStr := c.PostForm("parent_id")
+	CfTurnstile := c.PostForm("cf_turnstile")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+				"title":         "Error",
+				"message":       "验证 Turnstile 令牌失败：" + err.Error(),
+				"redirect_text": "返回",
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "验证 Turnstile 令牌失败：缺少验证参数",
+			"redirect_text": "返回",
+		}))
+		return
+	}
 
 	// 验证评论内容
 	if content == "" {

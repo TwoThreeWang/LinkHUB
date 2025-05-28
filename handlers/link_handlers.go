@@ -101,10 +101,40 @@ func CreateLink(c *gin.Context) {
 	if len(checkTags) > 5 {
 		checkTags = checkTags[:5]
 	}
-
 	// 查询所有标签
 	var tags []models.Tag
 	database.GetDB().Find(&tags)
+
+	CfTurnstile := c.PostForm("cf_turnstile")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
+				"title":       "分享新链接",
+				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"tags":        tags,
+				"checkTags":   checkTags,
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
+			"title":       "分享新链接",
+			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"link_title":  title,
+			"url":         url,
+			"description": description,
+			"tags":        tags,
+			"checkTags":   checkTags,
+		}))
+		return
+	}
 
 	// 验证表单数据
 	if title == "" || url == "" {
@@ -489,6 +519,38 @@ func UpdateLink(c *gin.Context) {
 	// 查询所有标签
 	var tags []models.Tag
 	database.GetDB().Find(&tags)
+	CfTurnstile := c.PostForm("cf_turnstile")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
+				"title":       "编辑链接",
+				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"link":        link,
+				"link_title":  title,
+				"url":         url,
+				"description": description,
+				"tags":        tags,
+				"checkTags":   checkTags,
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
+			"title":       "编辑链接",
+			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"link":        link,
+			"link_title":  title,
+			"url":         url,
+			"description": description,
+			"tags":        tags,
+			"checkTags":   checkTags,
+		}))
+		return
+	}
 
 	// 验证表单数据
 	if title == "" || url == "" {

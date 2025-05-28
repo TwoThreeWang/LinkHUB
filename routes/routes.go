@@ -68,9 +68,9 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		tags.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListTags)   // 所有标签
 		tags.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowTag) // 标签下链接
-		tags.GET("/add", handlers.CreateTag)                                          // 创建链接
-		tags.GET("/:id/update", handlers.UpdateTag)                                   // 修改链接
-		tags.GET("/:id/delete", handlers.DeleteTag)                                   // 删除链接
+		tags.GET("/add", handlers.CreateTag)                                          // 创建标签
+		tags.GET("/:id/update", handlers.UpdateTag)                                   // 修改标签
+		tags.GET("/:id/delete", handlers.DeleteTag)                                   // 删除标签
 	}
 
 	// 文章分类相关路由
