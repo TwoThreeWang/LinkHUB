@@ -25,6 +25,8 @@
                 <textarea class="form-control" rows="10" placeholder="请输入文章内容" id="article-content"></textarea>
             </div>
             <br>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
+            <br>
             <button class="btn btn-primary" id="analyze-btn">开始总结</button>
             <small style="color:#999"> 使用 Google Gemini 生成</small>
         </div>
@@ -59,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 分析按钮点击事件
 document.getElementById('analyze-btn').addEventListener('click', async () => {
+    document.getElementById('result-section').style.display = 'none';
     const activeTab = document.querySelector('#tabContainer .tab-buttons button.active').dataset.tab;
 
     let content = '';
@@ -73,8 +76,16 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
         showToast('请输入内容', 'error');
         return;
     }
+
+    // 获取 turnstile token
+    const token = turnstile.getResponse();
+    if (!token) {
+        showToast('请完成人机验证', 'error');
+        return;
+    }
+
     showToast('AI正在分析文章并生成摘要，这可能需要几秒钟...', 'success');
-    // TODO: 调用后端API进行分析
+    // 调用后端API进行分析
     try {
         const response = await fetch('/api/article-insight-ai', {
             method: 'POST',
@@ -83,7 +94,8 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
             },
             body: JSON.stringify({
                 type: activeTab,
-                content: content
+                content: content,
+                cf_turnstile: token
             })
         });
 
@@ -99,7 +111,11 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
             showToast(result.message || '分析失败', 'error');
         }
     } catch (error) {
+        console.error('Error:', error);
         showToast('请求失败，请稍后重试', 'error');
+    } finally {
+        // 重置 turnstile
+        turnstile.reset();
     }
 });
 // 初始化复制按钮事件
@@ -113,4 +129,5 @@ document.getElementById('copy-md-btn').addEventListener('click', () => {
     document.getElementById('msg').scrollIntoView();
 });
 </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

@@ -17,6 +17,7 @@ import (
 type SummaryRequest struct {
 	CONTENT  string `json:"content" binding:"required"`
 	TYPE string `json:"type" binding:"required"`
+	CfTurnstile string `json:"cf_turnstile"`
 }
 
 // HandleSummarize 处理文章总结请求
@@ -45,6 +46,19 @@ func HandleSummarize(c *gin.Context) {
 	var req SummaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.RespFail(c, http.StatusBadRequest, "Invalid request format")
+		return
+	}
+
+	// 验证 Turnstile 令牌
+	if req.CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, req.CfTurnstile, remoteIP)
+		if err!= nil {
+			utils.RespFail(c, http.StatusBadRequest, "验证 Turnstile 令牌失败：" + err.Error())
+			return
+		}
+	}else{
+		utils.RespFail(c, http.StatusBadRequest, "验证 Turnstile 令牌失败：" + "缺少验证参数")
 		return
 	}
 

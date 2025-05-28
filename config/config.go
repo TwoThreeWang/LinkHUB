@@ -14,6 +14,7 @@ type Config struct {
 	ClientSecret string
 	Upload       UploadConfig
 	GeminiAPIKey string
+	Cloudflare   CloudflareConfig
 }
 
 // ServerConfig 服务器配置
@@ -53,6 +54,12 @@ type UploadConfig struct {
 	AllowedExts   []string // 允许的文件扩展名列表
 	ImgurApiUrl   string
 	ImgurClientId string // imgur 客户端 ID
+}
+
+// CloudflareConfig Cloudflare配置
+type CloudflareConfig struct {
+	SecretKey      string
+	VerifyURL string
 }
 
 var config Config

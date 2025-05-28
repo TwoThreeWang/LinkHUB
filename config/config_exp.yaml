@@ -40,3 +40,8 @@ upload:
     - .webp
   imgurApiUrl: https://api.imgur.com/3/image
   imgurClientId: 123
+
+# Cloudflare Turnstile
+Cloudflare:
+  SecretKey: 你的SecretKey
+  VerifyURL: https://challenges.cloudflare.com/turnstile/v0/siteverify
