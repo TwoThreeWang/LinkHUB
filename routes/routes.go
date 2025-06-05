@@ -119,14 +119,14 @@ func SetupRoutes(r *gin.Engine) {
 		tools.GET("/article-insight-ai", handlers.ArticleInsightAiTools)
 		tools.GET("/html-run", handlers.HtmlRunTools)
 		tools.GET("/markdown", handlers.MdEditTools)
-		tools.GET("/clear-cache", middleware.AuthRequired(), handlers.ClearCache)                       // 清除所有缓存
+		tools.GET("/clear-cache", middleware.AuthRequired(), handlers.ClearCache) // 清除所有缓存
 	}
 
 	// API相关路由
 	api := r.Group("/api")
 	{
-		api.POST("/img_upload", handlers.ApiImageUpload) // 图片上传接口
-		api.GET("/img_delete", handlers.ApiImageDelete)  // 图片删除接口
+		api.POST("/img_upload", handlers.ApiImageUpload)          // 图片上传接口
+		api.GET("/img_delete", handlers.ApiImageDelete)           // 图片删除接口
 		api.POST("/article-insight-ai", handlers.HandleSummarize) // AI文章总结接口
 	}
 }
