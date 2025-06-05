@@ -36,10 +36,10 @@
             {{ if .userInfo }}
                 {{ range .votedLinks }}
                 <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
-                <a class="card-a" href="/user/profile?sort=votes"><center>查看更多</center></a>
                 {{ else }}
                 <p style="text-align:center;padding: 10px 5px;">空了？喜欢的链接记得点下支持！</p>
                 {{ end }}
+                <a class="card-a" href="/user/profile?sort=votes"><center>查看更多</center></a>
             {{ else }}
                 <a class="card-a" href="/auth/login"><center>请先登录</center></a>
             {{ end }}
