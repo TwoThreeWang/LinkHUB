@@ -29,6 +29,19 @@ func Home(c *gin.Context) {
 	var newLinks []models.Link
 	database.GetDB().Order("created_at DESC").Limit(12).Find(&newLinks)
 
+	// 获取投票的链接
+	// 从上下文中获取用户信息
+	userInfo := GetCurrentUser(c)
+	var votedLinks []models.Link
+	if userInfo != nil {
+		database.GetDB().
+			Joins("JOIN votes ON votes.link_id = links.id").
+			Where("votes.user_id =?", userInfo.ID).
+			Order("votes.created_at DESC").
+			Limit(11).
+			Find(&votedLinks)
+	}
+
 	// 获取热门标签下的文章
 	tagLinks := make(map[uint][]models.Link)
 	for _, tag := range popularTags {
@@ -38,7 +51,7 @@ func Home(c *gin.Context) {
 			Where("link_tags.tag_id = ?", tag.ID).
 			Order("is_pinned DESC").
 			Order("(vote_count + click_count) DESC").
-			Limit(12).
+			Limit(14).
 			Find(&links)
 		tagLinks[tag.ID] = links
 	}
@@ -54,6 +67,7 @@ func Home(c *gin.Context) {
 		"popularTags": popularTags,
 		"tagLinks":    tagLinks,
 		"indexTipAds": indexTipAds,
+		"votedLinks":  votedLinks,
 	}))
 }
 
@@ -111,10 +125,10 @@ func CreateLink(c *gin.Context) {
 	if CfTurnstile != "" {
 		remoteIP := c.ClientIP()
 		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
-		if err!= nil {
+		if err != nil {
 			c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "分享新链接",
-				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"error":       "验证 Turnstile 令牌失败：" + err.Error(),
 				"link_title":  title,
 				"url":         url,
 				"description": description,
@@ -123,10 +137,10 @@ func CreateLink(c *gin.Context) {
 			}))
 			return
 		}
-	}else{
+	} else {
 		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "分享新链接",
-			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"error":       "验证 Turnstile 令牌失败：缺少验证参数",
 			"link_title":  title,
 			"url":         url,
 			"description": description,
@@ -302,8 +316,8 @@ func getRelatedLinks(link models.Link) []models.Link {
 
 		// 添加额外的排序条件，优先展示热门和最新的内容
 		query = query.Order("click_count DESC") // 热门程度
-		query = query.Order("vote_count DESC") // 热门程度
-		query = query.Order("created_at DESC") // 最新内容
+		query = query.Order("vote_count DESC")  // 热门程度
+		query = query.Order("created_at DESC")  // 最新内容
 
 		// 执行查询并预加载关联数据
 		query.Limit(6).
@@ -525,10 +539,10 @@ func UpdateLink(c *gin.Context) {
 	if CfTurnstile != "" {
 		remoteIP := c.ClientIP()
 		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
-		if err!= nil {
+		if err != nil {
 			c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 				"title":       "编辑链接",
-				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"error":       "验证 Turnstile 令牌失败：" + err.Error(),
 				"link":        link,
 				"link_title":  title,
 				"url":         url,
@@ -538,10 +552,10 @@ func UpdateLink(c *gin.Context) {
 			}))
 			return
 		}
-	}else{
+	} else {
 		c.HTML(http.StatusBadRequest, "new_link", OutputCommonSession(c, gin.H{
 			"title":       "编辑链接",
-			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"error":       "验证 Turnstile 令牌失败：缺少验证参数",
 			"link":        link,
 			"link_title":  title,
 			"url":         url,
