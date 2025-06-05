@@ -19,7 +19,7 @@ import (
 func Home(c *gin.Context) {
 	// 获取热门标签
 	var popularTags []models.Tag
-	database.GetDB().Order("count DESC").Limit(15).Find(&popularTags)
+	database.GetDB().Order("count DESC").Limit(17).Find(&popularTags)
 
 	// 获取热门文章
 	var hotLinks []models.Link
@@ -51,7 +51,7 @@ func Home(c *gin.Context) {
 			Where("link_tags.tag_id = ?", tag.ID).
 			Order("is_pinned DESC").
 			Order("(vote_count + click_count) DESC").
-			Limit(14).
+			Limit(12).
 			Find(&links)
 		tagLinks[tag.ID] = links
 	}
