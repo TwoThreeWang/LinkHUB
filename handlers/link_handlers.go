@@ -51,7 +51,7 @@ func Home(c *gin.Context) {
 			Where("link_tags.tag_id = ?", tag.ID).
 			Order("is_pinned DESC").
 			Order("(vote_count + click_count) DESC").
-			Limit(12).
+			Limit(11).
 			Find(&links)
 		tagLinks[tag.ID] = links
 	}
