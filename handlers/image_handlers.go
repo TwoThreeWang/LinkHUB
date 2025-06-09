@@ -44,7 +44,7 @@ func ImageMe(c *gin.Context) {
 		return
 	}
 	// 获取分页参数
-	size := c.DefaultQuery("size", "12")
+	size := c.DefaultQuery("size", "20")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1

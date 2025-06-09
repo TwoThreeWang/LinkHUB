@@ -31,6 +31,18 @@
             </center>
         </div>
 
+        <div class="card" id="hot">
+            <div class="card-title"><i class="fa fa-fire"></i> 热门链接</div>
+            {{ range .hotLinks }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
+            {{ end }}
+        </div>
+        <div class="card" id="new">
+            <div class="card-title"><i class="fa fa-clock-o"></i> 最新链接</div>
+            {{ range .newLinks }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+            {{ end }}
+        </div>
         <div class="card" id="vote">
             <div class="card-title"><i class="fa fa-star"></i> 我的投票</div>
             {{ if .userInfo }}
@@ -45,18 +57,6 @@
             {{ end }}
         </div>
 
-        <div class="card" id="hot">
-            <div class="card-title"><i class="fa fa-fire"></i> 热门链接</div>
-            {{ range .hotLinks }}
-            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
-            {{ end }}
-        </div>
-        <div class="card" id="new">
-            <div class="card-title"><i class="fa fa-clock-o"></i> 最新链接</div>
-            {{ range .newLinks }}
-            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
-            {{ end }}
-        </div>
         {{ range .popularTags }}
         <div class="card" id="{{ .ID }}">
             <div class="card-title">▸ {{ .Name }}</div>
