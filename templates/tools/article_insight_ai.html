@@ -1,0 +1,133 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="AI文章总结工具，使用人工智能技术，快速提取文章核心内容，生成结构化摘要，提高阅读效率，{{ .siteName }}">
+<!-- Markdown 解析库 -->
+<script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.2/marked.min.js"></script>
+{{ end }}
+
+{{ define "content" }}
+<div class="content">
+    <h2>✨️ AI文章分析工具</h2>
+    <p>输入任意文章链接，让 AI 为您生成简洁明了的摘要，节省阅读时间，提高学习效率</p>
+    <br>
+    <!-- 输入区域 -->
+    <div id="tabContainer" class="tab">
+        <div class="tab-buttons">
+            <button data-tab="url">文章URL</button>
+            <button data-tab="content">文章内容</button>
+        </div>
+        <div class="tab-panels">
+            <div data-panel="url">
+                <input type="text" class="form-control" placeholder="请输入文章URL" id="article-url">
+            </div>
+            <div data-panel="content">
+                <textarea class="form-control" rows="10" placeholder="请输入文章内容" id="article-content"></textarea>
+            </div>
+            <br>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
+            <br>
+            <button class="btn btn-primary" id="analyze-btn">开始总结</button>
+            <small style="color:#999"> 使用 Google Gemini 生成</small>
+        </div>
+    </div>
+    <br>
+    <div id="msg" style="display: none;"></div>
+
+    <!-- 结果展示区域 -->
+    <div id="result-section" class="tab"  style="display: none;">
+        <div class="tab-buttons">
+            <button data-tab="summary">AI 解析结果</button>
+            <button data-tab="markdown">MD 解析结果</button>
+        </div>
+        <div class="tab-panels">
+            <div data-panel="summary">
+                <div id="ai-result"><div class="empty-state"><p><i class="fa fa-circle-o-notch"></i> 暂无内容</p></div></div>
+            </div>
+            <div data-panel="markdown">
+                <pre id="md-content"><div class="empty-state"><p><i class="fa fa-circle-o-notch"></i> 暂无内容</p></div></pre>
+            </div>
+            <br>
+            <button class="btn btn-outline-primary" id="copy-md-btn">复制 MD 原文</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new TabManager('tabContainer');
+    new TabManager('result-section');
+});
+
+// 分析按钮点击事件
+document.getElementById('analyze-btn').addEventListener('click', async () => {
+    document.getElementById('result-section').style.display = 'none';
+    const activeTab = document.querySelector('#tabContainer .tab-buttons button.active').dataset.tab;
+
+    let content = '';
+
+    if (activeTab === 'url') {
+        content = document.getElementById('article-url').value;
+    } else {
+        content = document.getElementById('article-content').value;
+    }
+
+    if (!content) {
+        showToast('请输入内容', 'error');
+        return;
+    }
+
+    // 获取 turnstile token
+    const token = turnstile.getResponse();
+    if (!token) {
+        showToast('请完成人机验证', 'error');
+        return;
+    }
+
+    showToast('AI正在分析文章并生成摘要，这可能需要几秒钟...', 'success');
+    // 调用后端API进行分析
+    try {
+        const response = await fetch('/api/article-insight-ai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type: activeTab,
+                content: content,
+                cf_turnstile: token
+            })
+        });
+
+        const result = await response.json();
+        if (result.code == 200) {
+            document.getElementById('result-section').style.display = 'block';
+            showToast('已完成总结', 'success');
+            document.getElementById('ai-result').innerHTML = marked.parse(result.data.summary);
+            document.getElementById('md-content').innerHTML = result.data.summary;
+            // 滚动到ai-result
+            document.getElementById('msg').scrollIntoView();
+        } else {
+            showToast(result.message || '分析失败', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('请求失败，请稍后重试', 'error');
+    } finally {
+        // 重置 turnstile
+        turnstile.reset();
+    }
+});
+// 初始化复制按钮事件
+document.getElementById('copy-md-btn').addEventListener('click', () => {
+    const mdContent = document.getElementById('md-content').innerText;
+    navigator.clipboard.writeText(mdContent).then(() => {
+        showToast('复制成功', 'success');
+    }).catch(() => {
+        showToast('复制失败，请重试', 'error');
+    });
+    document.getElementById('msg').scrollIntoView();
+});
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{{ end }}

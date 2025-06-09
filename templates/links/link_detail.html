@@ -115,6 +115,7 @@
                     <form action="/comments" method="POST">
                         <input type="hidden" name="link_id" value="{{ .link.ID }}">
                         <textarea name="content" rows="5" placeholder="分享你的想法..."></textarea>
+                        <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
                         <button type="submit" class="btn btn-primary">发表评论</button>
                     </form>
                 </div>
@@ -142,6 +143,7 @@
                                 <input type="hidden" name="link_id" value="{{ $.link.ID }}">
                                 <input type="hidden" name="parent_id" value="{{ .ID }}">
                                 <textarea name="content" rows="5" placeholder="回复 {{ .User.Username }}..."></textarea>
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary">发表回复</button>
                                     <button type="button" class="btn btn-outline" onclick="toggleReplyForm('{{ .ID }}')">取消</button>
@@ -180,13 +182,13 @@
         <div class="product-sidebar">
             <div class="sidebar-main">
                 <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
-                <div class="grid-container-right">
-                    <div class="product-info">
-                        <h3>{{ .link.User.Username }}</h3>
-                        <small>{{ .link.User.Bio }}</small>
-                    </div>
-                    <div class="product-avatar" style="margin-right:10px;">
+                <div class="article-header" style="align-items:flex-end;">
+                    <div class="product-vote">
                         <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
+                    </div>
+                    <div class="product-header-info">
+                        <h1 class="product-title">{{ .link.User.Username }}</h1>
+                        <div><small class="maker-title">{{ .link.User.Bio }}</small></div>
                     </div>
                 </div>
                 <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">
@@ -275,4 +277,5 @@
             fetchVoters();
         });
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

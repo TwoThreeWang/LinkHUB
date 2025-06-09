@@ -10,7 +10,7 @@
         {{ range .popularTags }}
         <li><a href="#{{ .ID }}">{{ .Name }}</a></li>
         {{ end }}
-        <li><a href="/tags/" title="查看全部标签">More Tags</a></li>
+        <li><a href="/tags/" title="查看全部标签">全部标签</a></li>
     </ul>
     <div class="grid-auto-card">
         <div class="card" id="tips">
@@ -30,16 +30,31 @@
                 </script>
             </center>
         </div>
-        <div class="card" id="new">
-            <div class="card-title"><i class="fa fa-clock-o"></i> 最新链接</div>
-            {{ range .newLinks }}
-            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+
+        <div class="card" id="vote">
+            <div class="card-title"><i class="fa fa-star"></i> 我的投票</div>
+            {{ if .userInfo }}
+                {{ range .votedLinks }}
+                <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
+                {{ else }}
+                <p style="text-align:center;padding: 10px 5px;">空了？喜欢的链接记得点下支持！</p>
+                {{ end }}
+                <a class="card-a" href="/user/profile?sort=votes"><center>查看更多</center></a>
+            {{ else }}
+                <a class="card-a" href="/auth/login"><center>请先登录</center></a>
             {{ end }}
         </div>
+
         <div class="card" id="hot">
             <div class="card-title"><i class="fa fa-fire"></i> 热门链接</div>
             {{ range .hotLinks }}
             <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
+            {{ end }}
+        </div>
+        <div class="card" id="new">
+            <div class="card-title"><i class="fa fa-clock-o"></i> 最新链接</div>
+            {{ range .newLinks }}
+            <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
             {{ end }}
         </div>
         {{ range .popularTags }}

@@ -27,6 +27,8 @@ site:
 clientID: google登录客户端ID
 clientSecret: google登录客户端密钥
 
+geminiAPIKey: 你的Gemini API密钥
+
 # 图床配置
 upload:
   maxSize: 10485760
@@ -38,3 +40,8 @@ upload:
     - .webp
   imgurApiUrl: https://api.imgur.com/3/image
   imgurClientId: 123
+
+# Cloudflare Turnstile
+Cloudflare:
+  SecretKey: 你的SecretKey
+  VerifyURL: https://challenges.cloudflare.com/turnstile/v0/siteverify

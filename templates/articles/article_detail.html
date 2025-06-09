@@ -82,6 +82,7 @@
                     <form action="/article-comments" method="POST">
                         <input type="hidden" name="article_id" value="{{ .article.ID }}">
                         <textarea name="content" rows="5" placeholder="分享你的想法..."></textarea>
+                        <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
                         <button type="submit" class="btn btn-primary">发表评论</button>
                     </form>
                 </div>
@@ -109,6 +110,7 @@
                                 <input type="hidden" name="article_id" value="{{ $.article.ID }}">
                                 <input type="hidden" name="parent_id" value="{{ .ID }}">
                                 <textarea name="content" rows="5" placeholder="回复 {{ .User.Username }}..."></textarea>
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary">发表回复</button>
                                     <button type="button" class="btn btn-outline" onclick="toggleReplyForm('{{ .ID }}')">取消</button>
@@ -187,4 +189,5 @@
     html = html.replaceAll('<img src','<img referrerpolicy="no-referrer" rel="noopener" loading="lazy" onerror="this.onerror=null; this.src=\'/static/img/imgerr.png\'" src');
     document.getElementById('post-content').innerHTML = html;
 </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

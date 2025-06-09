@@ -9,17 +9,18 @@
 {{ end }}
 
 {{ define "content" }}
+<div class="article-header" style="align-items:flex-end;">
+    <div class="product-vote">
+        <img src="{{ .user.Avatar }}" alt="{{ .user.Username }}" class="avatar">
+    </div>
+    <div class="product-header-info">
+        <h1 class="product-title">{{ .user.Username }}</h1>
+        <div><small class="maker-title">{{ .user.Bio }}</small></div>
+        <div><small class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</small></div>
+    </div>
+</div>
     <div class="grid-container-left">
         <div class="sidebar">
-            <div class="maker-profile">
-                <div class="maker-info">
-                    <img src="{{ .user.Avatar }}" class="avatar">
-                    <h3 class="maker-name">{{ .user.Username }}</h3>
-                    <div><small class="maker-title">{{ .user.Bio }}</small></div>
-                    <div><small class="maker-desc">第 {{ .user.ID }} 号会员, {{.user.CreatedAt.Format "2006-01-02"}} 加入本站.</small></div>
-                </div>
-            </div>
-            <br>
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
                 <li><a href="?sort=overview" {{if eq .sort "overview"}}class="primary-link"{{end}}><i class="fa fa-tachometer"></i>概览</a></li>
@@ -30,6 +31,7 @@
                 {{ if .userInfo }}
                     {{ if eq .user.Role "admin" }}
                     <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
+                    <li><a href="/tools/clear-cache"><i class="fa fa-refresh"></i>清除缓存</a></li>
                     {{ end }}
                     {{ if eq .user.ID .userInfo.ID }}
                     <li><a href="/tools/image/me" data-no-instant><i class="fa fa-file-image-o"></i>我的图片</a></li>
@@ -89,7 +91,7 @@
             {{ else if eq .sort "votes" }}
             <h2><i class="fa fa-star"></i>&nbsp;&nbsp;&nbsp;投票链接</h2>
 
-            <div class="product-list">
+            <div class="grid-auto-card">
                 {{ range .user.Votes }}
                 <article class="product-card">
                     <div class="product-vote">
@@ -115,7 +117,7 @@
             {{ else if eq .sort "links" }}
             <h2><i class="fa fa-link"></i>&nbsp;&nbsp;&nbsp;所有链接</h2>
 
-            <div class="product-list">
+            <div class="grid-auto-card">
                 {{ range .user.Links }}
                 <article class="product-card">
                     <div class="product-vote">
@@ -202,7 +204,7 @@
                         <input type="email" id="email" name="email" value="{{ .userInfo.Email }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="Avatar">头像链接</label>
+                        <label for="Avatar">头像链接（<a href="/tools/image" target="_blank" title="图床">去上传</a>）</label>
                         <input type="text" id="Avatar" name="Avatar" value="{{ .userInfo.Avatar }}" required>
                     </div>
                     <div class="form-group">

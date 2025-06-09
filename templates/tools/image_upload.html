@@ -191,21 +191,8 @@
     height: 1rem;
     color: #6b7280;
 }
-#msg{
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-.msg-success{
-    background-color: #d1fae5;
-    color: #155724;
-}
-.msg-error{
-    background-color: #f8d7da;
-    color: #721c24;
-}
 </style>
-    <div class="result-container">
+    <div class="upload-container">
         <div class="upload">
             <!-- 上传区域 -->
             <div class="card-upload">
@@ -228,8 +215,6 @@
                             <span class="format-tag">WEBP</span>
                             <span class="format-tag">最大 10MB</span>
                         </div>
-                        <br>
-                        <p class="upload-text" style="font-size: 0.875rem;">本站不存储任何图片文件，上传图片保存至 imgur，如本站链接失效，图片前缀改为 https://i.imgur.com/ 即可找回图片</p>
                     </div>
                 </div>
                 <input id="file-input" type="file" accept="image/*" class="file-input">
@@ -244,6 +229,16 @@
                             <div class="link-container">
                                 <div id="link-direct" class="link-text"></div>
                                 <button class="link-copy" data-link="direct" aria-label="复制链接">
+                                    <i class="fa fa-copy copy-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="link-card">
+                            <div class="link-title">缩略图</div>
+                            <div class="link-container">
+                                <div id="link-direct-thumb" class="link-text"></div>
+                                <button class="link-copy" data-link="direct-thumb" aria-label="复制链接">
                                     <i class="fa fa-copy copy-icon"></i>
                                 </button>
                             </div>
@@ -291,6 +286,13 @@
                         <div id="del_btn"></div>
                     </div>
                 </div>
+            <br>
+            <div class="card-links">
+                <h3>提示</h3>
+                <li>本站不存储任何图片文件，上传图片保存至 imgur</li>
+                <li>如本站链接失效，图片前缀改为 https://i.imgur.com/ 即可找回图片</li>
+                <li>禁止上传色情/擦边/反动/博彩等违法图片！</li>
+            </div>
             </div>
         </div>
     </div>
@@ -298,14 +300,7 @@
 const uploadZone = document.querySelector('.upload-zone');
 const fileInput = document.querySelector('.file-input');
 const copyButtons = document.querySelectorAll('.link-copy');
-const msg = document.getElementById('msg');
-// 提示消息
-function showToast(title, message, type = 'success') {
-    // 显示提示消息
-    msg.style.display = 'block';
-    msg.classList.add("msg-"+type);
-    msg.textContent = message;
-}
+
 // 拖拽上传
 uploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -339,7 +334,7 @@ async function handleFiles(files) {
 
     const file = files[0];
     if (!file.type.startsWith('image/')) {
-        showToast('错误', '请上传图片文件', 'error');
+        showToast('请上传图片文件', 'error');
         return;
     }
 
@@ -359,13 +354,13 @@ async function handleFiles(files) {
         });
         const responseData = await response.json();
 
-        if (!response.ok) {
+        if (responseData.code != 200) {
             const errorMessage = responseData.message || responseData.error || '上传失败';
             throw new Error(errorMessage);
         }
 
         const data = responseData.data;
-        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://img.c2v2.com/imgur/');
+        const dl_img_url = data.img_url.replace('https://i.imgur.com/','https://cdn.c2v2.com/imgur/');
 
         // 显示预览
         showPreview(dl_img_url, file.name);
@@ -377,11 +372,11 @@ async function handleFiles(files) {
         // 显示链接区域
         document.getElementById('links-card').style.display = 'block';
         // 显示成功提示
-        showToast('成功', '图片上传成功', 'success');
+        showToast('图片上传成功', 'success');
     } catch (error) {
         resetUpload();
         console.error('上传失败:', error);
-        showToast('错误', error.message || '上传失败，请重试', 'error');
+        showToast(error.message || '上传失败，请重试', 'error');
     }
 }
 
@@ -431,6 +426,9 @@ function updateLinks(dataUrl, fileName) {
             case '论坛代码':
                 linkText.textContent = `[图片]${dataUrl}[/图片]`;
                 break;
+            case '缩略图':
+                linkText.textContent = `${dataUrl}?shape=thumb`;
+                break;
             default:
                 linkText.textContent = dataUrl;
         }
@@ -459,6 +457,7 @@ function resetUpload() {
         </div>
     `;
     msg.style.display = 'none';
+    document.getElementById('links-card').style.display = 'none';
 }
 
 // 删除图片处理
@@ -472,9 +471,10 @@ function deleteImg(delHash) {
         .then((response) => response.json())
         .then((result) => {
             if (result.code == 200) {
-                showToast('成功', '图片删除成功','success');
+                resetUpload();
+                showToast('图片删除成功','success');
             }else{
-                showToast('错误', result.message || '删除失败', 'error');
+                showToast(result.message || '删除失败', 'error');
             }
         })
 }
@@ -484,9 +484,9 @@ copyButtons.forEach((button) => {
     button.addEventListener('click', () => {
         const linkText = button.previousElementSibling.textContent;
         navigator.clipboard.writeText(linkText).then(() => {
-            showToast('成功', '链接已复制到剪贴板', 'success');
+            showToast('链接已复制到剪贴板', 'success');
         }).catch(() => {
-            showToast('错误', '复制失败，请手动复制', 'error');
+            showToast('复制失败，请手动复制', 'error');
         });
     });
 });

@@ -18,7 +18,7 @@
              data-context="signin"
              data-ux_mode="popup"
              data-login_uri="{{.SiteUrl}}/auth/callback/google"
-             data-itp_support="true">
+             data-auto_prompt="false">
         </div>
 
         <div class="g_id_signin"
@@ -40,10 +40,22 @@
                 <label for="password">密码</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
             <button type="submit" class="btn btn-primary w-100">登录</button>
             <p class="auth-links">
                 还没有账号？<a href="/auth/register">立即注册</a>
             </p>
         </form>
     </div>
+    <script>
+        const rootPath = window.location.origin;
+        const googleButtonDiv = document.getElementById('g_id_onload');
+        if (googleButtonDiv) {
+          let loginUri = googleButtonDiv.getAttribute('data-login_uri');
+          if (loginUri) {
+            googleButtonDiv.setAttribute('data-login_uri', rootPath+"/auth/callback/google");
+          }
+        }
+      </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

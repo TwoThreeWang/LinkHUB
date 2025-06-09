@@ -31,11 +31,12 @@
                 {{ end }}
             </select>
         </div>
-
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">发布文章</button>
             <a href="/articles" class="btn btn-outline" data-no-instant>取消</a>
         </div>
     </form>
 </div>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

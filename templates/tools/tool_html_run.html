@@ -1,0 +1,70 @@
+{{ define "meta" }}
+<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
+<meta name="description" content="Html 在线运行测试工具，{{ .siteName }}">
+{{ end }}
+
+{{ define "content" }}
+<div class="content">
+    <h2>✨️ Html 在线运行测试工具</h2>
+    <p>html 代码在线运行、压缩、格式化工具</p>
+    <br>
+    <textarea id='code' class="form-control" rows="20" placeholder="这里填写HTML代码" spellcheck="false"></textarea>
+        <br>
+            <button id='runcode' class="btn btn-primary">运行</button>
+            <button id='packcode' class="btn btn-outline-primary">压缩</button>
+            <button id='packbasecode' class="btn btn-outline-primary">加密压缩</button>
+            <button id='decode' class="btn btn-outline-primary">格式化</button>
+            <button id='empty' class="btn btn-outline-primary">清空</button>
+        <script type="text/javascript" src="/static/js/base-p.js" ></script>
+        <script type="text/javascript" src="/static/js/packer-p.js" ></script>
+        <script type="text/javascript" src="/static/js/beautify.js" ></script>
+        <script type="text/javascript" src="/static/js/html-beautify.js" ></script>
+        <script>
+          var oEncodeBtn = document.getElementById('runcode');
+          var opackcodeBtn = document.getElementById('packcode');
+          var opackbasecodeBtn = document.getElementById('packbasecode');
+          var oDecodeBtn = document.getElementById('decode');
+          var oCode = document.getElementById('code');
+          var oEmpty = document.getElementById('empty');
+          oEmpty.onclick = function() {//清空输入框
+              oCode.value = ''
+          };
+
+          oEncodeBtn.onclick = function() {//运行代码
+              var obj = oCode.value;
+              var winname = window.open('', "_blank", '');
+              winname.document.open('text/html', 'replace');
+              winname.opener = null // 防止代码对本页面修改
+              winname.document.write(obj);
+              winname.document.close();
+          };
+
+          oDecodeBtn.onclick = function() { //格式化代码
+              var obj = oCode.value;
+              js_source = obj.replace(/^\s+/, '');
+              tabsize = 4;  // 缩进空格数
+              tabchar = ' ';
+              if (js_source && js_source.charAt(0) === '<') {
+                oCode.value = style_html(js_source, tabsize, tabchar, 80);
+              } else {
+                oCode.value = js_beautify(js_source, tabsize, tabchar);
+              }
+              return false;
+          };
+
+          function pack_js(base64) {
+              var input = oCode.value;
+              var packer = new Packer;
+              if (base64) {
+                var output = packer.pack(input, 1, 0);
+              } else {
+                var output = packer.pack(input, 0, 0);
+              }
+              oCode.value = output;
+          }
+          opackcodeBtn.onclick = function(){pack_js(0)}
+          opackbasecodeBtn.onclick = function(){pack_js(1)}
+          </script>
+</div>
+{{ end }}

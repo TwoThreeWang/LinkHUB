@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"LinkHUB/config"
 	"LinkHUB/database"
 	"LinkHUB/models"
 	"encoding/xml"
@@ -27,7 +28,7 @@ type URL struct {
 
 // GenerateSitemap 生成网站地图
 func GenerateSitemap(c *gin.Context) {
-	baseURL := "https://" + c.Request.Host
+	baseURL := config.GetConfig().Site.Url
 
 	urlSet := URLSet{
 		XMLNS: "http://www.sitemaps.org/schemas/sitemap/0.9",

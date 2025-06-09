@@ -47,6 +47,30 @@ func Register(c *gin.Context) {
 	password := c.PostForm("password")
 	confirmPassword := c.PostForm("confirm_password")
 	refer := c.Query("refer")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusBadRequest, "register", OutputCommonSession(c, gin.H{
+				"title": "注册",
+				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"email": email,
+				"refer": refer,
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusBadRequest, "register", OutputCommonSession(c, gin.H{
+			"title": "注册",
+			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"email": email,
+			"refer": refer,
+		}))
+		return
+	}
 
 	// 验证表单数据
 	if email == "" || password == "" {
@@ -148,6 +172,31 @@ func Login(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 	refer := c.Query("refer")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusBadRequest, "login", OutputCommonSession(c, gin.H{
+				"title": "登录",
+				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"email": email,
+				"refer": refer,
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusBadRequest, "login", OutputCommonSession(c, gin.H{
+			"title": "登录",
+			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"email": email,
+			"refer": refer,
+		}))
+		return
+	}
+
 
 	// 验证表单数据
 	if email == "" || password == "" {

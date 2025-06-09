@@ -4,6 +4,7 @@ import (
 	"LinkHUB/handlers"
 	"LinkHUB/utils"
 	"fmt"
+
 	"github.com/gin-contrib/gzip"
 
 	"LinkHUB/config"
@@ -38,6 +39,8 @@ func main() {
 
 	// 设置robots.txt直接访问
 	r.StaticFile("/robots.txt", "./static/robots.txt")
+	// 设置ads.txt直接访问
+	r.StaticFile("/ads.txt", "./static/ads.txt")
 	// 设置静态文件直接访问
 	r.StaticFile("/hahahaha.ads.controller.js", "./static/js/hahahaha.ads.controller.js")
 	// 将缓存实例绑定到 Gin 上下文

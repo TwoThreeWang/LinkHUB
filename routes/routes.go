@@ -68,9 +68,9 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		tags.GET("/", middleware.CacheMiddleware(5*time.Minute), handlers.ListTags)   // 所有标签
 		tags.GET("/:id", middleware.CacheMiddleware(5*time.Minute), handlers.ShowTag) // 标签下链接
-		tags.GET("/add", handlers.CreateTag)                                          // 创建链接
-		tags.GET("/:id/update", handlers.UpdateTag)                                   // 修改链接
-		tags.GET("/:id/delete", handlers.DeleteTag)                                   // 删除链接
+		tags.GET("/add", handlers.CreateTag)                                          // 创建标签
+		tags.GET("/:id/update", handlers.UpdateTag)                                   // 修改标签
+		tags.GET("/:id/delete", handlers.DeleteTag)                                   // 删除标签
 	}
 
 	// 文章分类相关路由
@@ -112,15 +112,21 @@ func SetupRoutes(r *gin.Engine) {
 	// 小工具相关路由
 	tools := r.Group("/tools")
 	{
+		tools.GET("/", handlers.ToolsHome)
 		tools.GET("/image", handlers.ImageUploadHome)                                                    // 图床页面
 		tools.GET("/image/me", handlers.ImageMe)                                                         // 图床图片页面
 		tools.GET("/image/:type/:filename", middleware.CacheMiddleware(5*time.Minute), handlers.ImageDl) // 图床图片代理
+		tools.GET("/article-insight-ai", handlers.ArticleInsightAiTools)
+		tools.GET("/html-run", handlers.HtmlRunTools)
+		tools.GET("/markdown", handlers.MdEditTools)
+		tools.GET("/clear-cache", middleware.AuthRequired(), handlers.ClearCache) // 清除所有缓存
 	}
 
 	// API相关路由
 	api := r.Group("/api")
 	{
-		api.POST("/img_upload", handlers.ApiImageUpload) // 图片上传接口
-		api.GET("/img_delete", handlers.ApiImageDelete)  // 图片删除接口
+		api.POST("/img_upload", handlers.ApiImageUpload)          // 图片上传接口
+		api.GET("/img_delete", handlers.ApiImageDelete)           // 图片删除接口
+		api.POST("/article-insight-ai", handlers.HandleSummarize) // AI文章总结接口
 	}
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"LinkHUB/database"
 	"LinkHUB/models"
+	"LinkHUB/utils"
 	"net/http"
 	"strconv"
 
@@ -169,6 +170,35 @@ func CreateArticle(c *gin.Context) {
 	var categories []models.Category
 	database.GetDB().Find(&categories)
 
+	CfTurnstile := c.PostForm("cf-turnstile-response")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+				"title":      "创建文章",
+				"error": "验证 Turnstile 令牌失败：" + err.Error(),
+				"categories": categories,
+				"posttitle":  title,
+				"content":    content,
+				"categoryID": categoryID,
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
+			"title":      "创建文章",
+			"error": "验证 Turnstile 令牌失败：缺少验证参数",
+			"categories": categories,
+			"posttitle":  title,
+			"content":    content,
+			"categoryID": categoryID,
+		}))
+		return
+	}
+
 	// 验证数据
 	if title == "" || content == "" {
 		c.HTML(http.StatusOK, "new_article", OutputCommonSession(c, gin.H{
@@ -332,6 +362,29 @@ func UpdateArticle(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	categoryID := c.PostForm("category")
+	CfTurnstile := c.PostForm("cf-turnstile-response")
+
+	// 验证 Turnstile 令牌
+	if CfTurnstile != "" {
+		remoteIP := c.ClientIP()
+		_, err := utils.VerifyTurnstileToken(c, CfTurnstile, remoteIP)
+		if err!= nil {
+			c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+				"title":         "Error",
+				"message":       "验证 Turnstile 令牌失败：" + err.Error(),
+				"redirect_text": "返回",
+			}))
+			return
+		}
+	}else{
+		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "验证 Turnstile 令牌失败：缺少验证参数",
+			"redirect_text": "返回",
+		}))
+		return
+	}
+
 
 	// 验证数据
 	if title == "" || content == "" {
