@@ -12,10 +12,10 @@ import (
 // CreateNotification 创建新的通知
 func CreateNotification(userID uint, content string, fromID uint) error {
 	notification := &models.Notification{
-		UserID:   userID,
-		Content:  content,
-		FromID:   fromID,
-		Status:   0, // 默认未读状态
+		UserID:  userID,
+		Content: content,
+		FromID:  fromID,
+		Status:  0, // 默认未读状态
 	}
 
 	return database.GetDB().Create(notification).Error
@@ -67,26 +67,26 @@ func DeleteNotification(c *gin.Context) {
 
 	// 删除通知
 	// 将通知ID转换为uint类型
-    nID, err := strconv.ParseUint(notificationID, 10, 64)
-    if err != nil {
+	nID, err := strconv.ParseUint(notificationID, 10, 64)
+	if err != nil {
 		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
-			"message":       "系统错误："+err.Error(),
-			"redirect_text": "返回",
-		}))
-        return
-    }
-
-    // 删除通知，确保只能删除属于自己的通知
-    result := database.GetDB().Where("id = ? AND user_id = ?", nID, user.ID).Delete(&models.Notification{})
-    if result.Error != nil {
-        c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
-			"title":         "Error",
-			"message":       "系统错误："+result.Error.Error(),
+			"message":       "系统错误：" + err.Error(),
 			"redirect_text": "返回",
 		}))
 		return
-    }
+	}
+
+	// 删除通知，确保只能删除属于自己的通知
+	result := database.GetDB().Where("id = ? AND user_id = ?", nID, user.ID).Unscoped().Delete(&models.Notification{})
+	if result.Error != nil {
+		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
+			"title":         "Error",
+			"message":       "系统错误：" + result.Error.Error(),
+			"redirect_text": "返回",
+		}))
+		return
+	}
 
 	refer := c.GetHeader("Referer")
 	if refer == "" {
@@ -120,7 +120,7 @@ func ReadNotification(c *gin.Context) {
 	}
 
 	// 标记通知为已读
-	err:=database.GetDB().Model(&models.Notification{}).
+	err := database.GetDB().Model(&models.Notification{}).
 		Where("id = ? AND user_id = ?", notificationID, user.ID).
 		Update("status", 1).Error
 	if err != nil {

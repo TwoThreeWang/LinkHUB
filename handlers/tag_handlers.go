@@ -203,14 +203,14 @@ func DeleteTag(c *gin.Context) {
 	tx := database.GetDB().Begin()
 
 	// 删除link_tags表中的关联关系
-	if err := tx.Table("link_tags").Where("tag_id = ?", id).Delete(nil).Error; err != nil {
+	if err := tx.Table("link_tags").Where("tag_id = ?", id).Unscoped().Delete(nil).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusOK, OutputApi(400, "删除标签关系失败："+err.Error()))
 		return
 	}
 
 	// 删除标签
-	if err := tx.Delete(&tag).Error; err != nil {
+	if err := tx.Unscoped().Delete(&tag).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusOK, OutputApi(400, "删除标签失败："+err.Error()))
 		return

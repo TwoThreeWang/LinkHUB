@@ -166,7 +166,7 @@ func DeleteCategory(c *gin.Context) {
 	}
 
 	// 删除分类
-	if err := database.GetDB().Delete(&category).Error; err != nil {
+	if err := database.GetDB().Unscoped().Delete(&category).Error; err != nil {
 		c.JSON(http.StatusOK, OutputApi(400, "分类删除失败："+err.Error()))
 		return
 	}

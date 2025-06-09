@@ -89,7 +89,7 @@ func CreateAd(c *gin.Context) {
 func DeleteAd(c *gin.Context) {
 	// 获取链接ID
 	adID := c.Param("id")
-	result := database.GetDB().Delete(&models.Ads{}, adID).Error
+	result := database.GetDB().Unscoped().Delete(&models.Ads{}, adID).Error
 	if result != nil {
 		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",

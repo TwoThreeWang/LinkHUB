@@ -792,7 +792,7 @@ func UnVoteLink(c *gin.Context) {
 	tx := database.GetDB().Begin()
 
 	// 删除投票记录
-	if err := tx.Delete(&vote).Error; err != nil {
+	if err := tx.Unscoped().Delete(&vote).Error; err != nil {
 		tx.Rollback()
 		c.HTML(http.StatusBadRequest, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",

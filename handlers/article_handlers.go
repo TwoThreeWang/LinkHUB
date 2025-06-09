@@ -441,7 +441,7 @@ func DeleteArticle(c *gin.Context) {
 	}
 
 	// 删除文章
-	result = database.GetDB().Delete(&article)
+	result = database.GetDB().Unscoped().Delete(&article)
 	if result.Error != nil {
 		c.HTML(http.StatusInternalServerError, "result", OutputCommonSession(c, gin.H{
 			"title":         "Error",
