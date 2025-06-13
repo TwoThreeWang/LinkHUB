@@ -240,7 +240,7 @@ p{
     padding-left: 1rem;
     border-left: 3px solid var(--color-primary);
 }
-blockquote, ul, ol, dl, li, table, pre {
+blockquote, ul, ol, dl, li, table {
     margin: var(--space-xs) 0;
 }
 ul, ol {
@@ -291,12 +291,36 @@ table tr th:first-child, table tr td:first-child {
 table tr th:last-child, table tr td:last-child {
     margin-bottom: 0;
 }
-code {
-    margin: 0 var(--space-md);
-    padding: 0 var(--space-md);
-    white-space: nowrap;
+pre {
+    display: block;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: var(--color-text);
     background-color: var(--color-background-light);
+    padding: var(--space-xs);
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
     border-radius: var(--border-radius);
+}
+code {
+    padding: var(--space-xs);
+    background-color: var(--color-background-light);
+    color: var(--color-text);
+    font-size: .8em;
+    overflow-x: auto;
+    margin: 0 var(--space-xss);
+    min-width: 100%;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    border-radius: var(--border-radius);
+}
+pre code{
+    padding: 0;
+    margin: 0;
 }
 /* 图片样式 */
 img {
