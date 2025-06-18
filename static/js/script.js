@@ -107,6 +107,8 @@ function showToast(message, type = 'success') {
     const msg = document.getElementById('msg');
     // 显示提示消息
     msg.style.display = 'block';
+    msg.classList.remove("msg-error");
+    msg.classList.remove("msg-success");
     msg.classList.add("msg-"+type);
     msg.textContent = message;
 }
