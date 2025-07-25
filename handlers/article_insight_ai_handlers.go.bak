@@ -36,6 +36,13 @@ func HandleSummarize(c *gin.Context) {
 		return
 	}
 
+	// 初始化服务
+	aiService, err := NewAIService(cfg)
+	if err != nil {
+		utils.RespFail(c, http.StatusBadRequest, "AI 服务初始化报错："+err.Error())
+		return
+	}
+
 	// 获取请求参数
 	var req SummaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -58,7 +65,6 @@ func HandleSummarize(c *gin.Context) {
 
 	// 获取页面内容
 	var content string
-	var err error
 	if req.TYPE == "url" {
 		fetchService := NewFetchService()
 		content, err = fetchService.FetchStory(req.CONTENT)
@@ -70,19 +76,7 @@ func HandleSummarize(c *gin.Context) {
 		content = fmt.Sprintf("\n<article>\n%s\n</article>\n", req.CONTENT)
 	}
 
-	if content == "" || content == "<article></article>" {
-		utils.RespFail(c, http.StatusBadRequest, "未获取到文章内容")
-		return
-	}
-
 	story := &models.Story{Content: content}
-
-	// 初始化服务
-	aiService, err := NewAIService(cfg)
-	if err != nil {
-		utils.RespFail(c, http.StatusBadRequest, "AI 服务初始化报错："+err.Error())
-		return
-	}
 
 	// AI 文章总结
 	err = aiService.GenerateSummary(story)
@@ -212,15 +206,10 @@ func (s *AIService) GenerateSummary(story *models.Story) error {
     - SEO优化:  在内容中合理融入关键词，提升搜索引擎排名。
 
 2.  沟通表达
-    - 简洁明了:  使用清晰直接的口吻进行讨论，简单和通俗易懂的词汇，避免使用专业术语。
-	- 简化表达:  把复杂的句子拆开，用短句子表达，更有冲击力；删除多余的词语，使表达更加简练。
-	- 调节韵律:  通过句式的长短搭配，使文章读起来有节奏感。
-    - 友好亲切:  使用平易近人的语言，像与朋友交谈般，拉近与读者的距离，使用口语化、接地气、人情味、富有情感等等语气。
-    - 逻辑清晰:  按照逻辑顺序组织内容，方便读者理解，段落过度要自然、逻辑清晰。不要使用“首先、其次、再次、然后、最后”这些副词和过渡词。。
+    - 简洁明了:  使用清晰直接的口吻进行讨论，避免使用专业术语。
+    - 友好亲切:  像与朋友交谈般，拉近与读者的距离。
+    - 逻辑清晰:  按照逻辑顺序组织内容，方便读者理解。
     - 多角度分析:  对文章内容进行总结和分析，体现多角度探讨。
-	- 幽默元素:  加入幽默元素，让文章更轻松有趣。
-	- 突出核心:  集中篇幅描写文章的核心思想，避免跑题。
-	- 融入情感:  文章中要有真实的情感流露，避免干巴巴的叙述。
 
 3.  技术能力
     - Markdown 格式:  熟练使用 Markdown 格式进行排版和格式化。
@@ -255,7 +244,7 @@ func (s *AIService) GenerateSummary(story *models.Story) error {
 - 目标: 将技术文章转化为吸引人的中文博客内容。
 - 步骤 1: 接收并阅读文章，理解文章的核心内容和目标受众。
 - 步骤 2: 为文章创建一个吸引眼球且利于SEO的标题，标题长度适中。
-- 步骤 3: 概括文章的主要话题，并提炼文章的重点内容，使用简洁易懂的语言进行阐述，保持句子的清晰度和易理解性，确保读者能迅速把握主要观点，避免冗长而不必要的表达。
+- 步骤 3: 概括文章的主要话题，并提炼文章的重点内容，使用简洁易懂的语言进行阐述。
 - 步骤 4: 使用标题和分段正文形式组织内容，按照逻辑顺序呈现，并在中文与（英文或数字）之间增加空格。
 - 步骤 5: 对文章内容进行总结和分析，从多个角度进行探讨，给出你的见解，并鼓励读者参与讨论。
 - 步骤 6:  使用 Markdown 格式输出正文内容。
@@ -269,7 +258,7 @@ func (s *AIService) GenerateSummary(story *models.Story) error {
 
 	// 调用Gemini API生成总结
 	ctx := context.Background()
-	model := s.service.GenerativeModel("gemini-2.5-flash-lite")
+	model := s.service.GenerativeModel("gemini-2.0-flash")
 	model.SetTemperature(0.3)
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))

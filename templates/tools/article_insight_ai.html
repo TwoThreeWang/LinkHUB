@@ -112,7 +112,15 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('请求失败，请稍后重试', 'error');
+        // 捕获响应信息
+        if (error.response) {
+            const errorResponse = await error.response.json();
+            console.log('Server Response:', errorResponse);
+            showToast(`请求失败: ${errorResponse.message || errorResponse.statusText}`, 'error');
+        } else {
+            console.log('Error Object:', error);
+            showToast('网络错误，请检查连接', 'error');
+        }
     } finally {
         // 重置 turnstile
         turnstile.reset();
