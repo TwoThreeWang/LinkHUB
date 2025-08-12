@@ -6,7 +6,7 @@
 
 {{ define "content" }}
     <div class="tags-container">
-        <h2><i class="fa fa-tags"></i>&nbsp;&nbsp;{{.title}}</h2>
+        <h2>#&nbsp;&nbsp;{{.title}}</h2>
         <div class="product-tags">
             {{ if and .userInfo (eq .userInfo.Role "admin") }}
             <a href="javascript:void(0)" onclick="createTag()" class="tag" data-no-instant>+ 创建标签</a>
@@ -15,7 +15,7 @@
             <a href="/tags/{{ .ID }}" class="tag">{{ .Name }} ({{ .Count }})</a>
             {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无标签</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无标签</p>
                 </div>
             {{ end }}
         </div>

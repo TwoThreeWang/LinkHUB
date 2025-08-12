@@ -9,21 +9,21 @@
         <div class="sidebar">
             <h3 class="sidebar-title">排序</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门排序</a></li>
-                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新排序</a></li>
+                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#fire"></use></svg>热门排序</a></li>
+                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>最新排序</a></li>
             </ul>
             <h3 class="sidebar-title mt-xxl">标签管理</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top"><i class="fa fa-tag"></i>共 {{ .tag.Count }} 个链接</a></li>
+                <li><a href="?sort=top"># 共 {{ .tag.Count }} 个链接</a></li>
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')" data-no-instant><i class="fa fa-edit"></i>编辑标签</a></li>
-                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')" data-no-instant><i class="fa fa-remove"></i>删除标签</a></li>
+                <li><a href="javascript:void(0)" onclick="updateTag('{{.tag.ID}}')" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#pencil"></use></svg>编辑标签</a></li>
+                <li><a href="javascript:void(0)" onclick="deleteTag('{{.tag.ID}}')" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#trash"></use></svg>删除标签</a></li>
                 {{end}}
             </ul>
         </div>
 
         <div class="content">
-            <h2><i class="fa fa-tag"></i>&nbsp;&nbsp;{{ .tag.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
+            <h2>#&nbsp;&nbsp;{{ .tag.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
             <div class="grid-auto-card">
                 {{ range .links }}
                 <article class="product-card">
@@ -39,14 +39,14 @@
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
-                            <a href="/tags/{{ .ID }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
+                            <a href="/tags/{{ .ID }}" class="tag" role="listitem"># {{ .Name }}</a>
                             {{ end }}
                         </div>
                     </div>
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无链接</p>
                 </div>
                 {{ end }}
             </div>

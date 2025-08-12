@@ -45,11 +45,11 @@
                 <div class="product-header-info">
                     <h1 class="product-title">{{ .article.Title }}</h1>
                     <div class="product-stats">
-                        <a href="/categories/{{ .article.CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .article.Category.Name }}</a>
-                        <a href="/user/profile/{{ .article.User.ID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .article.User.Username }}</a>
-                        <span class="tag"><i class="fa fa-eye"></i>{{.article.ViewCount}} 次浏览</span>
-                        <span class="tag"><i class="fa fa-comments-o"></i>{{ len .article.Comments }} 条评论</span>
-                        <span class="tag"><i class="fa fa-clock-o"></i>{{ .article.CreatedAt.Format "2006-01-02" }}</span>
+                        <a href="/categories/{{ .article.CategoryID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ .article.Category.Name }}</a>
+                        <a href="/user/profile/{{ .article.User.ID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>{{ .article.User.Username }}</a>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{.article.ViewCount}} 次浏览</span>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .article.Comments }} 条评论</span>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>{{ .article.CreatedAt.Format "2006-01-02" }}</span>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="comments-section">
-                <h2 class="section-title"><i class="fa fa-comments-o"></i> 评论 ({{ len .article.Comments }})</h2>
+                <h2 class="section-title"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg> 评论 ({{ len .article.Comments }})</h2>
 
                 {{ if .userInfo }}
                 <div class="new-comment">
@@ -139,7 +139,7 @@
                     </div>
                     {{else}}
                     <div class="empty-state">
-                        <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
+                        <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无评论</p>
                     </div>
                     {{ end }}
                 </div>
@@ -149,14 +149,14 @@
         <div class="product-sidebar">
             {{ if and .userInfo (or (eq .userInfo.ID .article.UserID) (eq .userInfo.Role "admin")) }}
             <div class="sidebar-main">
-                <p class="title"><i class="fa fa-cog"></i>管理</p>
+                <p class="title"><svg class="icon"><use href="/static/img/icons.svg#cog"></use></svg>管理</p>
                 <a href="/articles/{{ .article.ID }}/update" class="btn btn-outline w-100" data-no-instant>编辑文章</a>
                 <a href="/articles/{{ .article.ID }}/delete" class="btn btn-outline w-100" onclick="return confirm('确定要删除这篇文章吗？');" data-no-instant>删除文章</a>
             </div>
             {{ end }}
 
             <div class="sidebar-main">
-                <p class="title"><i class="fa fa-newspaper-o"></i> 相关文章</p>
+                <p class="title"><svg class="icon"><use href="/static/img/icons.svg#newspaper"></use></svg> 相关文章</p>
                 {{ if .relatedArticles }}
                     {{ range .relatedArticles }}
                     <a class="related-product" href="/articles/{{ .ID }}">
@@ -168,7 +168,7 @@
                     {{ end }}
                 {{ else }}
                     <div class="empty-state">
-                        <p><i class="fa fa-circle-o-notch"></i> 暂无相关文章</p>
+                        <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无相关文章</p>
                     </div>
                 {{ end }}
             </div>

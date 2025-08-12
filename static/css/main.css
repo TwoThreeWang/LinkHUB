@@ -157,8 +157,9 @@ button:hover,.btn:hover {
     justify-content: center;
     align-items: center;
 }
-.visit-icon .fa{
+.visit-icon .icon{
     margin-right: 0;
+    fill: #fff;
 }
 /* 表单样式 */
 .form-group {
@@ -416,10 +417,12 @@ header {
 .sidebar-links li {
     margin: var(--space-md) 0;
 }
-.icon,.fa {
-    margin-right: var(--space-xs);
-    width: 16px;
-    height: 16px;
+.icon {
+    width: 1em;
+    height: 1em;
+    fill: var(--color-text);
+    margin-right: 0.3em;
+    vertical-align: -0.1em;
 }
 /* 首页卡片样式 */
 .grid-auto-card {

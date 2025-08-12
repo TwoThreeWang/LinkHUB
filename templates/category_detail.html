@@ -9,21 +9,21 @@
   <div class="sidebar">
     <h3 class="sidebar-title">排序</h3>
     <ul class="sidebar-links">
-      <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门排序</a></li>
-      <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新排序</a></li>
+      <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#fire"></use></svg>热门排序</a></li>
+      <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>最新排序</a></li>
     </ul>
     <h3 class="sidebar-title mt-xxl">分类管理</h3>
     <ul class="sidebar-links">
-      <li><a href="?sort=top"><i class="fa fa-folder-open-o"></i>共 {{ .category.Count }} 篇文章</a></li>
+      <li><a href="?sort=top"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>共 {{ .category.Count }} 篇文章</a></li>
       {{ if and .userInfo (eq .userInfo.Role "admin") }}
-      <li><a href="javascript:void(0)" onclick="updateCategory('{{.category.ID}}')" data-no-instant><i class="fa fa-edit"></i>编辑分类</a></li>
-      <li><a href="javascript:void(0)" onclick="deleteCategory('{{.category.ID}}')" data-no-instant><i class="fa fa-remove"></i>删除分类</a></li>
+      <li><a href="javascript:void(0)" onclick="updateCategory('{{.category.ID}}')" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#edit"></use></svg>编辑分类</a></li>
+      <li><a href="javascript:void(0)" onclick="deleteCategory('{{.category.ID}}')" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#trash"></use></svg>删除分类</a></li>
       {{end}}
     </ul>
   </div>
 
   <div class="content">
-    <h2><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp;{{ .category.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
+    <h2><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>&nbsp;&nbsp;{{ .category.Name }}<small>（{{ if eq .sort "top" }}热门排序{{ else }}最新排序{{ end }}）</small></h2>
     <div class="product-list">
       {{ range .articles }}
       <article class="product-card">
@@ -31,17 +31,17 @@
           <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
           <p class="product-description">{{ TruncateString .Content 120 }}</p>
           <div class="tags-group" role="list">
-            <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
-            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ $.category.Name }}</a>
-            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
-            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
-            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+            <a href="/user/profile/{{ .UserID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>{{ .User.Username }}</a>
+            <a href="/categories/{{ .CategoryID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ $.category.Name }}</a>
+            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{ .ViewCount }} 浏览</span>
+            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .Comments }} 评论</span>
+            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>{{ .CreatedAt.Format "2006-01-02" }}</span>
           </div>
         </div>
       </article>
       {{else}}
       <div class="empty-state">
-        <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+        <p> fa-circle-o-notch"></i> 暂无文章</p>
       </div>
       {{ end }}
     </div>

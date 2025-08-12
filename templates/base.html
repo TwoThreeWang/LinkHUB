@@ -13,7 +13,6 @@
     <link rel="dns-prefetch" href="https://analysis.wangtwothree.com">
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
     <link rel="stylesheet" href="/static/css/main.css?v=0.15">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
     <script defer src="https://analysis.wangtwothree.com/random-string.js" data-website-id="ca456c94-30b9-48d3-ae8e-27fbbd8413e0"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4678475430515042"
@@ -38,15 +37,15 @@
                     <a href="/tools">工具</a>
                     <a href="/links/new" class="visit-btn">
                         <span class="visit-text">分享链接</span>
-                        <span class="visit-icon"><i class="fa fa-chain"></i></span>
+                        <span class="visit-icon"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg></span>
                     </a>
                     {{ if .userInfo }}
                         <a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a>
                         {{ if gt .notificationsCount 0 }}
-                        <a href="/user/profile?sort=notifications" class="primary-link"><i class="fa fa-bell-o"></i>通知({{.notificationsCount}})</a>
+                        <a href="/user/profile?sort=notifications" class="primary-link"><svg class="icon"><use href="/static/img/icons.svg#bell"></use></svg>通知({{.notificationsCount}})</a>
                         {{ end }}
                     {{ else }}
-                        <a href="/auth/login"><i class="fa fa-user-circle-o"></i>登录</a>
+                        <a href="/auth/login"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>登录</a>
                     {{ end }}
                 </div>
             </div>

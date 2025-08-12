@@ -58,22 +58,22 @@
                 {{if .voted}}
                 <a href="/links/{{ .link.ID }}/unvote" class="tag primary-link" data-no-instant>▲ 取消投票</a>
                 {{end}}
-                <span class="tag"><i class="fa fa-eye"></i>{{.link.ClickCount}} 次点击</span>
-                <span class="tag"><i class="fa fa-comments-o"></i>{{ len .comments }} 条评论</span>
+                <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{.link.ClickCount}} 次点击</span>
+                <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .comments }} 条评论</span>
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
                 <a href="javascript:void(0)" onclick="togglePin('{{ .link.ID }}')" class="tag {{ if .link.IsPinned }}primary-link{{end}}" data-no-instant>
-                    <i class="fa fa-thumb-tack"></i>
+                    <svg class="icon"><use href="/static/img/icons.svg#thumbtack"></use></svg>
                     {{ if .link.IsPinned }}取消置顶{{ else }}置顶{{ end }}
                 </a>
                 {{end}}
                 {{ range .link.Tags }}
-                <a href="/tags/{{ .ID }}" class="tag"><i class="fa fa-tag"></i>{{ .Name }}</a>
+                <a href="/tags/{{ .ID }}" class="tag"># {{ .Name }}</a>
                 {{ end }}
             </div>
             <br>
             <a href="{{ .link.URL }}" target="_blank" rel="noopener" class="visit-btn" onclick="click_link('{{ .link.ID }}')">
                 <span class="visit-text">立即访问</span>
-                <span class="visit-icon"><i class="fa fa-long-arrow-right"></i></span>
+                <span class="visit-icon"><svg class="icon"><use href="/static/img/icons.svg#arrow-righ"></use></svg></span>
             </a>
         </div>
     </div>
@@ -82,7 +82,7 @@
         <div class="content-main">
             <!-- 添加投票用户头像展示区域 -->
             <div class="voters-container" style="margin-bottom: 1rem;">
-                <h5 style="margin-bottom: 10px;"><i class="fa fa-users"></i> TA 们喜欢了当前站点</h5>
+                <h5 style="margin-bottom: 10px;"><svg class="icon"><use href="/static/img/icons.svg#users"></use></svg> TA 们喜欢了当前站点</h5>
                 <div id="voters-avatars" style="display: flex; flex-wrap: wrap; gap:1px;"></div>
             </div>
             <center>
@@ -108,7 +108,7 @@
             {{ end }}
 
             <div class="comments-section">
-                <h2 class="section-title"><i class="fa fa-comments-o"></i> 评论 ({{ len .comments }})</h2>
+                <h2 class="section-title"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg> 评论 ({{ len .comments }})</h2>
 
                 {{ if .userInfo }}
                 <div class="new-comment">
@@ -172,7 +172,7 @@
                     </div>
                     {{else}}
                     <div class="empty-state">
-                        <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
+                        <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无评论</p>
                     </div>
                     {{ end }}
                 </div>
@@ -181,7 +181,7 @@
 
         <div class="product-sidebar">
             <div class="sidebar-main">
-                <p class="title"><i class="fa fa-user-circle-o"></i> 创建人</p>
+                <p class="title"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg> 创建人</p>
                 <div class="article-header" style="align-items:flex-end;">
                     <div class="product-vote">
                         <img src="{{.link.User.Avatar }}" alt="{{.link.User.Username }}" class="avatar">
@@ -192,20 +192,20 @@
                     </div>
                 </div>
                 <a href="/user/profile/{{ .link.User.ID }}" class="btn btn-outline w-100">
-                    <i class="fa fa-home"></i> 查看创建者
+                    <svg class="icon"><use href="/static/img/icons.svg#home"></use></svg> 查看创建者
                 </a>
                 {{ if and .userInfo ( or (eq .userInfo.ID .link.UserID) (eq .userInfo.Role "admin")) }}
                 <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100" data-no-instant>
-                    <i class="fa fa-edit"></i> 编辑链接
+                    <svg class="icon"><use href="/static/img/icons.svg#pencil"></use></svg> 编辑链接
                 </a>
                 <a href="confirmDelete('/links/{{ .link.ID }}/delete" onclick="return confirm('确定要删除这个链接吗？此操作不可撤销！');" class="btn btn-outline w-100" data-no-instant>
-                    <i class="fa fa-remove"></i> 删除链接
+                    <svg class="icon"><use href="/static/img/icons.svg#trash"></use></svg> 删除链接
                 </a>
                 {{end}}
             </div>
 
             <div class="sidebar-main">
-                <p class="title"><i class="fa fa-podcast"></i> 相关链接</p>
+                <p class="title"><svg class="icon"><use href="/static/img/icons.svg#podcast"></use></svg> 相关链接</p>
                 <div class="related-products">
                     {{ if .relatedLinks }}
                         {{ range .relatedLinks }}
@@ -218,7 +218,7 @@
                         {{ end }}
                     {{ else }}
                         <div class="empty-state">
-                            <p><i class="fa fa-circle-o-notch"></i> 暂无推荐链接</p>
+                            <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无推荐链接</p>
                         </div>
                     {{ end }}
                 </div>
@@ -253,7 +253,7 @@
                     if (data.status === 200) {
                         const votersContainer = document.getElementById('voters-avatars');
                         if (data.data.users.length === 0) {
-                            votersContainer.innerHTML = '<p><i class="fa fa-circle-o-notch"></i> 暂无投票用户</p>';
+                            votersContainer.innerHTML = '<p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无投票用户</p>';
                             return;
                         }
 
@@ -268,7 +268,7 @@
                 })
                 .catch(error => {
                     console.error('获取投票用户失败:', error);
-                    document.getElementById('voters-avatars').innerHTML = '<p><i class="fa fa-circle-o-notch"></i> 获取投票用户失败</p>';
+                    document.getElementById('voters-avatars').innerHTML = '<p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 获取投票用户失败</p>';
                 });
         }
 

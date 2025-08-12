@@ -9,12 +9,12 @@
     <div class="sidebar">
         <h3 class="sidebar-title">发现</h3>
         <ul class="sidebar-links">
-            <li><a href="/links/search?q={{.title}}"><i class="fa fa-link"></i>搜链接</a></li>
-            <li><a href="/articles/search?q={{.title}}" class="primary-link"><i class="fa fa-newspaper-o"></i>搜文章</a></li>
+            <li><a href="/links/search?q={{.title}}"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg>搜链接</a></li>
+            <li><a href="/articles/search?q={{.title}}" class="primary-link"><svg class="icon"><use href="/static/img/icons.svg#newspaper"></use></svg>搜文章</a></li>
         </ul>
     </div>
     <div class="content">
-        <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
+        <h2><svg class="icon"><use href="/static/img/icons.svg#search"></use></svg>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
 
         <div class="product-list">
             {{ range .articles }}
@@ -23,17 +23,17 @@
                     <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
                     <p class="product-description">{{ TruncateString .Content 120 }}</p>
                     <div class="tags-group" role="list">
-                        <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
-                        <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
-                        <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
-                        <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
-                        <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+                        <a href="/user/profile/{{ .UserID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>{{ .User.Username }}</a>
+                        <a href="/categories/{{ .CategoryID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ .Category.Name }}</a>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{ .ViewCount }} 浏览</span>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .Comments }} 评论</span>
+                        <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>{{ .CreatedAt.Format "2006-01-02" }}</span>
                     </div>
                 </div>
             </article>
             {{else}}
             <div class="empty-state">
-                <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+                <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无文章</p>
             </div>
             {{ end }}
         </div>

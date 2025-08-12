@@ -9,28 +9,28 @@
         <div class="sidebar">
             {{ if .userInfo }}
             <a href="/articles/new/" class="btn btn-primary">
-                <i class="fa fa-plus"></i> 发布文章
+                + 发布文章
             </a>
             {{ end }}
             <h3 class="sidebar-title mt-xxl">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><i class="fa fa-fire"></i>热门</a></li>
-                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><i class="fa fa-clock-o"></i>最新</a></li>
+                <li><a href="?sort=top" {{if eq .sort "top"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#fire"></use></svg>热门</a></li>
+                <li><a href="?sort=new" {{if eq .sort "new"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>最新</a></li>
             </ul>
 
             <h3 class="sidebar-title mt-xxl">分类</h3>
             <ul class="sidebar-links">
                 {{ if and .userInfo (eq .userInfo.Role "admin") }}
-                <li><a href="javascript:void(0)" onclick="createCategory()" data-no-instant><i class="fa fa-plus"></i>新增分类</a></li>
+                <li><a href="javascript:void(0)" onclick="createCategory()" data-no-instant>+ 新增分类</a></li>
                 {{end}}
                 {{ range .categories }}
-                <li><a href="/categories/{{ .ID }}"><i class="fa fa-folder-open-o"></i>{{ .Name }}</a></li>
+                <li><a href="/categories/{{ .ID }}"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ .Name }}</a></li>
                 {{ end }}
             </ul>
         </div>
 
         <div class="content">
-            <h2>{{ if eq .sort "top" }}<i class="fa fa-fire"></i> 热门文章{{ else }}<i class="fa fa-clock-o"></i> 最新文章{{ end }}</h2>
+            <h2>{{ if eq .sort "top" }}<svg class="icon"><use href="/static/img/icons.svg#fire"></use></svg> 热门文章{{ else }}<svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg> 最新文章{{ end }}</h2>
 
             <div class="product-list">
                 {{ range .articles }}
@@ -39,17 +39,17 @@
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Content 120 }}</p>
                         <div class="tags-group" role="list">
-                            <a href="/user/profile/{{ .UserID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ .User.Username }}</a>
-                            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
-                            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
-                            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
-                            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+                            <a href="/user/profile/{{ .UserID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>{{ .User.Username }}</a>
+                            <a href="/categories/{{ .CategoryID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ .Category.Name }}</a>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{ .ViewCount }} 浏览</span>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .Comments }} 评论</span>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>{{ .CreatedAt.Format "2006-01-02" }}</span>
                         </div>
                     </div>
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无文章</p>
                 </div>
                 {{ end }}
             </div>

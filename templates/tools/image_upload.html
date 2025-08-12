@@ -200,7 +200,7 @@
                 <div id="upload-zone" class="upload-zone">
                     <!-- 上传提示 -->
                     <div id="upload-prompt">
-                        <i class="fa fa-file-image-o upload-icon" aria-hidden="true" /></i>
+                        <svg class="icon upload-icon"  aria-hidden="true"><use href="/static/img/icons.svg#image"></use></svg>
                         <h3 class="upload-title">上传您的图片</h3>
                         <p class="upload-text">
                             拖拽图片到此处，或<span class="upload-text-highlight">点击上传</span>
@@ -229,7 +229,7 @@
                             <div class="link-container">
                                 <div id="link-direct" class="link-text"></div>
                                 <button class="link-copy" data-link="direct" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -239,7 +239,7 @@
                             <div class="link-container">
                                 <div id="link-direct-thumb" class="link-text"></div>
                                 <button class="link-copy" data-link="direct-thumb" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -249,7 +249,7 @@
                             <div class="link-container">
                                 <div id="link-markdown" class="link-text"></div>
                                 <button class="link-copy" data-link="markdown" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -259,7 +259,7 @@
                             <div class="link-container">
                                 <div id="link-html" class="link-text"></div>
                                 <button class="link-copy" data-link="html" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -269,7 +269,7 @@
                             <div class="link-container">
                                 <div id="link-bbcode" class="link-text"></div>
                                 <button class="link-copy" data-link="bbcode" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -279,7 +279,7 @@
                             <div class="link-container">
                                 <div id="link-forum" class="link-text"></div>
                                 <button class="link-copy" data-link="forum" aria-label="复制链接">
-                                    <i class="fa fa-copy copy-icon"></i>
+                                    <svg class="icon copy-icon"><use href="/static/img/icons.svg#copy"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -367,7 +367,7 @@ async function handleFiles(files) {
         // 更新链接
         updateLinks(dl_img_url, file.name);
         document.getElementById('del_btn').innerHTML = `<button class="btn btn-outline" onclick="deleteImg('${data.del_hash}')">
-            <i class="fa fa-close"></i>删除这张
+            <svg class="icon"><use href="/static/img/icons.svg#trash"></use></svg>删除这张
         </button>`;
         // 显示链接区域
         document.getElementById('links-card').style.display = 'block';
@@ -399,7 +399,7 @@ function showPreview(dataUrl, fileName) {
             </div>
             <div class="file-name">${fileName}</div>
             <button class="btn btn-outline" onclick="resetUpload()">
-                <i class="fa fa-cloud-upload"></i>
+                <svg class="icon"><use href="/static/img/icons.svg#cloud-upload"></use></svg>
                 上传新图片
             </button>
         </div>
@@ -439,7 +439,7 @@ function updateLinks(dataUrl, fileName) {
 function resetUpload() {
     uploadZone.innerHTML = `
         <div id="upload-prompt">
-            <i class="fa fa-file-image-o upload-icon" aria-hidden="true" /></i>
+            <svg class="icon upload-icon"  aria-hidden="true"><use href="/static/img/icons.svg#image"></use></svg>
             <h3 class="upload-title">上传您的图片</h3>
             <p class="upload-text">
                 拖拽图片到此处，或<span class="upload-text-highlight">点击上传</span>

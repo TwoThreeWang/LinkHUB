@@ -9,12 +9,12 @@
     <div class="sidebar">
         <h3 class="sidebar-title">发现</h3>
         <ul class="sidebar-links">
-            <li><a href="/links/search?q={{.title}}" class="primary-link"><i class="fa fa-link"></i>搜链接</a></li>
-            <li><a href="/articles/search?q={{.title}}"><i class="fa fa-newspaper-o"></i>搜文章</a></li>
+            <li><a href="/links/search?q={{.title}}" class="primary-link"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg>搜链接</a></li>
+            <li><a href="/articles/search?q={{.title}}"><svg class="icon"><use href="/static/img/icons.svg#newspaper"></use></svg>搜文章</a></li>
         </ul>
     </div>
     <div class="content">
-        <h2><i class="fa fa-search"></i>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
+        <h2><svg class="icon"><use href="/static/img/icons.svg#search"></use></svg>&nbsp;&nbsp;{{ .title }} ({{.total}})</h2>
 
         <div class="product-list">
             {{ range .links }}
@@ -31,14 +31,14 @@
                     <div class="product-tags" role="list">
                         <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                         {{ range .Tags }}
-                        <a href="/tags/{{ .ID }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
+                        <a href="/tags/{{ .ID }}" class="tag" role="listitem"># {{ .Name }}</a>
                         {{ end }}
                     </div>
                 </div>
             </article>
             {{else}}
                     <div class="empty-state">
-                        <p><i class="fa fa-circle-o-notch"></i> 暂无搜索结果</p>
+                        <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无搜索结果</p>
                     </div>
             {{ end }}
         </div>

@@ -23,21 +23,21 @@
         <div class="sidebar">
             <h3 class="sidebar-title">发现</h3>
             <ul class="sidebar-links">
-                <li><a href="?sort=overview" {{if eq .sort "overview"}}class="primary-link"{{end}}><i class="fa fa-tachometer"></i>概览</a></li>
-                <li><a href="?sort=links" {{if eq .sort "links"}}class="primary-link"{{end}}><i class="fa fa-link"></i>所有链接</a></li>
-                <li><a href="?sort=votes" {{if eq .sort "votes"}}class="primary-link"{{end}}><i class="fa fa-star"></i>投票链接</a></li>
-                <li><a href="?sort=article" {{if eq .sort "article"}}class="primary-link"{{end}}><i class="fa fa-newspaper-o"></i>所有文章</a></li>
-                <li><a href="?sort=comments" {{if eq .sort "comments"}}class="primary-link"{{end}}><i class="fa fa-comments-o"></i>所有评论</a></li>
+                <li><a href="?sort=overview" {{if eq .sort "overview"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#tachometer"></use></svg>概览</a></li>
+                <li><a href="?sort=links" {{if eq .sort "links"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg>所有链接</a></li>
+                <li><a href="?sort=votes" {{if eq .sort "votes"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#star"></use></svg>投票链接</a></li>
+                <li><a href="?sort=article" {{if eq .sort "article"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#newspaper"></use></svg>所有文章</a></li>
+                <li><a href="?sort=comments" {{if eq .sort "comments"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>所有评论</a></li>
                 {{ if .userInfo }}
                     {{ if eq .user.Role "admin" }}
-                    <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><i class="fa fa-bullhorn"></i>广告管理</a></li>
-                    <li><a href="/tools/clear-cache"><i class="fa fa-refresh"></i>清除缓存</a></li>
+                    <li><a href="?sort=ads" {{if eq .sort "ads"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#bullhorn"></use></svg>广告管理</a></li>
+                    <li><a href="/tools/clear-cache"><svg class="icon"><use href="/static/img/icons.svg#redo"></use></svg>清除缓存</a></li>
                     {{ end }}
                     {{ if eq .user.ID .userInfo.ID }}
-                    <li><a href="/tools/image/me" data-no-instant><i class="fa fa-file-image-o"></i>我的图片</a></li>
-                    <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><i class="fa fa-bell-o"></i>通知中心</a></li>
-                    <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><i class="fa fa-cog"></i>账户设置</a></li>
-                    <li><a href="/auth/logout" data-no-instant><i class="fa fa-power-off"></i>退出登录</a></li>
+                    <li><a href="/tools/image/me" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#image"></use></svg>我的图片</a></li>
+                    <li><a href="?sort=notifications" {{if eq .sort "notifications"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#bell"></use></svg>通知中心</a></li>
+                    <li><a href="?sort=setting" {{if eq .sort "setting"}}class="primary-link"{{end}}><svg class="icon"><use href="/static/img/icons.svg#cog"></use></svg>账户设置</a></li>
+                    <li><a href="/auth/logout" data-no-instant><svg class="icon"><use href="/static/img/icons.svg#power-off"></use></svg>退出登录</a></li>
                     {{ end }}
                 {{ end }}
             </ul>
@@ -45,24 +45,24 @@
 
         <div class="content">
             {{ if eq .sort "overview" }}
-            <h2><i class="fa fa-tachometer"></i>&nbsp;&nbsp;&nbsp;概览</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#tachometer"></use></svg>&nbsp;&nbsp;&nbsp;概览</h2>
             <div class="stats-cards">
                 <a href="?sort=links" class="product-card stats-card">
-                    <div class="stats-icon"><i class="fa fa-link"></i></div>
+                    <div class="stats-icon"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Links }}</div>
                         <div class="stats-label">所有链接</div>
                     </div>
                 </a>
                 <a href="?sort=comments" class="product-card stats-card">
-                    <div class="stats-icon"><i class="fa fa-comments-o"></i></div>
+                    <div class="stats-icon"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Comments }}</div>
                         <div class="stats-label">所有评论</div>
                     </div>
                 </a>
                 <a href="?sort=votes" class="product-card stats-card">
-                    <div class="stats-icon"><i class="fa fa-star"></i></div>
+                    <div class="stats-icon"><svg class="icon"><use href="/static/img/icons.svg#star"></use></svg></div>
                     <div class="stats-info">
                         <div class="stats-number">{{ len .user.Votes }}</div>
                         <div class="stats-label">投票链接</div>
@@ -70,7 +70,7 @@
                 </a>
             </div>
             {{ else if eq .sort "comments" }}
-            <h2><i class="fa fa-comments-o"></i>&nbsp;&nbsp;&nbsp;所有评论</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>&nbsp;&nbsp;&nbsp;所有评论</h2>
 
             <div class="comment-list">
                 {{ range .user.Comments }}
@@ -84,12 +84,12 @@
                     </div>
                     {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无评论</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无评论</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "votes" }}
-            <h2><i class="fa fa-star"></i>&nbsp;&nbsp;&nbsp;投票链接</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#star"></use></svg>&nbsp;&nbsp;&nbsp;投票链接</h2>
 
             <div class="grid-auto-card">
                 {{ range .user.Votes }}
@@ -110,12 +110,12 @@
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无投票</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无投票</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "links" }}
-            <h2><i class="fa fa-link"></i>&nbsp;&nbsp;&nbsp;所有链接</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg>&nbsp;&nbsp;&nbsp;所有链接</h2>
 
             <div class="grid-auto-card">
                 {{ range .user.Links }}
@@ -132,19 +132,19 @@
                         <div class="product-tags" role="list">
                             <a href="{{ .URL }}" target="_blank" rel="noopener" class="tag primary-link" onclick="click_link('{{ .ID }}')">访问网站 →</a>
                             {{ range .Tags }}
-                            <a href="/tags/{{ .Name }}" class="tag" role="listitem"><i class="fa fa-tag"></i>{{ .Name }}</a>
+                            <a href="/tags/{{ .Name }}" class="tag" role="listitem"># {{ .Name }}</a>
                             {{ end }}
                         </div>
                     </div>
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无链接</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无链接</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "article" }}
-            <h2><i class="fa fa-newspaper-o"></i>&nbsp;&nbsp;&nbsp;所有文章</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#newspaper"></use></svg>&nbsp;&nbsp;&nbsp;所有文章</h2>
 
             <div class="comment-list">
                 {{ range .user.Articles }}
@@ -153,22 +153,22 @@
                         <a href="/articles/{{ .ID }}" class="product-title">{{ .Title }}</a>
                         <p class="product-description">{{ TruncateString .Content 120 }}</p>
                         <div class="tags-group" role="list">
-                            <a href="/user/profile/{{ $.user.ID }}" class="tag"><i class="fa fa-user-circle-o"></i>{{ $.user.Username }}</a>
-                            <a href="/categories/{{ .CategoryID }}" class="tag"><i class="fa fa-folder-open-o"></i>{{ .Category.Name }}</a>
-                            <span class="tag"><i class="fa fa-eye"></i>{{ .ViewCount }} 浏览</span>
-                            <span class="tag"><i class="fa fa-comments-o"></i>{{ len .Comments }} 评论</span>
-                            <span class="tag"><i class="fa fa-clock-o"></i>{{ .CreatedAt.Format "2006-01-02" }}</span>
+                            <a href="/user/profile/{{ $.user.ID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>{{ $.user.Username }}</a>
+                            <a href="/categories/{{ .CategoryID }}" class="tag"><svg class="icon"><use href="/static/img/icons.svg#folder-open"></use></svg>{{ .Category.Name }}</a>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#eye"></use></svg>{{ .ViewCount }} 浏览</span>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#comments"></use></svg>{{ len .Comments }} 评论</span>
+                            <span class="tag"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg>{{ .CreatedAt.Format "2006-01-02" }}</span>
                         </div>
                     </div>
                 </article>
                 {{else}}
                 <div class="empty-state">
-                    <p><i class="fa fa-circle-o-notch"></i> 暂无文章</p>
+                    <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无文章</p>
                 </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "notifications" }}
-            <h2><i class="fa fa-bell-o"></i>&nbsp;&nbsp;&nbsp;通知中心（{{.notificationsCount}}）</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#bell"></use></svg>&nbsp;&nbsp;&nbsp;通知中心（{{.notificationsCount}}）</h2>
             <div class="comment-list">
                 {{ range .user.Notifications }}
                     <div class="comment {{ if eq .Status 1}}readed{{end}}">
@@ -187,12 +187,12 @@
                     </div>
                 {{else}}
                     <div class="empty-state">
-                        <p><i class="fa fa-circle-o-notch"></i> 暂无通知</p>
+                        <p><svg class="icon"><use href="/static/img/icons.svg#circle"></use></svg> 暂无通知</p>
                     </div>
                 {{ end }}
             </div>
             {{ else if eq .sort "setting" }}
-                <h2><i class="fa fa-cog"></i>&nbsp;&nbsp;&nbsp;账户设置</h2>
+                <h2><svg class="icon"><use href="/static/img/icons.svg#cog"></use></svg>&nbsp;&nbsp;&nbsp;账户设置</h2>
                 <br>
                 <form action="/user/profile" method="POST">
                     <div class="form-group">
@@ -241,7 +241,7 @@
                     <button type="submit" class="btn btn-primary">保存设置</button>
                 </form>
             {{ else if eq .sort "ads" }}
-            <h2><i class="fa fa-bullhorn"></i>&nbsp;&nbsp;&nbsp;广告管理</h2>
+            <h2><svg class="icon"><use href="/static/img/icons.svg#bullhorn"></use></svg>&nbsp;&nbsp;&nbsp;广告管理</h2>
                 <br>
                 <div class="ad-management">
                     <div id="adFormContainer" style="display: none;">
