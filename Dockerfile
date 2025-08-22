@@ -8,12 +8,13 @@ RUN apk update --no-cache && apk add --no-cache tzdata
 
 WORKDIR /build
 
-ADD go.mod .
-ADD go.sum .
+# 先复制依赖文件，利用缓存
+COPY go.mod go.sum ./
 RUN go mod download
+
+# 再复制源码，避免每次重新下载依赖
 COPY . .
-RUN go mod tidy
-RUN go build -p $(nproc) -ldflags="-s -w" -o /app/main main.go
+RUN go mod tidy && go build -p $(nproc) -ldflags="-s -w" -o /app/main main.go
 
 
 FROM scratch
