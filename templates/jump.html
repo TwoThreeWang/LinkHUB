@@ -1,7 +1,8 @@
 {{ define "meta" }}
-<title>{{ .title }} - {{ .siteName }}</title>
+<meta name="robots" content="noindex, nofollow" />
+<title>{{ .title }} | {{ .siteName }}</title>
 <meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
-<meta name="description" content="链接盲盒，{{ .siteName }}">
+<meta name="description" content="{{ .siteName }}的跳转页面，用于跳转三方链接">
 <!-- 预解析DNS -->
 <link rel="dns-prefetch" href="{{ .link.URL }}">
 <!-- 预连接 -->
@@ -12,14 +13,40 @@
 {{ end }}
 
 {{ define "content" }}
-<div class="result-container">
+<style>
+.card {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+}
+
+button{
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    border-radius: 2px;
+    border: 1px solid var(--border-primary);
+}
+
+button:hover{
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+}
+
+.card-action {
+    margin-top: 1.5rem;
+}
+</style>
+<div class="result-container card">
     <div>
-        <h2>即将进入桃花源 ...</h2>
+        <h2><div class="loading">即将进入桃花源 ...</div></h2>
         <p class="result-message">初极狭，才通人。复行数十步，豁然开朗！</p>
-        <p class="result-message">注意：您即将离开本站跳转到三方链接，请注意您的帐号和财产安全。</p>
+        <strong>⚠︎ 注意：您即将离开本站跳转到三方链接，请注意您的帐号和财产安全。</strong>
         <small>将在 <span id="countdown">3</span> 秒后自动跳转...</small>
-        <div class="result-action">
-            <a href="{{ .link.URL }}" class="btn btn-primary" data-instant-intensity="viewport">{{ .link.Title }}</a>
+        <div class="card-action">
+            <a href="{{ .link.URL }}" class="btn btn-primary" data-instant-intensity="viewport"><button>{{ .link.Title }} ⤴︎</button></a>
         </div>
     </div>
 </div>
@@ -33,7 +60,7 @@
                 clearInterval(countdownInterval);
                 window.location.href = {{ .link.URL }};
             }
-        }, 1000);
+        }, 10000);
     }
     jump(3);
 </script>

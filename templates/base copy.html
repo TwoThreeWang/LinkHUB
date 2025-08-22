@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="max-age=7200" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="next-size-adjust">
+    <link rel="icon" href='/static/img/icon.png'/>
+    {{ template "meta" . }}
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://analysis.wangtwothree.com">
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+    <link rel="stylesheet" href="/static/css/main.css?v=0.15">
+    <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
+    <script defer src="https://analysis.wangtwothree.com/random-string.js" data-website-id="ca456c94-30b9-48d3-ae8e-27fbbd8413e0"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4678475430515042"
+            crossorigin="anonymous"></script>
+</head>
+<body data-instant-allow-external-links>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">{{ .siteName }}</a>
+                <button class="menu-toggle" aria-label="切换菜单">
+                    <span>☰</span>
+                </button>
+                <form action="{{if .search_article}}/articles/search{{else}}/links/search{{end}}" class="search-bar">
+                    <input type="text" name="q" placeholder="搜索链接、文章..." {{ if .query }}value="{{.query}}"{{end}}>
+                </form>
+                <div class="nav-links">
+                    <a class="menu-close" aria-label="关闭菜单">✕</a>
+                    <a href="/">首页</a>
+                    <a href="/articles">文章</a>
+                    <a href="/tags">标签</a>
+                    <a href="/tools">工具</a>
+                    <a href="/links/new" class="visit-btn">
+                        <span class="visit-text">分享链接</span>
+                        <span class="visit-icon"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg></span>
+                    </a>
+                    {{ if .userInfo }}
+                        <a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a>
+                        {{ if gt .notificationsCount 0 }}
+                        <a href="/user/profile?sort=notifications" class="primary-link"><svg class="icon"><use href="/static/img/icons.svg#bell"></use></svg>通知({{.notificationsCount}})</a>
+                        {{ end }}
+                    {{ else }}
+                        <a href="/auth/login"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>登录</a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container main">
+        <a class="tip-box" href="/articles/2#禁用广告拦截" id="ads-block" style="display:none">❤️ 再忍不住，也不要做这种事啊 ❤️</a>
+        <div class="grid-auto-card">
+            {{ range .ads }}
+            <a class="tip-box" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{if .Img}}<img src="{{.Img}}" alt="{{.Name}}" />{{else}}{{.Name}}{{end}}</a>
+            {{ end }}
+        </div>
+        {{ template "content" . }}
+    </div>
+    <div class="menu-overlay"></div>
+    <!-- 添加返回顶部按钮 -->
+    <div id="back-to-top" title="返回顶部" aria-label="返回顶部">▴</div>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/articles/1">关于我们</a>
+                    <a href="/articles/2">帮助中心</a>
+                    <a href="/articles/3">隐私政策</a>
+                    <a href="/sitemap.xml">Sitemap</a>
+                </div>
+                <div class="copyright">
+                    Since 2025 © {{ .siteName }}. v{{.version}}
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/script.js?v=0.3"></script>
+    <script>
+        var script = document.createElement('script');
+        script.src = '/hahahaha.ads.controller.js';
+        script.onload = function() {
+            console.log('Welcome');
+        };
+        script.onerror = function() {
+            console.log('糟糕！小广告被 AdBlock/AdBlock Plus 拦截了');
+            let element = document.getElementById("ads-block");
+            element.style.display = "block";
+        };
+        document.head.appendChild(script);
+    </script>
+    <!-- 返回顶部按钮的脚本 -->
+    <script>
+        // 返回顶部按钮功能
+        const backToTopButton = document.getElementById("back-to-top");
+
+        // 当页面滚动时显示/隐藏按钮
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+
+        // 点击按钮时平滑滚动到顶部
+        backToTopButton.addEventListener("click", function() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" integrity="sha512-p8l0Kir2Q2O+MWF/+qw2yM2LQQf0+m0AMD0EvGTFFL9vHquAXMRQKuyFBvHdTWpGEgIbXZxd9vjCRPUHeAhsOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+</html>

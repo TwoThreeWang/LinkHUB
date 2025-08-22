@@ -2,56 +2,221 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="max-age=7200" />
-    <meta name="referrer" content="no-referrer-when-downgrade" />
-    <meta name="next-size-adjust">
-    <link rel="icon" href='/static/img/icon.png'/>
     {{ template "meta" . }}
+    <meta name="author" content="{{ .siteName }}">
+	<link rel="icon" href='/static/img/icon.png'/>
+    <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://analysis.wangtwothree.com">
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
-    <link rel="stylesheet" href="/static/css/main.css?v=0.15">
-    <link rel="canonical" href="{{.SiteUrl}}{{.path}}" />
+    <link rel="stylesheet" href="/static/css/base.css">
+    <script src="/static/js/base.js" defer></script>
+    <style>
+        /* Header 样式 */
+        header {
+            background: var(--bg-primary);
+            color: var(--bg-primary-text);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 1.5em;
+        }
+
+		.header-row {
+			display: contents;
+		}
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-search {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 40px 8px 15px;
+            border: 1px solid var(--border-primary);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: var(--bg-primary);
+            color: var(--bg-primary-text);
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--secondary-color);
+        }
+        .search-button {
+            position: absolute;
+            right: 3px;
+            top: 50%;
+            transform: translateY(-50%) rotate(320deg);
+            background: var(--primary-color);
+            color: var(--primary-text);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .search-button:hover {
+            background: var(--secondary-color);
+            color: var(--secondary-text);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1.5em;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Footer 样式 */
+        footer {
+            background-color: var(--bg-secondary);
+            color: var(--bg-secondary-text);
+            font-size: 0.9rem;
+            padding: 0 0.5rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-info {
+            flex: 1;
+        }
+
+        .footer-menu {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        /* 移动端响应式 */
+        @media (max-width: 768px) {
+            .header-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-row {
+                display: flex;
+                align-items: center;
+                width: 100%;
+            }
+
+            .logo {
+                flex-shrink: 0;
+                font-size: 1.2rem;
+            }
+
+            .nav-search {
+                flex: 1;
+                max-width: none;
+                margin: 0 1rem;
+            }
+
+            .menu-toggle {
+                display: block;
+                flex-shrink: 0;
+            }
+
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                gap: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid var(--border-primary);
+                width: 100%;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+			.footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .footer-menu {
+                order: -1;
+                margin-top: 1rem;
+            }
+        }
+    </style>
     <script defer src="https://analysis.wangtwothree.com/random-string.js" data-website-id="ca456c94-30b9-48d3-ae8e-27fbbd8413e0"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4678475430515042"
             crossorigin="anonymous"></script>
 </head>
 <body data-instant-allow-external-links>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="/" class="logo">{{ .siteName }}</a>
-                <button class="menu-toggle" aria-label="切换菜单">
-                    <span>☰</span>
-                </button>
-                <form action="{{if .search_article}}/articles/search{{else}}/links/search{{end}}" class="search-bar">
-                    <input type="text" name="q" placeholder="搜索链接、文章..." {{ if .query }}value="{{.query}}"{{end}}>
+    <!-- 设置默认主题 -->
+    <script>(()=>document.body.classList[localStorage.theme==='dark'||(localStorage.theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches)?'add':'remove']('dark_mode'))();</script>
+    <!-- Header -->
+    <header role="banner">
+        <div class="header-content">
+            <div class="header-row">
+                <div class="logo">
+					<a href="/" aria-label="{{ .siteName }}首页">{{ .siteName }}</a>
+				</div>
+                <form action="{{if .search_article}}/articles/search{{else}}/links/search{{end}}" class="nav-search">
+                    <input type="search" class="search-input" name="q" placeholder="搜索链接、文章..." {{ if .query }}value="{{.query}}"{{end}} aria-label="导航栏搜索框">
+                    <div class="search-button" aria-label="导航栏搜索按钮">⚲</div>
                 </form>
-                <div class="nav-links">
-                    <a class="menu-close" aria-label="关闭菜单">✕</a>
-                    <a href="/">首页</a>
-                    <a href="/articles">文章</a>
-                    <a href="/tags">标签</a>
-                    <a href="/tools">工具</a>
-                    <a href="/links/new" class="visit-btn">
-                        <span class="visit-text">分享链接</span>
-                        <span class="visit-icon"><svg class="icon"><use href="/static/img/icons.svg#link"></use></svg></span>
-                    </a>
-                    {{ if .userInfo }}
-                        <a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a>
-                        {{ if gt .notificationsCount 0 }}
-                        <a href="/user/profile?sort=notifications" class="primary-link"><svg class="icon"><use href="/static/img/icons.svg#bell"></use></svg>通知({{.notificationsCount}})</a>
-                        {{ end }}
-                    {{ else }}
-                        <a href="/auth/login"><svg class="icon"><use href="/static/img/icons.svg#circle-user"></use></svg>登录</a>
-                    {{ end }}
-                </div>
+                <div class="menu-toggle" onclick="toggleMenu()"  aria-label="切换导航菜单" aria-expanded="false" aria-controls="navMenu">☰</div>
             </div>
+            <nav class="nav-menu" id="navMenu" role="navigation" aria-label="主导航">
+                <li><a href="/">首页</a></li>
+                <li><a href="/articles">文章</a></li>
+                <li><a href="/tags">标签</a></li>
+                <li><a href="/tools">工具</a></li>
+                <li><a href="#" id="theme-toggle">☀︎ auto</a></li>
+                {{ if .userInfo }}
+                    <li><a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a></li>
+                    {{ if gt .notificationsCount 0 }}
+                    <li><a href="/user/profile?sort=notifications" class="primary-link">🕭 通知({{.notificationsCount}})</a></li>
+                    {{ end }}
+                {{ else }}
+                    <li><a href="/auth/login">⍝ 登录</a></li>
+                {{ end }}
+            </nav>
         </div>
     </header>
-    <div class="container main">
+
+    <!-- Main Content -->
+    <main role="main">
         <a class="tip-box" href="/articles/2#禁用广告拦截" id="ads-block" style="display:none">❤️ 再忍不住，也不要做这种事啊 ❤️</a>
         <div class="grid-auto-card">
             {{ range .ads }}
@@ -59,28 +224,46 @@
             {{ end }}
         </div>
         {{ template "content" . }}
+    </main>
+
+	<!-- 大图弹窗 -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="close">&times;</span>
+        <img id="lightboxImg" alt="大图预览" aria-label="大图预览">
     </div>
-    <div class="menu-overlay"></div>
-    <!-- 添加返回顶部按钮 -->
-    <div id="back-to-top" title="返回顶部" aria-label="返回顶部">▴</div>
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-links">
-                    <a href="/articles/1">关于我们</a>
-                    <a href="/articles/2">帮助中心</a>
-                    <a href="/articles/3">隐私政策</a>
-                    <a href="/sitemap.xml">Sitemap</a>
-                </div>
-                <div class="copyright">
-                    Since 2025 © {{ .siteName }}. v{{.version}}
-                </div>
+    <div id="top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</div>
+
+    <!-- Footer -->
+    <footer role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>Since 2025 &copy; {{ .siteName }}. <small>v{{.version}}</small></p>
+            </div>
+            <div class="footer-menu" role="navigation" aria-label="底部导航">
+                <a href="/articles/1">关于我们</a>
+                <a href="/articles/2">帮助中心</a>
+                <a href="/articles/3">隐私政策</a>
+                <a href="/sitemap.xml">Sitemap</a>
             </div>
         </div>
     </footer>
 
-    <script src="/static/js/script.js?v=0.3"></script>
     <script>
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('navMenu');
+            const toggle = document.querySelector('.menu-toggle');
+
+            if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
         var script = document.createElement('script');
         script.src = '/hahahaha.ads.controller.js';
         script.onload = function() {
@@ -92,28 +275,6 @@
             element.style.display = "block";
         };
         document.head.appendChild(script);
-    </script>
-    <!-- 返回顶部按钮的脚本 -->
-    <script>
-        // 返回顶部按钮功能
-        const backToTopButton = document.getElementById("back-to-top");
-
-        // 当页面滚动时显示/隐藏按钮
-        window.onscroll = function() {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                backToTopButton.style.display = "block";
-            } else {
-                backToTopButton.style.display = "none";
-            }
-        };
-
-        // 点击按钮时平滑滚动到顶部
-        backToTopButton.addEventListener("click", function() {
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.2.0/instantpage.min.js" integrity="sha512-p8l0Kir2Q2O+MWF/+qw2yM2LQQf0+m0AMD0EvGTFFL9vHquAXMRQKuyFBvHdTWpGEgIbXZxd9vjCRPUHeAhsOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
