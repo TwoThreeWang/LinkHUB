@@ -59,7 +59,6 @@
         input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--secondary-color);
         }
         .search-button {
             position: absolute;
@@ -97,6 +96,43 @@
             cursor: pointer;
         }
 
+        /* 按钮样式 */
+        button{
+            background-color: var(--bg-primary);
+            color: var(--bg-primary-text);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            padding: 0.25em 1.5em;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        button:hover{
+            box-shadow:  3px 3px 0px var(--border-primary),
+             -0px -0px 0px var(--bg-primary);
+        }
+        button.primary{
+            background-color: var(--primary-color);
+            color: var(--primary-text);
+            border: 1px solid var(--primary-color);
+        }
+        button.light{
+            background-color: var(--bg-primary);
+            border: 1px solid var(--bg-primary);
+            color: var(--bg-primary-text);
+        }
+        button.light:hover{
+            border: 1px solid var(--border-primary);
+        }
+        /* 卡片样式 */
+        .card{
+            border:1px solid var(--border-primary);
+            border-radius:3px;
+            padding: 1em;
+            margin: 1em 0;
+            box-shadow:  6px 6px 0px var(--border-primary),
+             -0px -0px 0px var(--bg-primary);
+        }
         /* Footer 样式 */
         footer {
             background-color: var(--bg-secondary);
@@ -202,7 +238,6 @@
                 <li><a href="/articles">文章</a></li>
                 <li><a href="/tags">标签</a></li>
                 <li><a href="/tools">工具</a></li>
-                <li><a href="#" id="theme-toggle">☀︎ auto</a></li>
                 {{ if .userInfo }}
                     <li><a href="/user/profile"><img src="{{.userInfo.Avatar }}" alt="{{.userInfo.Username }}" class="avatar-small">{{ .userInfo.Username }}</a></li>
                     {{ if gt .notificationsCount 0 }}
@@ -244,6 +279,7 @@
                 <a href="/articles/2">帮助中心</a>
                 <a href="/articles/3">隐私政策</a>
                 <a href="/sitemap.xml">Sitemap</a>
+                <a href="javascript:void(0);" id="theme-toggle">☀︎ auto</a>
             </div>
         </div>
     </footer>

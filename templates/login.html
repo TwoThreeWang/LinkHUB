@@ -1,61 +1,71 @@
 {{ define "meta" }}
-<title>{{ .title }} - {{ .siteName }}</title>
+<title>{{ .title }} | {{ .siteName }}</title>
+<meta name="description" content="{{ .siteName }}的登录页面">
 <meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
-<meta name="description" content="登录{{ .siteName }}">
-<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="robots" content="noindex, nofollow" />
 <script src="https://accounts.google.com/gsi/client" async></script>
 {{ end }}
 
 {{ define "content" }}
-    <div class="auth-form">
-        <h2>登录</h2>
-        {{ if .error }}
-        <div class="error-message">{{ .error }}</div>
-        {{ end }}
-        <center>
-        <div id="g_id_onload"
-             data-client_id="{{ .clientId }}"
-             data-context="signin"
-             data-ux_mode="popup"
-             data-login_uri="{{.SiteUrl}}/auth/callback/google"
-             data-auto_prompt="false">
-        </div>
-
-        <div class="g_id_signin"
-             data-type="standard"
-             data-shape="rectangular"
-             data-theme="outline"
-             data-text="signin_with"
-             data-size="medium"
-             data-logo_alignment="center">
-        </div>
-        <h3>OR</h3>
-        </center>
-        <form action="/auth/login?refer={{.refer}}" method="POST">
-            <div class="form-group">
-                <label for="email">邮箱</label>
-                <input type="email" id="email" name="email" value="{{ .email }}" required>
-            </div>
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
-            <button type="submit" class="btn btn-primary w-100">登录</button>
-            <p class="auth-links">
-                还没有账号？<a href="/auth/register">立即注册</a>
-            </p>
-        </form>
+<style>
+.notice-box{
+    max-width: 600px;
+    margin: 2rem auto;
+}
+.card-action {
+    margin-top: 1.5rem;
+}
+</style>
+<div class="card notice-box">
+    <h2>登录，即刻开始。</h2>
+    <center>
+    <div id="g_id_onload"
+            data-client_id="{{ .clientId }}"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-login_uri="{{.SiteUrl}}/auth/callback/google"
+            data-auto_prompt="false">
     </div>
-    <script>
-        const rootPath = window.location.origin;
-        const googleButtonDiv = document.getElementById('g_id_onload');
-        if (googleButtonDiv) {
-          let loginUri = googleButtonDiv.getAttribute('data-login_uri');
-          if (loginUri) {
-            googleButtonDiv.setAttribute('data-login_uri', rootPath+"/auth/callback/google");
-          }
-        }
-      </script>
+
+    <div class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="medium"
+            data-logo_alignment="center">
+    </div>
+    <h3>OR</h3>
+    </center>
+    <form action="/auth/login?refer={{.refer}}" method="POST">
+        <div class="form-group">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" name="email" value="{{ .email }}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <br>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAABe0A7qZtBoYRAFQ" data-callback="onSubmitForm"></div>
+        <button type="submit" class="primary">登录</button>
+        <p class="auth-links">
+            还没有账号？<a href="/auth/register">立即注册</a>
+        </p>
+    </form>
+</div>
+{{ if .error }}
+<script>showMsg('{{ .error }}', 'error')</script>
+{{ end }}
+<script>
+const rootPath = window.location.origin;
+const googleButtonDiv = document.getElementById('g_id_onload');
+if (googleButtonDiv) {
+    let loginUri = googleButtonDiv.getAttribute('data-login_uri');
+    if (loginUri) {
+    googleButtonDiv.setAttribute('data-login_uri', rootPath+"/auth/callback/google");
+    }
+}
+</script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {{ end }}

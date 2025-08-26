@@ -1,23 +1,112 @@
 {{ define "meta" }}
-<title>{{ .siteName }} - {{ .title }}</title>
+<title>{{ .siteName }} | {{ .title }}</title>
 <meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
 <meta name="description" content="{{ .siteName }} {{.Description}}">
+<meta name="robots" content="index, follow">
+<!-- Open Graph / Social Media -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ .siteName }} | {{ .title }}">
+<meta property="og:description" content="{{ .siteName }} {{.Description}}">
+<meta property="og:url" content="{{ .SiteUrl }}">
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+"@context": "https://schema.org",
+"@graph": [
+    {
+    "@type": ["BlogPosting", "Article"],
+    "headline": "{{ .siteName }} | {{ .title }}",
+    "description": "{{ .siteName }} {{.Description}}",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{.SiteUrl}}{{.path}}",
+        "name": "{{ .siteName }} | {{ .title }}",
+        "url": "{{.SiteUrl}}{{.path}}"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Evan",
+        "url": "{{.SiteUrl}}/user/profile/1"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ .siteName }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{.SiteUrl}}/static/img/icon.png"
+        }
+    },
+    "image": "{{.SiteUrl}}/static/img/icon.png",
+    },
+    {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "首页",
+        "item": "{{.SiteUrl}}"
+        }
+    ]
+    }
+]
+}
+</script>
 {{ end }}
 
 {{ define "content" }}
+<style>
+.hot-tag{
+    margin-bottom: 20px;
+}
+.tag-nav{
+    display: flex;
+    display: -webkit-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+.tag-nav li{
+    list-style: none;
+    padding: 0 1.5rem;
+    border: 1px solid var(--border-primary);
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+.grid-auto-card{
+    display: grid;
+    gap: 1rem; /* 设置卡片之间的间距 */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    overflow: hidden;
+}
+.card-a{
+    padding: 0 0.2em;
+    display: block;
+    border-radius:3px;
+    margin-top: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+<div class="hot-tag">
     <h3 class="sidebar-title"># 热门标签</h3>
-    <ul class="tag-nav">
+    <div class="tag-nav">
         {{ range .popularTags }}
-        <li><a href="#{{ .ID }}">{{ .Name }}</a></li>
+        <li><a href="#{{ .ID }}"># {{ .Name }}</a></li>
         {{ end }}
         <li><a href="/tags/" title="查看全部标签">全部标签</a></li>
-    </ul>
+    </div>
+</div>
+
     <div class="grid-auto-card">
         <div class="card" id="tips">
             <div class="card-title">Tips⁾⁾ 公告说明</div>
             {{ range .indexTipAds }}
             <a class="card-a" href="{{.Url}}" id="{{.AdType}}{{.ID}}" target="_blank" title="{{.Name}}">{{.Name}}</a>
             {{ end }}
+            <a class="card-a" href="/links/random" >随机跳转</a>
             <br>
             <center>
                 <!-- 300*250矩形 -->
@@ -32,28 +121,28 @@
         </div>
 
         <div class="card" id="hot">
-            <div class="card-title"><svg class="icon"><use href="/static/img/icons.svg#fire"></use></svg> 热门链接</div>
+            <div class="card-title">🔥 热门链接</div>
             {{ range .hotLinks }}
             <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
             {{ end }}
         </div>
         <div class="card" id="new">
-            <div class="card-title"><svg class="icon"><use href="/static/img/icons.svg#clock"></use></svg> 最新链接</div>
+            <div class="card-title">🕒 最新链接</div>
             {{ range .newLinks }}
             <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
             {{ end }}
         </div>
         <div class="card" id="vote">
-            <div class="card-title"><svg class="icon"><use href="/static/img/icons.svg#star"></use></svg> 我的投票</div>
+            <div class="card-title">⚑ 我的投票</div>
             {{ if .userInfo }}
                 {{ range .votedLinks }}
                 <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ .Title }}</a>
                 {{ else }}
                 <p style="text-align:center;padding: 10px 5px;">空了？喜欢的链接记得点下支持！</p>
                 {{ end }}
-                <a class="card-a" href="/user/profile?sort=votes"><center>查看更多</center></a>
+                <a class="card-a" href="/user/profile?sort=votes"><button>查看更多</button></a>
             {{ else }}
-                <a class="card-a" href="/auth/login"><center>请先登录</center></a>
+                <a class="card-a" href="/auth/login"><button>请先登录</button></a>
             {{ end }}
         </div>
 
@@ -63,7 +152,7 @@
             {{ range index $.tagLinks .ID }}
             <a class="card-a" href="/links/{{ .ID }}" title="{{ .Title }} - {{ TruncateString .Description 120 }}">{{ if .IsPinned }}<small class="primary-link">[置顶] </small>{{end}}{{ .Title }}</a>
             {{ end }}
-            <a class="card-a" href="/tags/{{ .ID }}"><center>查看更多</center></a>
+            <a href="/tags/{{ .ID }}"><button style="width:100%;">查看更多</button></a>
         </div>
         {{ end }}
     </div>

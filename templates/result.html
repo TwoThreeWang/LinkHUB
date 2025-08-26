@@ -1,19 +1,26 @@
 {{ define "meta" }}
-<title>{{ .title }} - {{ .siteName }}</title>
+<title>{{ .title }} | {{ .siteName }}</title>
 <meta name="keywords" content="{{ .siteName }},{{.Keywords}}">
-<meta name="description" content="结果提示页面，{{ .siteName }}">
+<meta name="description" content="{{ .siteName }}的结果提示页面">
 {{ end }}
 
 {{ define "content" }}
-    <div class="result-container">
-        <div class="result-box">
-            <h2>{{ .title }}</h2>
-            <p class="result-message">{{ .message }}</p>
-            {{ if .refer }}
-            <div class="result-action">
-                <a href="{{ .refer }}" class="btn btn-primary">{{ .redirect_text }}</a>
-            </div>
-            {{ end }}
-        </div>
+<style>
+.notice-box{
+    max-width: 750px;
+    margin: 2rem auto;
+}
+.card-action {
+    margin-top: 1.5rem;
+}
+</style>
+<div class="card notice-box">
+    <h2>{{ .title }}</h2>
+    <p class="result-message">{{ .message }}</p><br>
+    {{ if .refer }}
+    <div class="card-action">
+        <a href="{{ .refer }}" class="btn btn-primary" data-instant-intensity="viewport"><button class="primary" style="width:100%;">{{ .redirect_text }} ⤴︎</button></a>
     </div>
+    {{ end }}
+</div>
 {{ end }}
