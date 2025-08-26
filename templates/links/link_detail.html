@@ -198,7 +198,7 @@
                 <a href="/links/{{ .link.ID }}/update" class="btn btn-outline w-100" data-no-instant>
                     <svg class="icon"><use href="/static/img/icons.svg#pencil"></use></svg> 编辑链接
                 </a>
-                <a href="confirmDelete('/links/{{ .link.ID }}/delete" onclick="return confirm('确定要删除这个链接吗？此操作不可撤销！');" class="btn btn-outline w-100" data-no-instant>
+                <a href="/links/{{ .link.ID }}/delete" onclick="return confirm('确定要删除这个链接吗？此操作不可撤销！');" class="btn btn-outline w-100" data-no-instant>
                     <svg class="icon"><use href="/static/img/icons.svg#trash"></use></svg> 删除链接
                 </a>
                 {{end}}
